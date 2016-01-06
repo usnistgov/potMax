@@ -6,3 +6,5 @@ src/*.so
 src/*.dll
 man/*
 NAMESPACE
+src-i386/*
+src-x64/*
