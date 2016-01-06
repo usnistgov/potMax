@@ -5,6 +5,10 @@ declusterCpp <- function(complete_series, y, series_mean) {
     .Call('potMax_declusterCpp', PACKAGE = 'potMax', complete_series, y, series_mean)
 }
 
+declusterWithTimeCpp <- function(complete_series, obs_times, y, t, series_mean) {
+    .Call('potMax_declusterWithTimeCpp', PACKAGE = 'potMax', complete_series, obs_times, y, t, series_mean)
+}
+
 gumbelMaxDistCpp <- function(mu, sigma, Lambda, integration_constant, n_mc) {
     .Call('potMax_gumbelMaxDistCpp', PACKAGE = 'potMax', mu, sigma, Lambda, integration_constant, n_mc)
 }

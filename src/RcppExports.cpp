@@ -18,6 +18,21 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// declusterWithTimeCpp
+int declusterWithTimeCpp(NumericVector complete_series, NumericVector obs_times, NumericVector y, NumericVector t, double series_mean);
+RcppExport SEXP potMax_declusterWithTimeCpp(SEXP complete_seriesSEXP, SEXP obs_timesSEXP, SEXP ySEXP, SEXP tSEXP, SEXP series_meanSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< NumericVector >::type complete_series(complete_seriesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type obs_times(obs_timesSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type t(tSEXP);
+    Rcpp::traits::input_parameter< double >::type series_mean(series_meanSEXP);
+    __result = Rcpp::wrap(declusterWithTimeCpp(complete_series, obs_times, y, t, series_mean));
+    return __result;
+END_RCPP
+}
 // gumbelMaxDistCpp
 NumericVector gumbelMaxDistCpp(double mu, double sigma, double Lambda, double integration_constant, int n_mc);
 RcppExport SEXP potMax_gumbelMaxDistCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP) {

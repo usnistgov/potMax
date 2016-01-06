@@ -233,9 +233,10 @@ gumbelEstThreshold <- function (y_all, lt, n_min, n_max) {
 
   thresh = thresholds[w_stats == min(w_stats)]
 
-  list(thresh = thresh,
+  list(selected_threshold = thresh,
        y = y_all[y_all > thresh],
-       w_stat = w_stat[w_stat == min(w_stat)])
+       checked_thresholds = thresholds,
+       w_stats = w_stats)
 }
 
 #'
@@ -279,7 +280,8 @@ fullEstThreshold <- function (y_all, lt, n_min, n_max) {
 
   thresh = thresholds[w_stats == min(w_stats)]
 
-  list(thresh = thresh,
+  list(selected_threshold = thresh,
        y = y_all[y_all > thresh],
-       w_stat = w_stat[w_stat == min(w_stat)])
+       checked_thresholds = thresholds,
+       w_stats = w_stats)
 }
