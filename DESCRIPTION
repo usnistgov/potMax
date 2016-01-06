@@ -1,0 +1,11 @@
+Package: potMax
+Type: Package
+Title: Empirical Calculation of the Distribution of the Maximum from a Peaks Over Threshold Process
+Version: 0.1.0
+Author: Adam L. Pintar
+Maintainer: Who to complain to <adam.pintar@nist.gov>
+Description: Empirical Calculation of the Distribution of the Maximum from a Peaks Over Threshold Process
+License: MIT
+LazyData: TRUE
+Imports: Rcpp (>= 0.11.0), MASS, numDeriv
+LinkingTo: Rcpp
