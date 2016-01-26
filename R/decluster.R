@@ -34,8 +34,10 @@ decluster <- function (complete_series,
 
     declusterCpp(complete_series, y, series_mean)
     y <-  y[!is.nan(y)]
-    list(declustered_series = y,
-         declustered_times = NULL)
+    value <- list(declustered_series = y,
+                  declustered_times = NULL)
+    class(value) <- 'declustered_series'
+    value
   } else {
 
     if (length(complete_series) != length(obs_times)){
@@ -46,7 +48,9 @@ decluster <- function (complete_series,
                          y, dt, series_mean)
     y <- y[!is.nan(y)]
     dt <- dt[!is.nan(dt)]
-    list(declustered_series = y,
-         declustered_times = dt)
+    value <- list(declustered_series = y,
+                  declustered_times = dt)
+    class(value) <- 'declustered_series'
+    value
   }
 }

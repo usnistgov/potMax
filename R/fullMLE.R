@@ -119,17 +119,34 @@ fullLogLike <- function (theta, y, thresh, lt, N) {
 #'
 #' @export
 #'
-fullMLE <- function (y, thresh, lt, N, n_starts, hessian) {
+fullMLE <- function (x, n_starts, hessian_tf, ...) {
+  UseMethod('fullMLE')
+}
+
+#' @export
+fullMLE.thresholded_series <- function (x, n_starts, hessian_tf) {
+
+  fullMLE.default(x = x$y,
+                  lt = x$lt,
+                  thresh = x$selected_threshold,
+                  n_starts = n_starts,
+                  hessian_tf = hessian_tf)
+}
+
+#' @export
+fullMLE.default <- function (x, lt, thresh, n_starts, hessian_tf) {
+
+  N <- length(x)
 
   mle <- NULL
 
   # Start at the maximum for the Gumbel model first
 
-  start <- gumbelMLE(y = y, lt=lt, thresh=thresh, hessian = FALSE)$par
+  start <- gumbelMLE(x = x, lt=lt, thresh=thresh, hessian_tf = FALSE)$par
   start <- c(start, 0.0)
   tmp_mle <- try(optim(par=start, fn=fullLogLike,
                        control=list(fnscale=-1, maxit=10000),
-                       hessian=FALSE, y=y, thresh=thresh,
+                       hessian=FALSE, y=x, thresh=thresh,
                        lt=lt, N=N), FALSE)
 
   ## check for convergence of optim
@@ -157,7 +174,7 @@ fullMLE <- function (y, thresh, lt, N, n_starts, hessian) {
                      tmp_start_sigma,
                      tmp_start_k)
 
-      check <- fullLogLike(theta=tmp_start, y=y, thresh=thresh,
+      check <- fullLogLike(theta=tmp_start, y=x, thresh=thresh,
                            lt=lt, N=N)
 
       if (check > -Inf) {
@@ -168,7 +185,7 @@ fullMLE <- function (y, thresh, lt, N, n_starts, hessian) {
 
     tmp_mle <- try(optim(par=tmp_start, fn=fullLogLike,
                          control=list(fnscale=-1, maxit=10000),
-                         hessian=FALSE, y=y, thresh=thresh,
+                         hessian=FALSE, y=x, thresh=thresh,
                          lt=lt, N=N), FALSE)
 
     ## check for convergence of optim and if
@@ -199,11 +216,11 @@ fullMLE <- function (y, thresh, lt, N, n_starts, hessian) {
 
   # if hessian is TRUE and optim converged we run optim one last time to get the
   # hessian matrix
-  if (hessian & !is.null(mle)) {
+  if (hessian_tf & !is.null(mle)) {
 
     tmp_mle <- try(optim(par=mle$par, fn=fullLogLike,
                          control=list(fnscale=-1, maxit=10000),
-                         hessian=TRUE, y=y, thresh=thresh,
+                         hessian=TRUE, y=x, thresh=thresh,
                          lt=lt, N=N), FALSE)
 
     if (!inherits(tmp_mle, "try-error")) {
@@ -223,5 +240,27 @@ fullMLE <- function (y, thresh, lt, N, n_starts, hessian) {
     }
   }
 
-  mle
+  if (!is.null(mle)) {
+
+    if (hessian_tf) {
+
+      value <- list(par = mle$par,
+                    hessian = mle$hessian,
+                    y = x,
+                    thresh = thresh)
+      class(value) <- 'full_pot_fit'
+    } else {
+
+      value <- list(par = mle$par,
+                    hessian = NULL,
+                    y = x,
+                    thresh = thresh)
+      class(value) <- 'full_pot_fit'
+    }
+  } else {
+
+    value <- NULL
+  }
+
+  value
 }

@@ -141,31 +141,53 @@ sigmaMLE <- function (N, lt, thresh, sum_y) {
 #'
 #' @export
 #'
-gumbelMLE <- function (y, lt, thresh, hessian_tf) {
+gumbelMLE <- function (x, hessian_tf, ...) {
+  UseMethod('gumbelMLE')
+}
 
-  N <- length(y)
+#' @export
+gumbelMLE.thresholded_series <- function (x, hessian_tf) {
+
+  gumbelMLE.default(x = x$y,
+                    lt = x$lt,
+                    thresh = x$selected_threshold,
+                    hessian_tf = hessian_tf)
+}
+
+#' @export
+gumbelMLE.default <- function (x, lt, thresh, hessian_tf) {
+
+  N <- length(x)
   sigma <- sigmaMLE(lt=lt, N=N,
-                    thresh=thresh, sum_y=sum(y))
+                    thresh=thresh, sum_y=sum(x))
 
   mu <- sigma*log((N/lt)) + thresh
 
   if (hessian_tf) {
 
     hess_est <- try(gumbelHessian(theta = c(mu, sigma),
-                                  thresh = thresh, y = y,
+                                  thresh = thresh, y = x,
                                   lt = lt, N = N))
     if (!inherits(hess_est, 'try-error')) {
 
-      list(par = c(mu, sigma), hessian = hess_est)
+      value <- list(par = c(mu, sigma), hessian = hess_est,
+                    y = x, thresh = thresh)
+      class(value) <- 'gumbel_pot_fit'
     } else {
 
       warning('Hessian computation failed')
-      list(par = c(mu, sigma), hessian = NULL)
+      value <- list(par = c(mu, sigma), hessian = NULL,
+                    y = x, thresh = thresh)
+      class(value) <- 'gumbel_pot_fit'
     }
   } else {
 
-    list(par = c(mu, sigma))
+    value <- list(par = c(mu, sigma), hessian = NULL,
+                  y = x, thresh = thresh)
+    class(value) <- 'gumbel_pot_fit'
   }
+
+  value
 }
 
 #'
@@ -222,9 +244,9 @@ gumbelLogLike <- function (theta, y, thresh, lt, N) {
 gumbelHessian <- function (theta, y, thresh, lt, N) {
 
   numDeriv::hessian(func=gumbelLogLike,
-          x=theta,
-          y=y,
-          thresh=thresh,
-          lt=lt,
-          N=N)
+                    x=theta,
+                    y=y,
+                    thresh=thresh,
+                    lt=lt,
+                    N=N)
 }
