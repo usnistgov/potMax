@@ -1,0 +1,108 @@
+\documentclass{article}
+
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Details of potMax Analysis}
+
+\usepackage{amssymb, amsmath}
+
+\begin{document}
+
+<<echo=FALSE>>=
+library(potMax)
+@
+
+
+\section{Introduction}
+\label{sec:intro}
+
+The package \texttt{potMax} provides an estimation procedure (with corresponding uncertainty quantification) for the distribution of the peak (maximum) value of a stationary, but otherwise fairly general, time series.  The model that forms the basis of the procedure is a two dimensional Poisson process that is appropriate, in an asymptotic sense, for modeling the extremes of a random process.  One dimension of the Poisson process is time since the target data sets are time series.  An example of the second dimension is pressure exerted by wind on a scale model of a building in a wind tunnel.  The motivation for this R package are such time series, and the two data sets provided with the package are examples.  This vignette has three goals:
+\begin{enumerate}
+\item Describe the Poisson process to be used, including justification for its application to general random processes.
+\item Provide the basic steps for estimation and uncertainty quantification in general terms, i.e., not specific to R or this package, \texttt{potMax}.
+\item Show how the package \texttt{potMax} may be used to carry out those steps.
+\end{enumerate}
+
+\section{Poisson Process}
+\label{sec:poisson_process}
+
+Poisson processes are defined by their intensity function.  The intensity function used here is given in Equation \ref{eq:full_lambda}
+\begin{align}\label{eq:full_lambda}
+\lambda(t, y) = \frac{1}{\sigma}\left[
+1 + \frac{k(y - mu)}{\sigma}
+\right]_+^{-1/k - 1}
+\end{align}
+Notice that the left side of Equation \ref{eq:full_lambda} is a function of $t$ (time) and $y$ (e.g., pressure).  However, the right side of Equation \ref{eq:full_lambda} is only a function of $y$.  Thus, only stationary time series, those not changing behavior over time, are considered.  The two dimensional Poisson process defined by Equation \ref{eq:full_lambda} is an appropriate model for crossings of a high threshold.  Consider Figure \ref{fig:thresh_seq}, which depicts a raw time series and two thresholded versions for different thresholds.
+<<thresh_seq, echo = FALSE, fig.cap='Raw time series (top), observations above 2.1 (middle), and observations above 2.3 (bottom).'>>=
+complete_series <- -jp1tap1715wind270$value
+par(mfrow = c(3, 1), mar = c(0, 4.1, 4, 3))
+plot(complete_series, type = 'l',
+     xaxt = 'n',
+     yaxt = 'n',
+     ylab = '',
+     xlab = '',
+     ylim = c(0, 3.2))
+axis(2, at = c(0, 1.5, 3))
+par(mar = c(2, 4.1, 2, 3))
+plot_y <- complete_series
+plot_y[plot_y <= 1.8] <- NA
+plot(plot_y, pch = 19,
+     yaxt = 'n',
+     xaxt = 'n',
+     ylab = 'Pressure',
+     xlab = '',
+     ylim = c(0, 3.2))
+abline(h = 1.8, lty = 'dashed')
+axis(4, at = c(0, 1.5, 3))
+par(mar = c(4, 4.1, 0, 3))
+plot_y <- complete_series
+plot_y[plot_y <= 2.0] <- NA
+plot(plot_y, pch = 19,
+     xaxt = 'n', yaxt = 'n',
+     ylab = '', xlab = 'Seconds',
+     ylim = c(0, 3.2))
+abline(h = 2.0, lty = 'dashed')
+axis(2, at = c(0, 1.5, 3))
+axis(1,
+     at = seq(from = 1,
+              to = length(complete_series),
+              length = 5),
+     labels = seq(from = 0, to = 100, length = 5))
+@
+
+<<declust_thresh_seq, echo = FALSE, fig.cap='Raw time series (top), observations above 2.1 (middle), and observations above 2.3 (bottom).'>>=
+complete_series <- -jp1tap1715wind270$value
+par(mfrow = c(3, 1), mar = c(0, 4.1, 4, 3))
+plot(complete_series, type = 'l',
+     xaxt = 'n',
+     yaxt = 'n',
+     ylab = '',
+     xlab = '',
+     ylim = c(0, 3.2))
+axis(2, at = c(0, 1.5, 3))
+par(mar = c(2, 4.1, 2, 3))
+plot_y <- decluster(complete_series)$declustered_series
+plot_y[plot_y <= 1.8] <- NA
+plot(plot_y, pch = 19,
+     yaxt = 'n',
+     xaxt = 'n',
+     ylab = 'Pressure',
+     xlab = '',
+     ylim = c(0, 3.2))
+abline(h = 1.8, lty = 'dashed')
+axis(4, at = c(0, 1.5, 3))
+par(mar = c(4, 4.1, 0, 3))
+plot_y <- decluster(complete_series)$declustered_series
+plot_y[plot_y <= 2.0] <- NA
+plot(plot_y, pch = 19,
+     xaxt = 'n', yaxt = 'n',
+     ylab = '', xlab = 'Seconds',
+     ylim = c(0, 3.2))
+abline(h = 2.0, lty = 'dashed')
+axis(2, at = c(0, 1.5, 3))
+axis(1,
+     at = seq(from = 1,
+              to = length(complete_series),
+              length = 5),
+     labels = seq(from = 0, to = 100, length = 5))
+@
+\end{document}

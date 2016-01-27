@@ -8,10 +8,12 @@ Maintainer: Adam L. Pintar <adam.pintar@nist.gov>
 Description: Empirical Calculation of the Distribution of the Maximum from a
     Peaks Over Threshold Process
 License: MIT
+VignetteBuilder: knitr
 LazyData: TRUE
 Imports:
     Rcpp (>= 0.11.0),
     MASS,
     numDeriv
+Suggests: knitr
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1

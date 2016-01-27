@@ -11,3 +11,4 @@ src-x64/*
 demo/tap1715_dir270_full_wplot.pdf
 demo/tap1716_dir270_full_max_dist_hist_100.pdf
 demo/tap1716_dir270_full_max_dist_hist_167.pdf
+inst/*
