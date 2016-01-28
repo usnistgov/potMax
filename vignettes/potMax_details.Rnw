@@ -9,6 +9,7 @@
 
 <<echo=FALSE>>=
 library(potMax)
+data("jp1tap1715wind270")
 @
 
 
@@ -25,14 +26,20 @@ The package \texttt{potMax} provides an estimation procedure (with corresponding
 \section{Poisson Process}
 \label{sec:poisson_process}
 
-Poisson processes are defined by their intensity function.  The intensity function used here is given in Equation \ref{eq:full_lambda}
+Poisson processes are defined by their intensity function.  Two intensity functions are used here, given in Equations \ref{eq:full_lambda} and \ref{eq:gumbel_lambda}.
 \begin{align}\label{eq:full_lambda}
 \lambda(t, y) = \frac{1}{\sigma}\left[
 1 + \frac{k(y - mu)}{\sigma}
 \right]_+^{-1/k - 1}
 \end{align}
-Notice that the left side of Equation \ref{eq:full_lambda} is a function of $t$ (time) and $y$ (e.g., pressure).  However, the right side of Equation \ref{eq:full_lambda} is only a function of $y$.  Thus, only stationary time series, those not changing behavior over time, are considered.  The two dimensional Poisson process defined by Equation \ref{eq:full_lambda} is an appropriate model for crossings of a high threshold.  Consider Figure \ref{fig:thresh_seq}, which depicts a raw time series and two thresholded versions for different thresholds.
-<<thresh_seq, echo = FALSE, fig.cap='Raw time series (top), observations above 2.1 (middle), and observations above 2.3 (bottom).'>>=
+\begin{align}\label{eq:gumbel_lambda}
+\frac{1}{\sigma}\exp\left\{
+\frac{-(y - \mu)}{\sigma}
+\right\}
+\end{align}
+Notice that the left side of Equations \ref{eq:full_lambda} and \ref{eq:gumbel_lambda} are functions of $t$ (time) and $y$ (e.g., pressure).  However, the right side of Equations \ref{eq:full_lambda} and \ref{eq:gumbel_lambda} are only functions of $y$.  The implication is that only stationary time series, those not changing behavior over time, are considered.  The $+$ subscript in Equation \ref{eq:full_lambda} means that negative values inside the square brackets are raised to zero.  Equation \ref{eq:gumbel_lambda} is the limit of Equation \ref{eq:full_lambda} as $k$ approaches zero.  For that reason, the Poisson process defined by the intensity function in Equation \ref{eq:gumbel_lambda} is referred to as the Gumbel model henceforth.  The two dimensional Poisson processes defined by Equations \ref{eq:full_lambda} and \ref{eq:gumbel_lambda} are appropriate models for crossings of a high threshold.  Consider Figure \ref{fig:thresh_seq}, which depicts a raw time series and two different thresholded versions.  Notice in Figure \ref{fig:thresh_seq} the "silos" of thresholded crossings.  This occurs because the observations comprising the raw time series are autocorrelated.  Figure \ref{fig:acf} depicts an estimate of the autocorrelation function (ACF) for the series shown in the top plot of Figure \ref{fig:thresh_seq}.  Observations separated by more than 40 increments of time (in this case almost one tenth of a second) remain highly positively correlated.
+
+<<thresh_seq, echo = FALSE, fig.cap='Raw time series (top), observations above 1.8 (middle), and observations above 2 (bottom).'>>=
 complete_series <- -jp1tap1715wind270$value
 par(mfrow = c(3, 1), mar = c(0, 4.1, 4, 3))
 plot(complete_series, type = 'l',
@@ -69,10 +76,16 @@ axis(1,
      labels = seq(from = 0, to = 100, length = 5))
 @
 
-<<declust_thresh_seq, echo = FALSE, fig.cap='Raw time series (top), observations above 2.1 (middle), and observations above 2.3 (bottom).'>>=
-complete_series <- -jp1tap1715wind270$value
+<<acf, echo = FALSE, fig.cap='Estimated autocorrelation function for the time series in the top plot of Figure \\ref{fig:thresh_seq}.'>>=
+plot(acf(complete_series, plot = FALSE), main = '', bty = 'l')
+@
+
+Poisson process are not appropriate for such data without further processing because one of their defining assumptions is of independence.  I am deliberately being vague because a careful treatment of Poisson processes is out of the scope of this vignette.  So that the Poisson process model is tenable, the time series must be declustered before thresholding.  Declustering proceeds by forming clusters and discarding all but the cluster maximums.  Clusters are formed by groups of sequential observations falling above the series mean value.  All observations below the series mean are ignored since the focus is on estimating the distribution of the peak value. Figure \ref{fig:declust_thresh_seq} displays the analog of Figure \ref{fig:thresh_seq} after declustering, and Figure \ref{fig:acf_declustered} depicts the estimated autocorrelation function of the series in the top plot of Figure \ref{fig:declust_thresh_seq}.  Figure \ref{fig:acf_declustered} shows that the declustering is very effective for removing the autocorrelation.  The use of such Poisson processes as models for crossings of a high threshold are found in many papers, e.g., \textbf{cite Pickands 75, Smith 89 and 04, Coles 04, and my NIST special pub on the wind map work}.
+
+<<declust_thresh_seq, echo = FALSE, fig.cap='Raw time series (top), observations above 1.8 after declustering (middle), and observations above 2 after declustering (bottom).'>>=
 par(mfrow = c(3, 1), mar = c(0, 4.1, 4, 3))
-plot(complete_series, type = 'l',
+y <- decluster(complete_series, obs_times = (1:length(complete_series))/500)
+plot(y$declustered_times, y$declustered_series, type = 'l',
      xaxt = 'n',
      yaxt = 'n',
      ylab = '',
@@ -80,9 +93,9 @@ plot(complete_series, type = 'l',
      ylim = c(0, 3.2))
 axis(2, at = c(0, 1.5, 3))
 par(mar = c(2, 4.1, 2, 3))
-plot_y <- decluster(complete_series)$declustered_series
+plot_y <- y$declustered_series
 plot_y[plot_y <= 1.8] <- NA
-plot(plot_y, pch = 19,
+plot(y$declustered_times, plot_y, pch = 19,
      yaxt = 'n',
      xaxt = 'n',
      ylab = 'Pressure',
@@ -91,18 +104,58 @@ plot(plot_y, pch = 19,
 abline(h = 1.8, lty = 'dashed')
 axis(4, at = c(0, 1.5, 3))
 par(mar = c(4, 4.1, 0, 3))
-plot_y <- decluster(complete_series)$declustered_series
+plot_y <- y$declustered_series
 plot_y[plot_y <= 2.0] <- NA
-plot(plot_y, pch = 19,
-     xaxt = 'n', yaxt = 'n',
+plot(y$declustered_times, plot_y, pch = 19,
+     yaxt = 'n',
      ylab = '', xlab = 'Seconds',
      ylim = c(0, 3.2))
 abline(h = 2.0, lty = 'dashed')
 axis(2, at = c(0, 1.5, 3))
-axis(1,
-     at = seq(from = 1,
-              to = length(complete_series),
-              length = 5),
-     labels = seq(from = 0, to = 100, length = 5))
 @
+
+<<acf_declustered, echo = FALSE, fig.cap='Estimated autocorrelation function for the time series in the top plot of Figure \\ref{fig:thresh_seq} after declustering it.'>>=
+plot(acf(decluster(complete_series)$declustered_series, plot = FALSE), main = '', bty = 'l')
+@
+
+\subsection{Threshold Choice}
+\label{sec:threshold_choice}
+
+A hurdle to the use of these models is the appropriate choice of a threshold.  Since the threshold dictates the data that are included in (or omitted from) fitting the model, its impact on the results can be large.  Theory tells us \textbf{cite Pickands 75} that the model becomes more appropriate as the threshold increases.  However, since observations are taken over a finite period of time, the threshold cannot be chosen too high because too few observations will remain for fitting the model.  Any approach to choosing a threshold must balance these competing aspects.  A common and easy to implement approach is to pick a high quantile of the series, e.g., 95\% (\textbf{cite Smith et al 2010}).  This work takes a different approach.  An optimal threshold based on the fit of the model to the data is used.  The fit of the model is judged by the $W$-statistics defined on page ??? of \textbf{cite Smith 2004}).  Figure \ref{fig:wplot} shows a plot of $W$-statistics versus quantiles of the standard exponential distribution using the optimal threshold for the series in the top plot of Figure \ref{fig:declust_thresh_seq}.  If the data fit perfectly to the model, the points would fall exactly on the diagonal line.  The threshold is chosen by creating such a plot for a sequence of potential thresholds and selecting the one that minimizes the maximum absolute vertical distance to the diagonal line.
+
+<<wplot, echo = FALSE>>=
+declustered_obs <- decluster(complete_series)
+
+total_time <- 100 # seconds
+
+thresholded_obs <- gumbelEstThreshold(x = declustered_obs,
+                                      lt = total_time,
+                                      n_min = 10,
+                                      n_max = 50)
+
+full_pot_fit <- gumbelMLE(x = thresholded_obs,
+                          hessian_tf = TRUE)
+
+gumbelWPlot(x = full_pot_fit,
+            tf_plot = TRUE, BW = FALSE, details = FALSE,
+            pch = 19)
+
+@
+
+\subsection{Estimation}
+\label{sec:estimation}
+
+The model parameters, $\eta$=($\mu$, $\sigma$, $k$) for the intensity function in Equation \ref{eq:full_lambda}, and $\eta$=($\mu$, $\sigma$) for the intensity function in Equation \ref{eq:gumbel_lambda} are estimated by maximum likelihood.  Let $(y_i, t_i)$ be the declustered values that lie above the threshold $B$.  The likelihood is then given by Equation \ref{eq:likelihood}.
+\begin{align}\label{eq:likelihood}
+L(\eta) = \left(
+\prod_{i = 1}^I \lambda(y_i, t_i)
+\right)\cdot
+\exp\left\{
+-\int_{\mathcal{D}} \lambda(y, t)dydt
+\right\}
+\end{align}
+The domain of integration, $\mathcal{D}$, in Equation \ref{eq:likelihood} is the unbounded rectangle $[0, T]\times [B, \infty)$, where $T$ is the time of the last observation.  For the Gumbel model, $\mu$ may be maximized over analytically as a function of $\sigma$, and then $\sigma$ may be maximized over using the one dimensional bisection algorithm of the \texttt{uniroot} \textbf{add citation} function in R \textbf{add citation}.  For the full intensity function in Equation \ref{eq:full_lambda}, the Nelder-Mead algorithm \textbf{add citation} implemented in the R function \texttt{optim} \textbf{add citation} is used to maximize over the three parameters.
+
+\section{Estimating the Distribution of the Peak}
+
 \end{document}
