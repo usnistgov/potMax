@@ -7,6 +7,14 @@
 
 \begin{document}
 
+\title{Details of \texttt{potMax} Analysis}
+
+\author{Adam L. Pintar}
+
+\date{}
+
+\maketitle
+
 <<echo=FALSE>>=
 library(potMax)
 data("jp1tap1715wind270")
@@ -16,7 +24,7 @@ data("jp1tap1715wind270")
 \section{Introduction}
 \label{sec:intro}
 
-The package \texttt{potMax} provides an estimation procedure (with corresponding uncertainty quantification) for the distribution of the peak (maximum) value of a stationary, but otherwise fairly general, time series.  The model that forms the basis of the procedure is a two dimensional Poisson process that is appropriate, in an asymptotic sense, for modeling the extremes of a random process.  One dimension of the Poisson process is time since the target data sets are time series.  An example of the second dimension is pressure exerted by wind on a scale model of a building in a wind tunnel.  The motivation for this R package are such time series, and the two data sets provided with the package are examples.  This vignette has three goals:
+The package \texttt{potMax} provides an estimation procedure (with corresponding uncertainty quantification) for the distribution of the peak (maximum) value of a stationary, but otherwise fairly general, time series.  The model that forms the basis of the procedure is a two dimensional Poisson process that is appropriate, in an asymptotic sense, for modeling the extremes of a random process.  One dimension of the Poisson process is time since the target data sets are time series.  An example of the second dimension is the pressure exerted by wind on a scale model of a building in a wind tunnel.  The motivation for this R package are such time series, and the two data sets provided with the package are examples.  This vignette has three goals:
 \begin{enumerate}
 \item Describe the Poisson process to be used, including justification for its application to general random processes.
 \item Provide the basic steps for estimation and uncertainty quantification in general terms, i.e., not specific to R or this package, \texttt{potMax}.
@@ -33,7 +41,7 @@ Poisson processes are defined by their intensity function.  Two intensity functi
 \right]_+^{-1/k - 1}
 \end{align}
 \begin{align}\label{eq:gumbel_lambda}
-\frac{1}{\sigma}\exp\left\{
+\lambda(t, y) = \frac{1}{\sigma}\exp\left\{
 \frac{-(y - \mu)}{\sigma}
 \right\}
 \end{align}
@@ -80,7 +88,7 @@ axis(1,
 plot(acf(complete_series, plot = FALSE), main = '', bty = 'l')
 @
 
-Poisson process are not appropriate for such data without further processing because one of their defining assumptions is of independence.  I am deliberately being vague because a careful treatment of Poisson processes is out of the scope of this vignette.  So that the Poisson process model is tenable, the time series must be declustered before thresholding.  Declustering proceeds by forming clusters and discarding all but the cluster maximums.  Clusters are formed by groups of sequential observations falling above the series mean value.  All observations below the series mean are ignored since the focus is on estimating the distribution of the peak value. Figure \ref{fig:declust_thresh_seq} displays the analog of Figure \ref{fig:thresh_seq} after declustering, and Figure \ref{fig:acf_declustered} depicts the estimated autocorrelation function of the series in the top plot of Figure \ref{fig:declust_thresh_seq}.  Figure \ref{fig:acf_declustered} shows that the declustering is very effective for removing the autocorrelation.  The use of such Poisson processes as models for crossings of a high threshold are found in many papers, e.g., \textbf{cite Pickands 75, Smith 89 and 04, Coles 04, and my NIST special pub on the wind map work}.
+Poisson process are not appropriate for such data without further processing because one of their defining assumptions is independence.  I am deliberately being vague because a careful treatment of Poisson processes is out of the scope of this vignette.  So that the Poisson process model is tenable, the time series must be declustered before thresholding.  Declustering proceeds by forming clusters and discarding all but the cluster maximums.  Clusters are formed by groups of sequential observations falling above the series mean value.  All observations below the series mean are ignored since the focus is on estimating the distribution of the peak value. Figure \ref{fig:declust_thresh_seq} displays the analog of Figure \ref{fig:thresh_seq} after declustering, and Figure \ref{fig:acf_declustered} depicts the estimated autocorrelation function of the series in the top plot of Figure \ref{fig:declust_thresh_seq}.  Figure \ref{fig:acf_declustered} shows that the declustering is very effective for removing the autocorrelation.  The use of such Poisson processes as models for crossings of a high threshold are found in many papers, e.g., \textbf{cite Smith 89 and 04, Coles 04, and my NIST special pub on the wind map work}.  \textbf{cite Pickands 75} provides the original theoretical justification for their use.
 
 <<declust_thresh_seq, echo = FALSE, fig.cap='Raw time series (top), observations above 1.8 after declustering (middle), and observations above 2 after declustering (bottom).'>>=
 par(mfrow = c(3, 1), mar = c(0, 4.1, 4, 3))
@@ -121,7 +129,7 @@ plot(acf(decluster(complete_series)$declustered_series, plot = FALSE), main = ''
 \subsection{Threshold Choice}
 \label{sec:threshold_choice}
 
-A hurdle to the use of these models is the appropriate choice of a threshold.  Since the threshold dictates the data that are included in (or omitted from) fitting the model, its impact on the results can be large.  Theory tells us \textbf{cite Pickands 75} that the model becomes more appropriate as the threshold increases.  However, since observations are taken over a finite period of time, the threshold cannot be chosen too high because too few observations will remain for fitting the model.  Any approach to choosing a threshold must balance these competing aspects.  A common and easy to implement approach is to pick a high quantile of the series, e.g., 95\% (\textbf{cite Smith et al 2010}).  This work takes a different approach.  An optimal threshold based on the fit of the model to the data is used.  The fit of the model is judged by the $W$-statistics defined on page ??? of \textbf{cite Smith 2004}).  Figure \ref{fig:wplot} shows a plot of $W$-statistics versus quantiles of the standard exponential distribution using the optimal threshold for the series in the top plot of Figure \ref{fig:declust_thresh_seq}.  If the data fit perfectly to the model, the points would fall exactly on the diagonal line.  The threshold is chosen by creating such a plot for a sequence of potential thresholds and selecting the one that minimizes the maximum absolute vertical distance to the diagonal line.
+A hurdle to the use of these models is the appropriate choice of a threshold.  Since the threshold dictates the data that are included in (or omitted from) fitting the model, its impact on the results can be large.  Theory commands \textbf{cite Pickands 75} that the model becomes more appropriate as the threshold increases.  However, since observations are taken over a finite period of time, the threshold cannot be chosen too high because too few observations will remain for fitting the model.  Any approach to choosing a threshold must balance these competing aspects.  A common and easy to implement approach is to pick a high quantile of the series, e.g., 95\% (\textbf{cite Smith et al 2010}).  This work takes a different approach.  An optimal threshold based on the fit of the model to the data is used.  The fit of the model is judged by the $W$-statistics defined on page ??? of \textbf{cite Smith 2004}).  Figure \ref{fig:wplot} shows a plot of $W$-statistics versus quantiles of the standard exponential distribution using the optimal threshold for the series in the top plot of Figure \ref{fig:declust_thresh_seq}.  If the data fit perfectly to the model, the points would fall exactly on the diagonal line.  The threshold is chosen by creating such a plot for a sequence of potential thresholds and selecting the one that minimizes the maximum absolute vertical distance to the diagonal line.
 
 <<wplot, echo = FALSE>>=
 declustered_obs <- decluster(complete_series)
@@ -157,5 +165,35 @@ L(\eta) = \left(
 The domain of integration, $\mathcal{D}$, in Equation \ref{eq:likelihood} is the unbounded rectangle $[0, T]\times [B, \infty)$, where $T$ is the time of the last observation.  For the Gumbel model, $\mu$ may be maximized over analytically as a function of $\sigma$, and then $\sigma$ may be maximized over using the one dimensional bisection algorithm of the \texttt{uniroot} \textbf{add citation} function in R \textbf{add citation}.  For the full intensity function in Equation \ref{eq:full_lambda}, the Nelder-Mead algorithm \textbf{add citation} implemented in the R function \texttt{optim} \textbf{add citation} is used to maximize over the three parameters.
 
 \section{Estimating the Distribution of the Peak}
+\label{sec:est_peak_dist}
+
+The goal of this section is to describe the algorithm for estimating the distribution of the peak in general statistical terms, i.e., without reference to R or the \texttt{potMax} package.  It is expressed as five steps, some with substeps of their own.
+\begin{enumerate}
+\item Decluster the series.
+\item Select the threshold
+  \begin{enumerate}
+  \item Construct a set of potential thresholds
+  \item For each potential threshold fit the model via maximum likelihood
+  \item Create a $W$-plot for each fit
+  \item Summarize each $W$-plot by the maximum absolute vertical distance from the points to the 45$^{\circ}$ line
+  \item Select the threshold that minimizes the maximum distance, say $B$
+  \end{enumerate}
+\item Refit the model using $B$ as the threshold, this time calculating the Hessian of the log-likelihood at the maximum
+  \begin{itemize}
+  \item The Hessian will be used for uncertainty quantification
+  \end{itemize}
+\item Empirically build the distribution of the peak
+  \begin{enumerate}
+  \item Generate a series of desired length from the fitted model
+  \item Record the peak of the generated series
+  \item Repeat (a) and (b) $n_{mc}$ times; the recorded peaks form an empirical approximation to the distribution of the peak
+  \end{enumerate}
+\item Quantify uncertainty
+  \begin{enumerate}
+  \item Sample $n_{boot}$ values from a multivariate Gaussian distribution with mean equal to the estimated parameters, $\widehat{\eta}$, and covariance matrix equal to the negative inverse Hessian of the log-likilihood evaluated at its maximum
+  \item For each set of sampled parameters reapeat step 4
+  \end{enumerate}
+\end{enumerate}
+The result of step 5 is $n_{boot}$ empirical approximations to the distribution of the peak.
 
 \end{document}

@@ -29,6 +29,9 @@ gumbel_max_dist_uncert <- gumbelMaxDistUncert(x = gumbel_pot_fit,
 
 summary(gumbel_max_dist_uncert)
 
+plot(gumbel_max_dist_uncert)
+plot(gumbel_max_dist, add = TRUE, border = 'red')
+
 gumbelAnalysis(complete_series = complete_series,
                length_series = total_time,
                n_min = 10,
