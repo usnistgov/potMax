@@ -20,7 +20,6 @@ gumbelWPlot(x = gumbel_pot_fit,
 gumbel_max_dist <- gumbelMaxDist(x = gumbel_pot_fit,
                                  lt_gen = 100,
                                  n_mc = 1000)
-plot(gumbel_max_dist)
 
 mean(gumbel_max_dist)
 
@@ -29,8 +28,8 @@ gumbel_max_dist_uncert <- gumbelMaxDistUncert(x = gumbel_pot_fit,
 
 summary(gumbel_max_dist_uncert)
 
-plot(gumbel_max_dist_uncert)
-plot(gumbel_max_dist, add = TRUE, border = 'red')
+plot(gumbel_max_dist, lwd = 1.5)
+plot(gumbel_max_dist_uncert, col = 'black', add = TRUE)
 
 gumbelAnalysis(complete_series = complete_series,
                length_series = total_time,
