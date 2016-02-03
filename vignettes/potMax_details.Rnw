@@ -4,6 +4,7 @@
 %\VignetteIndexEntry{Details of potMax Analysis}
 
 \usepackage{amssymb, amsmath}
+\usepackage{url}
 
 \begin{document}
 
@@ -24,20 +25,20 @@ data("jp1tap1715wind270")
 \section{Introduction}
 \label{sec:intro}
 
-The package \texttt{potMax} provides an estimation procedure (with corresponding uncertainty quantification) for the distribution of the peak (maximum) value of a stationary, but otherwise fairly general, time series.  The model that forms the basis of the procedure is a two dimensional Poisson process that is appropriate, in an asymptotic sense, for modeling the extremes of a random process.  One dimension of the Poisson process is time since the target data sets are time series.  An example of the second dimension is the pressure exerted by wind on a scale model of a building in a wind tunnel.  The motivation for this R package are such time series, and the two data sets provided with the package are examples.  This vignette has three goals:
+The package \texttt{potMax} provides an estimation procedure (with corresponding uncertainty quantification) for the distribution of the peak (maximum) value of a stationary, but otherwise fairly general, time series.  The model that forms the basis of the procedure is a two dimensional Poisson process that is appropriate, in an asymptotic sense, for modeling the extremes of a random process.  One dimension of the Poisson process is time since the target data sets are time series.  An example of the second dimension is the pressure exerted by wind on a scale model of a building in a wind tunnel.  The motivation for this R package are such time series, and the two data sets provided with the package are examples of wind tunnel data.  This vignette has three goals:
 \begin{enumerate}
 \item Describe the Poisson process to be used, including justification for its application to general random processes.
-\item Provide the basic steps for estimation and uncertainty quantification in general terms, i.e., not specific to R or this package, \texttt{potMax}.
+\item Provide the basic steps for estimation and uncertainty quantification in general terms, i.e., not specific to R \cite{R} or this package, \texttt{potMax}.
 \item Show how the package \texttt{potMax} may be used to carry out those steps.
 \end{enumerate}
 
 \section{Poisson Process}
 \label{sec:poisson_process}
 
-Poisson processes are defined by their intensity function.  Two intensity functions are used here, given in Equations \ref{eq:full_lambda} and \ref{eq:gumbel_lambda}.
+Poisson processes are defined by their intensity function.  The two intensity functions used here are given in Equations \ref{eq:full_lambda} and \ref{eq:gumbel_lambda}.
 \begin{align}\label{eq:full_lambda}
 \lambda(t, y) = \frac{1}{\sigma}\left[
-1 + \frac{k(y - mu)}{\sigma}
+1 + \frac{k(y - \mu)}{\sigma}
 \right]_+^{-1/k - 1}
 \end{align}
 \begin{align}\label{eq:gumbel_lambda}
@@ -88,7 +89,7 @@ axis(1,
 plot(acf(complete_series, plot = FALSE), main = '', bty = 'l')
 @
 
-Poisson process are not appropriate for such data without further processing because one of their defining assumptions is independence.  I am deliberately being vague because a careful treatment of Poisson processes is out of the scope of this vignette.  So that the Poisson process model is tenable, the time series must be declustered before thresholding.  Declustering proceeds by forming clusters and discarding all but the cluster maximums.  Clusters are formed by groups of sequential observations falling above the series mean value.  All observations below the series mean are ignored since the focus is on estimating the distribution of the peak value. Figure \ref{fig:declust_thresh_seq} displays the analog of Figure \ref{fig:thresh_seq} after declustering, and Figure \ref{fig:acf_declustered} depicts the estimated autocorrelation function of the series in the top plot of Figure \ref{fig:declust_thresh_seq}.  Figure \ref{fig:acf_declustered} shows that the declustering is very effective for removing the autocorrelation.  The use of such Poisson processes as models for crossings of a high threshold are found in many papers, e.g., \textbf{cite Smith 89 and 04, Coles 04, and my NIST special pub on the wind map work}.  \textbf{cite Pickands 75} provides the original theoretical justification for their use.
+Poisson process are not appropriate for such data without further processing because one of their defining assumptions is independence.  I am deliberately being vague because a careful treatment of Poisson processes is out of the scope of this vignette.  So that the Poisson process model is tenable, the time series must be declustered before thresholding.  Declustering proceeds by forming clusters and discarding all but the cluster maximums.  Clusters are formed by groups of sequential observations falling above the series mean value.  All observations below the series mean are ignored since the focus is on estimating the distribution of the peak value. Figure \ref{fig:declust_thresh_seq} displays the analog of Figure \ref{fig:thresh_seq} after declustering, and Figure \ref{fig:acf_declustered} depicts the estimated autocorrelation function of the series in the top plot of Figure \ref{fig:declust_thresh_seq}.  Figure \ref{fig:acf_declustered} shows that the declustering is very effective for removing the autocorrelation.  After removing the autocorrelation in the series, or declustering, the use of the Poisson processes defined by the intensity functions in Equations \ref{eq:full_lambda} and \ref{eq:gumbel_lambda} as models for crossings of a high threshold is justified.  They are used for such purposes in many papers, e.g., \cite{smith89, smith04, coles04, pintar_et_al15}.  The original theoretical justification is provided by \cite{pickands71}.
 
 <<declust_thresh_seq, echo = FALSE, fig.cap='Raw time series (top), observations above 1.8 after declustering (middle), and observations above 2 after declustering (bottom).'>>=
 par(mfrow = c(3, 1), mar = c(0, 4.1, 4, 3))
@@ -129,9 +130,9 @@ plot(acf(decluster(complete_series)$declustered_series, plot = FALSE), main = ''
 \subsection{Threshold Choice}
 \label{sec:threshold_choice}
 
-A hurdle to the use of these models is the appropriate choice of a threshold.  Since the threshold dictates the data that are included in (or omitted from) fitting the model, its impact on the results can be large.  Theory commands \textbf{cite Pickands 75} that the model becomes more appropriate as the threshold increases.  However, since observations are taken over a finite period of time, the threshold cannot be chosen too high because too few observations will remain for fitting the model.  Any approach to choosing a threshold must balance these competing aspects.  A common and easy to implement approach is to pick a high quantile of the series, e.g., 95\% (\textbf{cite Smith et al 2010}).  This work takes a different approach.  An optimal threshold based on the fit of the model to the data is used.  The fit of the model is judged by the $W$-statistics defined on page ??? of \textbf{cite Smith 2004}).  Figure \ref{fig:wplot} shows a plot of $W$-statistics versus quantiles of the standard exponential distribution using the optimal threshold for the series in the top plot of Figure \ref{fig:declust_thresh_seq}.  If the data fit perfectly to the model, the points would fall exactly on the diagonal line.  The threshold is chosen by creating such a plot for a sequence of potential thresholds and selecting the one that minimizes the maximum absolute vertical distance to the diagonal line.
+A hurdle to the use of these models is the appropriate choice of a threshold.  Since the threshold dictates the data that are included in (or omitted from) fitting the model, its impact on the results can be large.  Theory commands \cite{pickands71} that the model becomes more appropriate as the threshold increases.  However, since observations are taken over a finite period of time, the threshold cannot be chosen too high because too few observations will remain for fitting the model.  Any approach to choosing a threshold must balance these competing aspects.  A common and easy to implement approach is to pick a high quantile of the series, e.g., 95\% (see page 489 of \cite{m-s_et_al10}).  This work takes a different approach.  An optimal threshold based on the fit of the model to the data is used.  The fit of the model is judged by the $W$-statistics defined in Equation (1.30) of \cite{smith04}.  Figure \ref{fig:wplot} shows a plot of $W$-statistics versus quantiles of the standard exponential distribution using the optimal threshold for the series in the top plot of Figure \ref{fig:declust_thresh_seq}.  If the data fit perfectly to the model, the points would fall exactly on the diagonal line.  The threshold is chosen by creating such a plot for a sequence of potential thresholds and selecting the one that minimizes the maximum absolute vertical distance to the diagonal line.
 
-<<wplot, echo = FALSE>>=
+<<wplot, echo = FALSE, fig.cap = 'Plot of the $W$-statistics versus their corresponding standard exponential quantiles for the declustered series depicted in the top plot of \\ref{fig:declust_thresh_seq} using the optimal threshold.'>>=
 declustered_obs <- decluster(complete_series)
 
 total_time <- 100 # seconds
@@ -156,13 +157,13 @@ gumbelWPlot(x = full_pot_fit,
 The model parameters, $\eta$=($\mu$, $\sigma$, $k$) for the intensity function in Equation \ref{eq:full_lambda}, and $\eta$=($\mu$, $\sigma$) for the intensity function in Equation \ref{eq:gumbel_lambda} are estimated by maximum likelihood.  Let $(y_i, t_i)$ be the declustered values that lie above the threshold $B$.  The likelihood is then given by Equation \ref{eq:likelihood}.
 \begin{align}\label{eq:likelihood}
 L(\eta) = \left(
-\prod_{i = 1}^I \lambda(y_i, t_i)
+\prod_{i = 1}^I \lambda(t_i, y_i)
 \right)\cdot
 \exp\left\{
--\int_{\mathcal{D}} \lambda(y, t)dydt
+-\int_{\mathcal{D}} \lambda(t, y)dtdy
 \right\}
 \end{align}
-The domain of integration, $\mathcal{D}$, in Equation \ref{eq:likelihood} is the unbounded rectangle $[0, T]\times [B, \infty)$, where $T$ is the time of the last observation.  For the Gumbel model, $\mu$ may be maximized over analytically as a function of $\sigma$, and then $\sigma$ may be maximized over using the one dimensional bisection algorithm of the \texttt{uniroot} \textbf{add citation} function in R \textbf{add citation}.  For the full intensity function in Equation \ref{eq:full_lambda}, the Nelder-Mead algorithm \textbf{add citation} implemented in the R function \texttt{optim} \textbf{add citation} is used to maximize over the three parameters.
+The domain of integration, $\mathcal{D}$, in Equation \ref{eq:likelihood} is the unbounded rectangle $[0, T]\times [B, \infty)$, where $T$ is the time of the last observation.  For the Gumbel model, $\mu$ may be maximized over analytically as a function of $\sigma$, and then $\sigma$ may be maximized over using the one dimensional bisection algorithm of the \texttt{uniroot} function in R.  For the full intensity function in Equation \ref{eq:full_lambda}, the Nelder-Mead algorithm \cite{nelder_mead65} implemented in the R function \texttt{optim} is used to maximize over the three parameters.
 
 \section{Estimating the Distribution of the Peak}
 \label{sec:est_peak_dist}
@@ -178,9 +179,9 @@ The goal of this section is to describe the algorithm for estimating the distrib
   \item Summarize each $W$-plot by the maximum absolute vertical distance from the points to the 45$^{\circ}$ line
   \item Select the threshold that minimizes the maximum distance, say $B$
   \end{enumerate}
-\item Refit the model using $B$ as the threshold, this time calculating the Hessian of the log-likelihood at the maximum
+\item Refit the model using $B$ as the threshold, this time calculating the Hessian matrix of the log-likelihood at the maximum
   \begin{itemize}
-  \item The Hessian will be used for uncertainty quantification
+  \item The Hessian matrix will be used for uncertainty quantification
   \end{itemize}
 \item Empirically build the distribution of the peak
   \begin{enumerate}
@@ -190,10 +191,128 @@ The goal of this section is to describe the algorithm for estimating the distrib
   \end{enumerate}
 \item Quantify uncertainty
   \begin{enumerate}
-  \item Sample $n_{boot}$ values from a multivariate Gaussian distribution with mean equal to the estimated parameters, $\widehat{\eta}$, and covariance matrix equal to the negative inverse Hessian of the log-likilihood evaluated at its maximum
+  \item Sample $n_{boot}$ values from a multivariate Gaussian distribution with mean equal to the estimated parameters, $\widehat{\eta}$, and covariance matrix equal to the negative inverse Hessian matrix of the log-likilihood evaluated at its maximum
   \item For each set of sampled parameters reapeat step 4
   \end{enumerate}
 \end{enumerate}
 The result of step 5 is $n_{boot}$ empirical approximations to the distribution of the peak.
+
+\section{Using \texttt{potMax}}
+\label{sec:using_potMax}
+
+The \texttt{potMax} package is demonstrated on the data in the top plot of Figure \ref{fig:thresh_seq}.  The data set is distributed as part of the \texttt{potMax} package and is referenced by the name \texttt{jp1tap1715wind270}.  The five steps described in Section \ref{sec:est_peak_dist} are built into a single function call, \texttt{gumbelAnalysis}, for the intensity function in Equation \ref{eq:gumbel_lambda}, and \texttt{fullAnalysis} for the intensity function in Equation \ref{eq:full_lambda}.  The function \texttt{gumbelAnalysis} is presented here, and the use of \texttt{fullAnalysis} is similar.
+<<echo = TRUE, include = TRUE>>=
+complete_series <- -jp1tap1715wind270$value
+gumbelAnalysis(complete_series = complete_series,
+               length_series = 100,
+               n_min = 10, n_max = 100,
+               length_target_series = c(100, 150, 200))
+@
+
+In the first line of the above code, note that the original series is multiplied by negative one.  The data depicted in the top plot of Figure \ref{fig:thresh_seq} were transformed before plotting.  The reason for the transformation is that extreme events in the original series were large in magnitude negative values, i.e., interest is in deep valleys instead of high peaks.  The transformation is necessary to switch focus to high peaks, a design assumption of the package.  The call to \texttt{gumbelAnalysis} requires five arguments.  Other arguments may be used optionally.  See the help file for \texttt{gumbelAnalysis} for their use.  The first required argument, \texttt{complete\_series}, is the time series itself.  The second required argument, \texttt{length\_time}, is the length of observation time for the series, in this case 100 seconds.  The unit for time can be anything.  It is the burden of the user to be consistent and interpret results according to the supplied unit.  The third required argument, \texttt{n\_min}, specifies the minimum number of observations to be allowed after thresholding.  This argument affects how many potential thresholds are considered in the search for an optimal threshold.  For the Gumbel model, I recommend 10 or more, and for the full model, I recommend 15 or more.  The fourth required argument, \texttt{n\_max}, complements \texttt{n\_min}, specifying the maximum number of observations to allow after thresholding.  This should be chosen sufficiently high that the selected threshold does not correspond to that number of observations, but not so high that run times become unbearable.  The final required argument, \texttt{length\_target\_series}, is the length of the time series for which the distribution of the maximum is sought, which can be different than the length of the original.  In the above code, results were sought for three different lengths of time.  Note that the unit for \texttt{length\_target\_series} should be the same as for \texttt{length\_time}.  There are no checks for consistency of the time unit.
+
+The remainder of this vignette describes the functions to call to manually carryout the steps performed by \texttt{gumbelAnalysis}.  Performing each step manually provides more flexibility to examine the intermediate results.  For example, when chosing \texttt{n\_max}, it is informative to examine the results of the threshold selection to ascertain if \texttt{n\_max} was chosen suitably high.
+
+\subsection{Step 1: Declustering}
+\label{sec:step1}
+
+<<echo = TRUE>>=
+complete_series <- -jp1tap1715wind270$value
+declustered_obs <- decluster(complete_series = complete_series)
+@
+
+There exists a second optional argument to the function \texttt{decluster}.  See the help file for more information.
+
+\subsection{Step 2: Threshold Selection}
+\label{sec:step2}
+
+<<echo = TRUE, include = TRUE>>=
+thresholded_obs <- gumbelEstThreshold(x = declustered_obs,
+                                      lt = 100,
+                                      n_min = 10,
+                                      n_max = 100)
+summary(thresholded_obs)
+@
+
+The argument \texttt{lt}  in the function \texttt{gumbelEstThreshold} corresponds to the argument \texttt{length\_series} in the function \texttt{gumbelAnalysis}.  The arguments \texttt{n\_min} and \texttt{n\_max} are as before.  Note that \texttt{n\_max} was set at 100 and the selected threshold corresponds to 45 observations, implying that \texttt{n\_max} was set suitably high.
+
+\subsection{Step 3: Fit the Model}
+\label{sec:step3}
+
+<<echo = TRUE>>=
+gumbel_pot_fit <- gumbelMLE(x = thresholded_obs,
+                            hessian_tf = TRUE)
+@
+
+The argument \texttt{hessian\_tf} should always be set to \Sexpr{TRUE} because the uncertainty calculation requires the Hessian matrix.  The $W$-plot for the fitted model can be creted with the function \texttt{gumbelWPlot}.  See the help file for \texttt{gumbelWplot} for a description of its arguments.  The plot for the example series is found in Figure \ref{fig:wplot}.
+
+<<echo = TRUE, include = FALSE, eval = FALSE>>=
+gumbelWPlot(x = gumbel_pot_fit,
+            tf_plot = TRUE, BW = FALSE, details = FALSE)
+@
+
+\subsection{Step 4: Estimation of the Distribution of the Peak}
+\label{sec:step4}
+
+<<echo = TRUE>>=
+gumbel_max_dist <- gumbelMaxDist(x = gumbel_pot_fit,
+                                 lt_gen = 200,
+                                 n_mc = 1000)
+@
+
+The argument \texttt{lt\_gen} in the function \texttt{gumbelMaxDist} corresponds to the argument \texttt{length\_target\_series} in the function \texttt{gumbelAnalysis}, and the argument \texttt{n\_mc} corresponds to the symbol $n_{mc}$ from Section \ref{sec:est_peak_dist}.  Note that different from \texttt{length\_target\_series}, \texttt{lt\_gen} may only take scalar values.  If a vector is provided, only the first element is used.  The mean of the distribution may be obtained using the \texttt{mean} function, and the entire distribution may be plotted as a histogram.
+
+<<max_dist_hist, echo = TRUE, fig.cap = 'Histogram of the estimated distribution of the peak value starting with the time series depicted in the top plot of Figure \\ref{fig:thresh_seq}.  The red triangle shows the mean of the distribution.'>>=
+mean(gumbel_max_dist)
+plot(gumbel_max_dist)
+@
+
+\subsection{Step 5: Uncertainty}
+
+<<echo = TRUE>>=
+gumbel_max_dist_uncert <- gumbelMaxDistUncert(x = gumbel_pot_fit,
+                                              lt_gen = 200,
+                                              n_mc = 1000,
+                                              n_boot = 1000)
+@
+
+The argument \texttt{n\_boot} corresponds to the symbol $n_{boot}$ from Section \ref{sec:est_peak_dist}.  Note that the \texttt{lt\_gen} argument in the call to \texttt{gumbelMaxDistUncert} should match the \texttt{lt\_gen} argument provided in the call to \texttt{gumbelMaxDist}.  The results maybe added to the histogram depicting the distribution of the peak (Figure \ref{fig:uncert_added_to_hist}), or they may be displayed alone (Figure \ref{fig:uncert_alone}).
+
+<<uncert_added_to_hist, echo = TRUE, fig.cap = 'Same as Figure \\ref{fig:max_dist_hist}, but adding bootstrap replictes of the distribution of the peak value to convey uncertainty in estimation.  The red line shows an 80\\% confidence interval for the mean of the distribution of the peak.', out.height = '4in'>>=
+# Figure 7
+plot(gumbel_max_dist)
+plot(gumbel_max_dist_uncert, add = TRUE)
+@
+
+<<uncert_alone, echo = TRUE, fig.cap = 'Bootstrap replicates of the distribution of the peak starting with the series shown in the top plot of Figure \\ref{fig:thresh_seq}.  The red line shows an 80\\% confidence interval for the mean of the distribution of the peak value.'>>=
+# Figure 8
+plot(gumbel_max_dist_uncert, add = FALSE)
+@
+
+\clearpage
+
+\section{Full Estimation}
+\label{sec:full_estimation}
+
+The steps shown in Section \ref{sec:using_potMax} leveraged the intensity function in Equation \ref{eq:gumbel_lambda}.  To use the intensity function in Equation 1 instead, replace the function calls \texttt{gumbel*} with \texttt{full*}.  For example, for the complete analysis, use the function \texttt{fullAnalysis}.  Note that the functions \texttt{fullEstThreshold} and \texttt{fullMLE} have an additional required argument, \texttt{n\_starts}, which specifies the number of times to perform the optimization from random starting locations.  A reasonable value is 20, which is the default for the function \texttt{fullAnalysis}.  The warnings in the output from \texttt{fullAnalysis} are meant to be informative.  For example, the message ``Only using \# bootstrap samples instead of 1000'' informs that although it was intended to take $n_{boot} = 1000$, the true value was \#.  A bootstrap replicate may be discarded if its scale parameter $\sigma$ from Equation \ref{eq:full_lambda} is not strictly positive.  A future direction for this package will be to implement a slightly different boostrap algorithm that does not suffer from that problem.  However, that algorithm adds computational burden to an already computationally daunting approach.  Since only about 20 out of 1000 bootstrap replicates are discarded, there is no need for concern.  If proportion were 20\% instead of 2\% I would be more alarmed.  The other potential warning about the probability of zero observations being above 90\% is not cause for concern either.  It means that for at least one of the bootstrap replicates of the parameters, the probability of zero threshold crossings when generating a peak that contributes to the empirical approximation of the distribution of the peak is more than 90\%.  This warning is only of concern if the run time of the program is unusually high.
+
+<<echo = TRUE, include = TRUE>>=
+complete_series <- -jp1tap1715wind270$value
+fullAnalysis(complete_series = complete_series,
+             length_series = 100,
+             n_min = 10, n_max = 100,
+             length_target_series = c(100, 150, 200))
+@
+
+\begin{thebibliography}{99}
+\bibitem{R} R Core Team, "R: A Language and Environment for Statistical Computing," R Foundation for Statistical Computing, Vienna, Austria, URL \url{https://www.R-project.org/} (2015).
+\bibitem{smith89} Smith, R. L., "Extreme Value Analysis of Environmental Time Series: an Application to Trend Detection in Ground-level Ozone," \textit{Statistical Science}, \textbf{4}, 367--393 (1989).
+\bibitem{smith04} Smith, R. L., "Statistics of Extremes, with Applications in Environment, Insurance, and Finance," in \textit{Extreme Values in Finance, Telecomunications, and the Environment}, Finkenst\"{a}dt, B. and Rootz\'{e}n, H., editors, chapter 1, 1--78, Chapman \& Hall/CRC (2004).
+\bibitem{coles04} Coles, S., "The use and Misuse of Extreme Value Models in Practice," in \textit{Extreme Values in Finance, Telecomunications, and the Environment}, Finkenst\"{a}dt, B. and Rootz\'{e}n, H., editors, chapter 2, 79--100, Chapman \& Hall/CRC (2004).
+\bibitem{pintar_et_al15} Pintar, A. L., Simiu, E., Lombardo, F. T., and Levitan, M., "Maps of Non-hurricane Non-tornadic Winds Speeds With Specified Mean Recurrence Intervals for the Contiguous United States Using a Two-dimensional Poisson Process Extreme Value Model and Local Regression," \textit{NIST Special PUblication 500-301}, URL \url{http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.500-301.pdf} (2015).
+\bibitem{pickands71} Pickands, J. III, "The Two-dimensional Poisson Process and Extremal Processes," \textit{Journal of Applied Probability}, \textbf{8}, 745--756 (1971).
+\bibitem{m-s_et_al10} Mannshardt-Shamseldin, E. C., Smith, R. L., Sain, S. R., Mearns, L. O., and Cooley, D., "Downscaling Extremes: A Comparison of Extremem Value Distributions in Point-source and gridded Precipitation Data," \textit{The Annals of Applied Statistics}, \textbf{4}, 484--502 (2010).
+\bibitem{nelder_mead65} Nelder, J. A. and Mead, R., "A Simplex Method for Function Minimization," \textit{The Computer Journal}, \textbf{7}, 308--313 (1965).
+\end{thebibliography}
 
 \end{document}

@@ -202,19 +202,19 @@ gumbelWPlot.default <- function (x,
                               ...))
 }
 
-#' @title genThresholds
-#'
-#' @description genThresholds
-#'
-#' @details Generate the thresholds from which the estimated threshold will be
-#'   chosen
-#'
-#' @param y_all
-#'
-#' @param n_min
-#'
-#' @param n_max
-#'
+# #' @title genThresholds
+# #'
+# #' @description genThresholds
+# #'
+# #' @details Generate the thresholds from which the estimated threshold will be
+# #'   chosen
+# #'
+# #' @param y_all
+# #'
+# #' @param n_min
+# #'
+# #' @param n_max
+# #'
 genThresholds <- function (y_all, n_min, n_max) {
 
   y <- sort(y_all, decreasing = TRUE)
@@ -369,47 +369,47 @@ fullEstThreshold.default <- function (x, lt, n_min, n_max,
   value
 }
 
-#' @export
-thresholdSeries <- function (x, lt, n_target) {
-  UseMethod('thresholdSeries')
-}
-
-#' @export
-thresholdSeries.declustered_series <- function (x, lt, n_target) {
-  thresholdSeries.default(x = x$declustered_series,
-                          lt = lt,
-                          n_target = n_target)
-}
-
-#' @export
-thresholdSeries.default <- function (x, lt, n_target) {
-
-  n <- length(x)
-  x <- sort(x)
-  if (n <= n_target) {
-    value <- list(selected_threshold = min(x),
-                  lt = lt,
-                  y = x,
-                  checked_thresholds = NULL,
-                  w_stats = NULL)
-    class(value) <- 'thresholded_series'
-  } else {
-
-    for (i in 1:(n - 1)) {
-
-      thresh <- mean(c(x[i], x[i + 1]))
-      y <- x[x > thresh]
-      if (length(y) == n_target) {
-
-        value <- list(selected_threshold = thresh,
-                  lt = lt,
-                  y = y,
-                  checked_thresholds = NULL,
-                  w_stats = NULL)
-        class(value) <- 'thresholded_series'
-        break
-      }
-    }
-  }
-  value
-}
+# #' @export
+# thresholdSeries <- function (x, lt, n_target) {
+#   UseMethod('thresholdSeries')
+# }
+#
+# #' @export
+# thresholdSeries.declustered_series <- function (x, lt, n_target) {
+#   thresholdSeries.default(x = x$declustered_series,
+#                           lt = lt,
+#                           n_target = n_target)
+# }
+#
+# #' @export
+# thresholdSeries.default <- function (x, lt, n_target) {
+#
+#   n <- length(x)
+#   x <- sort(x)
+#   if (n <= n_target) {
+#     value <- list(selected_threshold = min(x),
+#                   lt = lt,
+#                   y = x,
+#                   checked_thresholds = NULL,
+#                   w_stats = NULL)
+#     class(value) <- 'thresholded_series'
+#   } else {
+#
+#     for (i in 1:(n - 1)) {
+#
+#       thresh <- mean(c(x[i], x[i + 1]))
+#       y <- x[x > thresh]
+#       if (length(y) == n_target) {
+#
+#         value <- list(selected_threshold = thresh,
+#                   lt = lt,
+#                   y = y,
+#                   checked_thresholds = NULL,
+#                   w_stats = NULL)
+#         class(value) <- 'thresholded_series'
+#         break
+#       }
+#     }
+#   }
+#   value
+# }

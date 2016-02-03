@@ -1,18 +1,18 @@
-#' @title rGumbelPOT
-#'
-#' @description rGumbelPOT
-#'
-#' @details Generates a single POT series for the Gumbel (zero tail parameter)
-#'   intensity function
-#'
-#' @param mu Location parameter
-#'
-#' @param sigma Scale parameter
-#'
-#' @param thresh The threshold
-#'
-#' @param lt Lengt of the series in seconds
-#'
+# #' @title rGumbelPOT
+# #'
+# #' @description rGumbelPOT
+# #'
+# #' @details Generates a single POT series for the Gumbel (zero tail parameter)
+# #'   intensity function
+# #'
+# #' @param mu Location parameter
+# #'
+# #' @param sigma Scale parameter
+# #'
+# #' @param thresh The threshold
+# #'
+# #' @param lt Lengt of the series in seconds
+# #'
 rGumbelPOT <- function (mu, sigma, thresh, lt) {
 
   Lambda <- lt*exp((-(thresh - mu))/sigma)
@@ -32,22 +32,22 @@ rGumbelPOT <- function (mu, sigma, thresh, lt) {
   }
 }
 
-#' @title rFullPOT
-#'
-#' @description rFullPOT
-#'
-#' @details Generates a single POT series for the full intensity function
-#'
-#' @param mu Location parameter
-#'
-#' @param sigma Scale parameter
-#'
-#' @param k Tail length parameter
-#'
-#' @param thresh The threshold
-#'
-#' @param lt Lengt of the series
-#'
+# #' @title rFullPOT
+# #'
+# #' @description rFullPOT
+# #'
+# #' @details Generates a single POT series for the full intensity function
+# #'
+# #' @param mu Location parameter
+# #'
+# #' @param sigma Scale parameter
+# #'
+# #' @param k Tail length parameter
+# #'
+# #' @param thresh The threshold
+# #'
+# #' @param lt Lengt of the series
+# #'
 rFullPOT <- function (mu, sigma, k, thresh, lt) {
 
   Lambda <- 1 + k*(thresh - mu)/sigma

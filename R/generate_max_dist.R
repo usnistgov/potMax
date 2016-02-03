@@ -38,6 +38,7 @@ gumbelMaxDist.default <- function (x, thresh,
 
   mu <- x[1]
   sigma <- x[2]
+  lt_gen <- lt_gen[1] # only scalars are allowed
 
   if (sigma <= 0) {
     stop('must have sigma > 0')
@@ -123,6 +124,7 @@ gumbelMaxDistUncert.default <- function (x, cov_mat,
 
   mu <- x[1]
   sigma <- x[2]
+  lt_gen <- lt_gen[1]
 
   if (sigma <= 0) {
     stop('must have sigma > 0')
@@ -205,6 +207,7 @@ fullMaxDist.default <- function (x, thresh,
   mu <- x[1]
   sigma <- x[2]
   k <- x[3]
+  lt_gen <- lt_gen[1] # only scalars are allowed
 
   if (sigma <= 0) {
     stop('must have sigma > 0')
@@ -295,6 +298,7 @@ fullMaxDistUncert.default <- function (x,
   mu <- x[1]
   sigma <- x[2]
   k <- x[3]
+  lt_gen <- lt_gen[1]
 
   if (sigma <= 0) {
     stop('must have sigma > 0')
@@ -316,7 +320,6 @@ fullMaxDistUncert.default <- function (x,
   Lambda <- lt_gen*Lambda
   const <- Lambda/lt_gen
 
-  print(summary(Lambda))
   bootstrap_samples <- bootstrap_samples[!is.na(Lambda), ]
   const <- const[!is.na(Lambda)]
   Lambda <- Lambda[!is.na(Lambda)]

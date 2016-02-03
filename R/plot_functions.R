@@ -38,7 +38,7 @@ plot.full_max_dist <- function (x,
            col = mean_col,
            pch = 17, cex = 2)
     legend('topright', legend = 'Mean',
-           col = mean_col, pch = 17)
+           col = mean_col, pch = 17, bty = 'n')
   }
 }
 

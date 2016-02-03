@@ -1,24 +1,24 @@
-#'
-#' @title sigmaScore
-#'
-#' @description sigmaScore
-#'
-#' @details This is one of the score equations for the the Poisson Process POT
-#'   Gumbel model (zero tail parameter), where the value of mu from solving the
-#'   other score equation, as a function of sigma is plugged in.  The root of
-#'   this function provides the MLE for sigma.
-#'
-#' @param sigma the value of the scale parameter at which the function is
-#'   evaluated
-#'
-#' @param N The length of the data vector
-#'
-#' @param lt The length of time in seconds over which observations were taken
-#'
-#' @param thresh The threshold over which all observations fall
-#'
-#' @param sum_y The sum of the observations
-#'
+# #'
+# #' @title sigmaScore
+# #'
+# #' @description sigmaScore
+# #'
+# #' @details This is one of the score equations for the the Poisson Process POT
+# #'   Gumbel model (zero tail parameter), where the value of mu from solving the
+# #'   other score equation, as a function of sigma is plugged in.  The root of
+# #'   this function provides the MLE for sigma.
+# #'
+# #' @param sigma the value of the scale parameter at which the function is
+# #'   evaluated
+# #'
+# #' @param N The length of the data vector
+# #'
+# #' @param lt The length of time in seconds over which observations were taken
+# #'
+# #' @param thresh The threshold over which all observations fall
+# #'
+# #' @param sum_y The sum of the observations
+# #'
 sigmaScore <- function (sigma, N, lt, thresh, sum_y) {
 
   if (sigma <= 0) {
@@ -47,24 +47,24 @@ sigmaScore <- function (sigma, N, lt, thresh, sum_y) {
   value <- term1 + term2 + term3 + term4
 }
 
-#' @title sigmaMLE
-#'
-#' @description sigmaMLE
-#'
-#' @details Solves one of the two score equations for the limit of the Poisson
-#'   process likelihood where the value of mu from solving the other score
-#'   equation, as a function of sigma, is plugged in. The Poisson process
-#'   likelihood is actually the limit as the shape (tail) parameter goes to
-#'   zero.
-#'
-#' @param N The length of the data vector
-#'
-#' @param lt The length of time in seconds over which observations were taken
-#'
-#' @param thresh The threshold over which all observations fall
-#'
-#' @param sum_y The sum of the observations
-#'
+# #' @title sigmaMLE
+# #'
+# #' @description sigmaMLE
+# #'
+# #' @details Solves one of the two score equations for the limit of the Poisson
+# #'   process likelihood where the value of mu from solving the other score
+# #'   equation, as a function of sigma, is plugged in. The Poisson process
+# #'   likelihood is actually the limit as the shape (tail) parameter goes to
+# #'   zero.
+# #'
+# #' @param N The length of the data vector
+# #'
+# #' @param lt The length of time in seconds over which observations were taken
+# #'
+# #' @param thresh The threshold over which all observations fall
+# #'
+# #' @param sum_y The sum of the observations
+# #'
 sigmaMLE <- function (N, lt, thresh, sum_y) {
 
   if (N < 1) {
@@ -123,21 +123,42 @@ sigmaMLE <- function (N, lt, thresh, sum_y) {
   sigma$root
 }
 
-#' @title gumbelMLE
+#' @title Maximum Likelihood Estimation for the Gumble Model
 #'
-#' @description gumbelMLE
+#' @description Solves the score equations for the Poisson process likelihood
+#'   using the Gumbel intensity function
 #'
-#' @details Solves the score equations for the limit of the Poission process
-#'   likelihood as the shape parameter goes to zero
+#' @details  The likelihood is
 #'
-#' @param y (numeric vector) The vector of observations that exceed the
-#'   threshold'
+#'   \deqn{\left(\prod_{i = 1}^I \lambda(t_i,
+#'   y_i)\right)\exp\left[-\int_\mathcal{D} \lambda(t, y)dtdy\right]}
 #'
-#' @param lt The length of time in seconds over which observations were taken
+#'   where
 #'
-#' @param thresh The threshold over which all observations fall
+#'   \deqn{\lambda(t, y) = \frac{1}{\sigma}\exp\left[\frac{-(y -
+#'   \mu)}{\sigma}\right]}
 #'
-#' @param hessian_tf (logical scalar) Compute the hessian or not
+#' @param x An S3 object of class \code{thresholded_series} or a numeric vector.
+#'   If the latter, the values used in fitting.
+#'
+#' @param hessian_tf (logical scalar) Compute the Hessian matrix (TRUE) or not.
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' thresholded_obs <- gumbelEstThreshold(x = declustered_obs,
+#'                                       lt = 100,
+#'                                       n_min = 10,
+#'                                       n_max = 100)
+#'
+#' gumbel_pot_fit <- gumbelMLE(x = thresholded_obs,
+#'                             hessian_tf = TRUE)
+#' }
 #'
 #' @export
 #'
@@ -145,7 +166,10 @@ gumbelMLE <- function (x, hessian_tf, ...) {
   UseMethod('gumbelMLE')
 }
 
+#' @describeIn gumbelMLE
+#'
 #' @export
+#'
 gumbelMLE.thresholded_series <- function (x, hessian_tf) {
 
   gumbelMLE.default(x = x$y,
@@ -154,7 +178,15 @@ gumbelMLE.thresholded_series <- function (x, hessian_tf) {
                     hessian_tf = hessian_tf)
 }
 
+#' @describeIn gumbelMLE
+#'
+#' @param lt (numeric scalar) The length of the time series in units
+#'   of time (seconds, minutes, hours, etc.).
+#'
+#' @param thresh (numeric scalar) The threshold for the values
+#'
 #' @export
+#'
 gumbelMLE.default <- function (x, lt, thresh, hessian_tf) {
 
   N <- length(x)
@@ -190,25 +222,25 @@ gumbelMLE.default <- function (x, lt, thresh, hessian_tf) {
   value
 }
 
-#'
-#' @title gumbelLogLike
-#'
-#' @description gumbelLogLike
-#'
-#' @details Defines the log-likelihood when the tail length parameter is exactly
-#'   zero
-#'
-#' @param theta The current value of the parameters (mu, sigma)
-#'
-#' @param y The vector of observations that exceed the threshold
-#'
-#' @param thresh The threshold
-#'
-#' @param lt The length of time over which data were observed in seconds
-#'
-#' @param N The number of observations that exceed the threshold (also the
-#'   length of y)
-#'
+# #'
+# #' @title gumbelLogLike
+# #'
+# #' @description gumbelLogLike
+# #'
+# #' @details Defines the log-likelihood when the tail length parameter is exactly
+# #'   zero
+# #'
+# #' @param theta The current value of the parameters (mu, sigma)
+# #'
+# #' @param y The vector of observations that exceed the threshold
+# #'
+# #' @param thresh The threshold
+# #'
+# #' @param lt The length of time over which data were observed in seconds
+# #'
+# #' @param N The number of observations that exceed the threshold (also the
+# #'   length of y)
+# #'
 gumbelLogLike <- function (theta, y, thresh, lt, N) {
 
   full_theta <- c(theta, 0.0)
@@ -220,27 +252,27 @@ gumbelLogLike <- function (theta, y, thresh, lt, N) {
               N=N)
 }
 
-#'
-#' @title gumbelHessian
-#'
-#' @description gumbelHessian
-#'
-#' @details Calculates the Hessian matrix at the maximum value of the Poisson
-#'   process POT log-likelihood with the tail parameter fixed at zero
-#'
-#' @param theta The value of the parameter pair (mu, sigma) that maximizes the
-#'   Poisson process POT log-likelihood with the tail length parameter fixed at
-#'   zero
-#'
-#' @param y The vector of observations that exceed the threshold
-#'
-#' @param thresh The threshold
-#'
-#' @param lt The length of time over which data were observed in seconds
-#'
-#' @param N The number of observations that exceed the threshold (also the
-#'   length of y)
-#'
+# #'
+# #' @title gumbelHessian
+# #'
+# #' @description gumbelHessian
+# #'
+# #' @details Calculates the Hessian matrix at the maximum value of the Poisson
+# #'   process POT log-likelihood with the tail parameter fixed at zero
+# #'
+# #' @param theta The value of the parameter pair (mu, sigma) that maximizes the
+# #'   Poisson process POT log-likelihood with the tail length parameter fixed at
+# #'   zero
+# #'
+# #' @param y The vector of observations that exceed the threshold
+# #'
+# #' @param thresh The threshold
+# #'
+# #' @param lt The length of time over which data were observed in seconds
+# #'
+# #' @param N The number of observations that exceed the threshold (also the
+# #'   length of y)
+# #'
 gumbelHessian <- function (theta, y, thresh, lt, N) {
 
   numDeriv::hessian(func=gumbelLogLike,

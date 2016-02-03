@@ -1,14 +1,14 @@
-#'
-#' @title qqexp
-#'
-#' @description qqexp
-#'
-#' @details Generate a Q-Q plot for the exponential distribution
-#'
-#' @param y The data for which to generate the Q-Q plot
-#'
-#' @export
-#'
+# #'
+# #' @title qqexp
+# #'
+# #' @description qqexp
+# #'
+# #' @details Generate a Q-Q plot for the exponential distribution
+# #'
+# #' @param y The data for which to generate the Q-Q plot
+# #'
+# #' @export
+# #'
 qqexp <- function (y, ...) {
 
   plot_y <- sort(y)/mean(y)

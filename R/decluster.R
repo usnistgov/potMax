@@ -1,14 +1,34 @@
 #'
-#' @title decluster
+#' @title Decluster a Time Series
 #'
-#' @description decluster
+#' @description Decluster a time series by forming clusters and returning only
+#'   cluster maximums
 #'
-#' @details Declusters a time series by taking maximums of clusters separated by
-#'   mean value crossings.  Only clusters above the mean are counted.
+#' @details Clusters are formed by sequential observations above the series mean
+#'   value.  All observations below the mean value are discarded.  Cluster
+#'   maximums are returned.
 #'
-#' @param complete_series The time series
+#' @param complete_series (numeric vector) The time series.
 #'
-#' @param obs_times
+#' @param obs_times (numeric vector or NULL) If NULL, ignored; otherwise, the
+#'   observed times of the cluster maximums are returned too.
+#'
+#' @return An S3 object of class \code{declustered_series} with components
+#'
+#'   \describe{
+#'
+#'   \item{\code{declustered_series}}{The cluster maximums.}
+#'
+#'   \item{\code{declustered_times}}{If \code{obs_times} is non NULL, the
+#'   observed times of the cluster maximums; otherwise NULL.}
+#'
+#'   }
+#'
+#' @examples
+#'
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
 #'
 #' @export
 #'
@@ -24,6 +44,10 @@ decluster <- function (complete_series,
     if (!is.numeric(complete_series) || !is.numeric((obs_times))) {
 
       stop('complete_series and obs_times must be numeric')
+    }
+    if (length(complete_series) != length(obs_times)) {
+
+      stop('must have length(complete_series) == length(obs_times)')
     }
   }
 

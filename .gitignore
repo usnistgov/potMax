@@ -4,7 +4,6 @@
 src/*.o
 src/*.so
 src/*.dll
-man/*
 src-i386/*
 src-x64/*
 demo/tap1715_dir270_full_wplot.pdf

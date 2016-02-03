@@ -49,7 +49,7 @@ int declusterWithTimeCpp(NumericVector complete_series,
   int n = complete_series.size();
   int i, indx = 0;
   double curr, prev_high = R_NegInf;
-  double curr_time, prev_high_time;
+  double curr_time, prev_high_time = -1.0;
 
   for (i = 0; i < n; i++) {
 

@@ -1,45 +1,68 @@
-#' @title gumbelAnalysis
+#' @title Gumbel Analysis
 #'
-#' @description gumbelAnalysis
+#' @description Estimates and characterizes uncertainty for the distribution of
+#'   the peak value of a random process using the Gumbel peaks over threshold
+#'   model.
 #'
-#' @details gumbelAnalysis
+#' @details See the vignette by running \code{vignette(topic = 'potMax_details',
+#'   package = 'potMax')}.
 #'
-#' @param complete_series (numeric vector) The time series from the wind tunnel
-#'   to be analyzed
+#' @param complete_series (numeric vector) The observed time series that is a
+#'   realization of the random process.
 #'
 #' @param length_series (numeric scalar) The length of the time series in units
-#'   of time (seconds, minutes, hours, etc.) from the wind tunnel
+#'   of time (seconds, minutes, hours, etc.).
 #'
 #' @param n_min (numeric scalar) The minimum number of observations to include
-#'   in the search for the optimal threshold
+#'   in the search for the optimal threshold.
 #'
 #' @param m_max (numeric scalar) The maximum number of observations to include
-#'   in the search for the optimal threshold
+#'   in the search for the optimal threshold.
 #'
 #' @param length_target_series (numeric vector) The distribution of the peak
 #'   depends on the length of observation, which could be different from the
 #'   length of the original series.  Specify one or more lengths in units of
 #'   time (seconds, minutes, hours, etc.) for the length of series for which the
 #'   distribution of the peak is sought.  The units of time should be the same
-#'   as the argument \code{length_series}.
+#'   as for the argument \code{length_series}.
 #'
 #' @param wplot_filename (NULL or string) If NULL the plot is not created; else,
-#'   it is saved to "wplot_filename.pdf"
+#'   it is saved to "wplot_filename.pdf"; the default is NULL.
 #'
-#' @param BW (logical) Create the Wplot in black and white or color
+#' @param BW (logical) Create the Wplot in black and white (TRUE) or color
+#'   (FALSE); the default is TRUE.
 #'
 #' @param n_mc (numeric scalar) The number of Monte Carlo samples from which to
-#'   construct the distribution of the peak
+#'   construct the distribution of the peak; the defaults is 1000.
 #'
 #' @param max_dist_hist_filename (NULL or string) If NULL the plot is not
 #'   created; else, it is saved to
-#'   "max_dist_hist_filename_length_target_series.pdf"
+#'   "max_dist_hist_filename_length_target_series.pdf"; the default is NULL.
 #'
 #' @param n_boot (numeric scalar) The number of bootstrap samples for the
-#'   uncertainty evaluation
+#'   uncertainty evaluation; the default is 1000.
 #'
 #' @param ci_level (numeric scalar) The level of the confidence interval for the
-#'   mean of the peak distribution.  Defaults to 0.8.
+#'   mean of the peak distribution; the default is 0.8.
+#'
+#' @return Returned invisably, a data frame with four columns.  The first column
+#'   is the estimated mean of the distributio of the peak.  The second column is
+#'   a bootstrap standard error for the mean, and the third and fourth columns
+#'   provide a percentile bootstrap confidence interval
+#'
+#' @examples
+#'
+#' \dontrun{
+#'   complete_series <- -jp1tap1715wind270$value
+#'   gumbelAnalysis(complete_series = complete_series,
+#'                  length_series = 100,
+#'                  n_min = 10,
+#'                  n_max = 100,
+#'                  length_target_series = c(100, 167),
+#'                  wplot_filename = './demo/tap1715_dir270_gumbel_wplot',
+#'                  max_dist_hist_filename = './demo/tap1716_dir270_gumbel_max_dist_hist')
+#'
+#' }
 #'
 #' @export
 #'
@@ -98,18 +121,6 @@ gumbelAnalysis <- function (complete_series,
   }
   cat('Done: estimating the distribution of the peak\n\n')
 
-  if (!is.null(max_dist_hist_filename)) {
-
-    cat('Start: plotting the distribution of the peak\n')
-    for (i in seq_along(length_target_series)) {
-
-      pdf(paste0(max_dist_hist_filename, '_',
-                 length_target_series[i], '.pdf'))
-      plot(gumbel_max_dist[[i]])
-      dev.off()
-    }
-    cat('Done: plotting the distribution of the peak\n\n')
-  }
 
   cat('Start: estimating the uncertainty in the distribution of the peak\n')
   gumbel_max_dist_uncert <- list(rep(NA, length(length_target_series)))
@@ -121,6 +132,20 @@ gumbelAnalysis <- function (complete_series,
                                                        n_boot = n_boot)
   }
   cat('Done: estimating the uncertainty in the distribution of the peak\n\n')
+
+  if (!is.null(max_dist_hist_filename)) {
+
+    cat('Start: plotting the distribution of the peak\n')
+    for (i in seq_along(length_target_series)) {
+
+      pdf(paste0(max_dist_hist_filename, '_',
+                 length_target_series[i], '.pdf'))
+      plot(gumbel_max_dist[[i]])
+      plot(gumbel_max_dist_uncert[[i]], add = TRUE)
+      dev.off()
+    }
+    cat('Done: plotting the distribution of the peak\n\n')
+  }
 
   value <- matrix(nrow = length(length_target_series), ncol = 4)
   ci_probs <- c((1 - ci_level)/2, 1 - (1 - ci_level)/2)
@@ -138,53 +163,74 @@ gumbelAnalysis <- function (complete_series,
   invisible(value)
 }
 
-#' @title fullAnalysis
+#' @title Full Analysis
 #'
-#' @description fullAnalysis
+#' @description Estimates and characterizes uncertainty for the distribution of
+#'   the peak value of a random process using the full peaks over threshold
+#'   model.
 #'
-#' @details fullAnalysis
+#' @details See the vignette by running \code{vignette(topic = 'potMax_details',
+#'   package = 'potMax')}.
 #'
-#' @param complete_series (numeric vector) The time series from the wind tunnel
-#'   to be analyzed
+#' @param complete_series (numeric vector) The observed time series that is a
+#'   realization of the random process.
 #'
 #' @param length_series (numeric scalar) The length of the time series in units
-#'   of time (seconds, minutes, hours, etc.) from the wind tunnel
+#'   of time (seconds, minutes, hours, etc.).
 #'
 #' @param n_min (numeric scalar) The minimum number of observations to include
-#'   in the search for the optimal threshold
+#'   in the search for the optimal threshold.
 #'
 #' @param m_max (numeric scalar) The maximum number of observations to include
-#'   in the search for the optimal threshold
+#'   in the search for the optimal threshold.
 #'
 #' @param length_target_series (numeric vector) The distribution of the peak
 #'   depends on the length of observation, which could be different from the
 #'   length of the original series.  Specify one or more lengths in units of
 #'   time (seconds, minutes, hours, etc.) for the length of series for which the
 #'   distribution of the peak is sought.  The units of time should be the same
-#'   as the argument \code{length_series}.
+#'   as for the argument \code{length_series}.
 #'
-#' @param n_starts (numeric scalar) The number of attempts to make at optimizing
-#'   the likelihood when estimating the model parameters.  Setting this to a
-#'   large value will make the algorithm, especially choosing the optimal
-#'   threshold, take much longer.  Defaults to 20.
+#' @param n_starts (numeric scalar) The number of times to restart the
+#'   optimization algorithm from a random starting location; the default is 20.
 #'
 #' @param wplot_filename (NULL or string) If NULL the plot is not created; else,
-#'   it is saved to "wplot_filename.pdf"
+#'   it is saved to "wplot_filename.pdf"; the default is NULL.
 #'
-#' @param BW (logical) Create the Wplot in black and white or color
+#' @param BW (logical) Create the Wplot in black and white (TRUE) or color
+#'   (FALSE); the default is TRUE.
 #'
 #' @param n_mc (numeric scalar) The number of Monte Carlo samples from which to
-#'   construct the distribution of the peak
+#'   construct the distribution of the peak; the defaults is 1000.
 #'
 #' @param max_dist_hist_filename (NULL or string) If NULL the plot is not
 #'   created; else, it is saved to
-#'   "max_dist_hist_filename_length_target_series.pdf"
+#'   "max_dist_hist_filename_length_target_series.pdf"; the default is NULL.
 #'
 #' @param n_boot (numeric scalar) The number of bootstrap samples for the
-#'   uncertainty evaluation
+#'   uncertainty evaluation; the default is 1000.
 #'
 #' @param ci_level (numeric scalar) The level of the confidence interval for the
-#'   mean of the peak distribution.  Defaults to 0.8.
+#'   mean of the peak distribution; the default is 0.8.
+#'
+#' @return Returned invisibly, a data frame with four columns.  The first column
+#'   is the estimated mean of the distribution of the peak.  The second column
+#'   is a bootstrap standard error for the mean, and the third and fourth
+#'   columns provide a percentile bootstrap confidence interval.
+#'
+#' @examples
+#'
+#' \dontrun{
+#'   complete_series <- -jp1tap1715wind270$value
+#'   fullAnalysis(complete_series = complete_series,
+#'                length_series = 100,
+#'                n_min = 10,
+#'                n_max = 100,
+#'                length_target_series = c(100, 167),
+#'                wplot_filename = './tap1715_dir270_full_wplot',
+#'                max_dist_hist_filename = './tap1716_dir270_full_max_dist_hist')
+#'
+#' }
 #'
 #' @export
 #'
@@ -246,19 +292,6 @@ fullAnalysis <- function (complete_series,
   }
   cat('Done: estimating the distribution of the peak\n\n')
 
-  if (!is.null(max_dist_hist_filename)) {
-
-    cat('Start: plotting the distribution of the peak\n')
-    for (i in seq_along(length_target_series)) {
-
-      pdf(paste0(max_dist_hist_filename, '_',
-                 length_target_series[i], '.pdf'))
-      plot(full_max_dist[[i]])
-      dev.off()
-    }
-    cat('Done: plotting the distribution of the peak\n\n')
-  }
-
   cat('Start: estimating the uncertainty in the distribution of the peak\n')
   full_max_dist_uncert <- list(rep(NA, length(length_target_series)))
   for (i in seq_along(length_target_series)) {
@@ -269,6 +302,20 @@ fullAnalysis <- function (complete_series,
                                                    n_boot = n_boot)
   }
   cat('Done: estimating the uncertainty in the distribution of the peak\n\n')
+
+  if (!is.null(max_dist_hist_filename)) {
+
+    cat('Start: plotting the distribution of the peak\n')
+    for (i in seq_along(length_target_series)) {
+
+      pdf(paste0(max_dist_hist_filename, '_',
+                 length_target_series[i], '.pdf'))
+      plot(full_max_dist[[i]])
+      plot(full_max_dist_uncert[[i]], add = TRUE)
+      dev.off()
+    }
+    cat('Done: plotting the distribution of the peak\n\n')
+  }
 
   value <- matrix(nrow = length(length_target_series), ncol = 4)
   ci_probs <- c((1 - ci_level)/2, 1 - (1 - ci_level)/2)

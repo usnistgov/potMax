@@ -1,19 +1,19 @@
-#' @title fullLogLike
-#'
-#' @description fullLogLike
-#'
-#' @details Defines the full log-likelihood for the Poisson process POT model
-#'
-#' @param theta The current value of the parameter triple
-#'
-#' @param y The vector of observations that exceed the threshold
-#'
-#' @param thresh The threshold
-#'
-#' @param lt - The length of time in seconds over which data were observed
-#'
-#' @param N - The number of observations (also the length of the y parameter)
-#'
+# #' @title fullLogLike
+# #'
+# #' @description fullLogLike
+# #'
+# #' @details Defines the full log-likelihood for the Poisson process POT model
+# #'
+# #' @param theta The current value of the parameter triple
+# #'
+# #' @param y The vector of observations that exceed the threshold
+# #'
+# #' @param thresh The threshold
+# #'
+# #' @param lt - The length of time in seconds over which data were observed
+# #'
+# #' @param N - The number of observations (also the length of the y parameter)
+# #'
 fullLogLike <- function (theta, y, thresh, lt, N) {
 
   ## unpack the parameters
@@ -94,20 +94,25 @@ fullLogLike <- function (theta, y, thresh, lt, N) {
 }
 
 #'
-#' @title fullMLE
+#' @title Maximum Likelihood Estimation for the Full Model
 #'
-#' @description fullMLE
+#' @description Maximizes the Poisson process likelihood that uses the full
+#'   intensity function
 #'
-#' @details  Maximizes the full Poisson process POT log-likelihood from Smith
-#'   2004 (book chapter).
+#' @details
 #'
-#' @param y (numeric vector) The vector of observations that exceed the
-#'   threshold
+#' The likelihood is
 #'
-#' @param thresh (numeric scalar) The threshold
+#' \deqn{\left(\prod_{i = 1}^I \lambda(t_i,
+#' y_i)\right)\exp\left[-\int_\mathcal{D} \lambda(t, y)dtdy\right]}
 #'
-#' @param lt (numeric scalar) The length of time over which data were observed in
-#'   seconds
+#' where
+#'
+#' \deqn{\lambda(t, y) = \frac{1}{\sigma}\left[1 + \frac{k(y -
+#' \mu)}{\sigma}\right]^{-1/k - 1}_+}
+#'
+#' @param x An S3 object of class \code{thresholded_series} or a numeric vector.
+#'   If the latter, the values used in fitting.
 #'
 #' @param N - (numeric scalar) The number of observations that exceed the
 #'   threshold (also the length of y)
@@ -115,7 +120,23 @@ fullLogLike <- function (theta, y, thresh, lt, N) {
 #' @param n_starts (numeric scalar) The number of random starts to use in the
 #'   search for the maximum
 #'
-#' @param hessian (logical scalar) Compute the hessian or not
+#' @param hessian (logical scalar) Compute the Hessian matrix (TRUE) or not
+#'
+#' @examples
+#'
+#' \dontrun{
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' thresholded_obs <- fullEstThreshold(x = declustered_obs,
+#'                                     lt = 100,
+#'                                     n_min = 10,
+#'                                     n_max = 100)
+#'
+#' full_pot_fit <- fullMLE(x = thresholded_obs,
+#'                         hessian_tf = TRUE)
+#' }
 #'
 #' @export
 #'
@@ -123,7 +144,10 @@ fullMLE <- function (x, n_starts, hessian_tf, ...) {
   UseMethod('fullMLE')
 }
 
+#' @describeIn fullMLE
+#'
 #' @export
+#'
 fullMLE.thresholded_series <- function (x, n_starts, hessian_tf) {
 
   fullMLE.default(x = x$y,
@@ -133,7 +157,15 @@ fullMLE.thresholded_series <- function (x, n_starts, hessian_tf) {
                   hessian_tf = hessian_tf)
 }
 
+#' @describeIn fullMLE
+#'
+#' @param lt (numeric scalar) The length of time over which data were observed
+#'   in seconds
+#'
+#' @param thresh (numeric scalar) The threshold
+#'
 #' @export
+#'
 fullMLE.default <- function (x, lt, thresh, n_starts, hessian_tf) {
 
   N <- length(x)

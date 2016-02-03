@@ -22,7 +22,6 @@ fullWPlot(x = full_pot_fit,
 full_max_dist <- fullMaxDist(x = full_pot_fit,
                              lt_gen = 100,
                              n_mc = 1000)
-plot(full_max_dist)
 
 mean(full_max_dist)
 
@@ -31,10 +30,13 @@ full_max_dist_uncert <- fullMaxDistUncert(x = full_pot_fit,
 
 summary(full_max_dist_uncert)
 
+plot(full_max_dist)
+plot(full_max_dist_uncert, add = TRUE)
+
 fullAnalysis(complete_series = complete_series,
              length_series = total_time,
              n_min = 10,
              n_max = 100,
              length_target_series = c(100, 167),
-             wplot_filename = './demo/tap1715_dir270_full_wplot',
-             max_dist_hist_filename = './demo/tap1716_dir270_full_max_dist_hist')
+             wplot_filename = './demo/full_wplot',
+             max_dist_hist_filename = './demo/full_max_dist')
