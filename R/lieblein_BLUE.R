@@ -144,6 +144,7 @@ liebCoeff <- function (n, m = NULL, blue_if_possible = TRUE) {
   value
 }
 
+#' @export
 liebBLUEParamEst <- function (x) {
 
   xn <- sort(x, decreasing = FALSE)
@@ -186,6 +187,7 @@ partSeries <- function (x, n_parts, n_buffer) {
   partitioned_series
 }
 
+#' @export
 liebBLUE <- function (x, n_parts, target_n_parts = n_parts[1], probs = 0.5704) {
 
   partitioned_series <- partSeries(x = x, n_parts = n_parts[1], n_buffer = 0)
