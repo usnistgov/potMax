@@ -220,17 +220,10 @@ genThresholds <- function (y_all, n_min, n_max) {
   y <- sort(y_all, decreasing = TRUE)
   thresholds <- NULL
 
-  for (i in 1:(length(y) - 1)) {
+  y1 <- y[n_min:n_max]
+  y2 <- y[(n_min + 1):(n_max + 1)]
 
-    tmp_thresh <- mean(c(y[i], y[i + 1]))
-    tmp_y <- y[y > tmp_thresh]
-    if (length(tmp_y) >= n_min && length(tmp_y) <= n_max) {
-
-      thresholds <- c(thresholds, tmp_thresh)
-    }
-  }
-
-  thresholds
+  thresholds <- unique((y1 + y2)/2)
 }
 
 #'
