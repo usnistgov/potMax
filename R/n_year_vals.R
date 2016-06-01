@@ -50,7 +50,7 @@ gumbelNYear.default <- function (x, N) {
 #' @importFrom Rcpp evalCpp
 #'
 fullNYear <- function (x, N, ...) {
-  UseMethod('gumbelNYear')
+  UseMethod('fullNYear')
 }
 
 #' @export
