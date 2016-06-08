@@ -112,7 +112,7 @@ sigmaMLE <- function (N, lt, thresh, sum_y) {
       break
     }
 
-    if (b > 100) {
+    if (b > 500) {
 
       stop("A reasonable value for sigma does not exist")
     }
