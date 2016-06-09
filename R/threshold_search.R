@@ -220,6 +220,8 @@ genThresholds <- function (y_all, n_min, n_max) {
   y <- sort(y_all, decreasing = TRUE)
   thresholds <- NULL
 
+  n_max <- min(n_max, (length(y) - 1))
+
   y1 <- y[n_min:n_max]
   y2 <- y[(n_min + 1):(n_max + 1)]
 
