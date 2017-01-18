@@ -147,18 +147,20 @@ gumbelAnalysis <- function (complete_series,
     cat('Done: plotting the distribution of the peak\n\n')
   }
 
-  value <- matrix(nrow = length(length_target_series), ncol = 4)
+  value <- matrix(nrow = length(length_target_series), ncol = 6)
   ci_probs <- c((1 - ci_level)/2, 1 - (1 - ci_level)/2)
   for (i in seq_along(length_target_series)) {
 
     value[i, 1] <- mean(gumbel_max_dist[[i]])
-    value[i, 2:4] <- unlist(summary(gumbel_max_dist_uncert[[i]],
+    value[i, 2:6] <- unlist(summary(gumbel_max_dist_uncert[[i]],
                                     probs = ci_probs,
                                     suppress = TRUE))
   }
-  colnames(value) <- c('Mean', 'SE',
-                       paste0(100*ci_level, '% LB'),
-                       paste0(100*ci_level, '% UB'))
+  colnames(value) <- c('Mean', 'SE Mean',
+                       paste0(100*ci_level, '% LB Mean'),
+                       paste0(100*ci_level, '% UB Mean'),
+                       paste0(100*ci_level, '% LB Pred'),
+                       paste0(100*ci_level, '% UB Pred'))
   print(value)
   invisible(value)
 }
@@ -317,18 +319,20 @@ fullAnalysis <- function (complete_series,
     cat('Done: plotting the distribution of the peak\n\n')
   }
 
-  value <- matrix(nrow = length(length_target_series), ncol = 4)
+  value <- matrix(nrow = length(length_target_series), ncol = 6)
   ci_probs <- c((1 - ci_level)/2, 1 - (1 - ci_level)/2)
   for (i in seq_along(length_target_series)) {
 
     value[i, 1] <- mean(full_max_dist[[i]])
-    value[i, 2:4] <- unlist(summary(full_max_dist_uncert[[i]],
+    value[i, 2:6] <- unlist(summary(full_max_dist_uncert[[i]],
                                     probs = ci_probs,
                                     suppress = TRUE))
   }
-  colnames(value) <- c('Mean', 'SE',
-                       paste0(100*ci_level, '% LB'),
-                       paste0(100*ci_level, '% UB'))
+  colnames(value) <- c('Mean', 'SE Mean',
+                       paste0(100*ci_level, '% LB Mean'),
+                       paste0(100*ci_level, '% UB Mean'),
+                       paste0(100*ci_level, '% LB Pred'),
+                       paste0(100*ci_level, '% UB Pred'))
   print(value)
   invisible(value)
 }
