@@ -12,13 +12,18 @@ summary.thresholded_series <- function (object) {
 }
 
 #' @export
-summary.gumbel_max_dist_uncert <- function (object, probs = c(0.1, 0.9),
-                                            suppress = FALSE) {
+summary.gumbel_max_dist_uncert <- function(object, probs = c(0.1, 0.9),
+                                           suppress = FALSE) {
 
   quants <- quantile(apply(object$boot_samps, 1, mean), probs = probs)
+  preds <- quantile(as.vector(object$boot_samps), probs = probs)
   se <- sd(apply(object$boot_samps, 1, mean))
-  value <- data.frame(se, t(quants))
-  colnames(value) <- c('SE', paste0('quant: ', probs))
+  value <- data.frame(se, t(quants), t(preds))
+  colnames(value) <- c('SE Mean',
+                       paste0((probs[2] - probs[1])*100, '% LB Mean'),
+                       paste0((probs[2] - probs[1])*100, '% UB Mean'),
+                       paste0((probs[2] - probs[1])*100, '% LB PI'),
+                       paste0((probs[2] - probs[1])*100, '% UB PI'))
   if (!suppress) {
     print(value)
   }
@@ -26,13 +31,18 @@ summary.gumbel_max_dist_uncert <- function (object, probs = c(0.1, 0.9),
 }
 
 #' @export
-summary.full_max_dist_uncert <- function (object, probs = c(0.1, 0.9),
-                                          suppress = FALSE) {
+summary.full_max_dist_uncert <- function(object, probs = c(0.1, 0.9),
+                                         suppress = FALSE) {
 
   quants <- quantile(apply(object$boot_samps, 1, mean), probs = probs)
+  preds <- quantile(as.vector(object$boot_samps), probs = probs)
   se <- sd(apply(object$boot_samps, 1, mean))
-  value <- data.frame(se, t(quants))
-  colnames(value) <- c('SE', paste0('quant: ', probs))
+  value <- data.frame(se, t(quants), t(preds))
+  colnames(value) <- c('SE Mean',
+                       paste0((probs[2] - probs[1])*100, '% LB Mean'),
+                       paste0((probs[2] - probs[1])*100, '% UB Mean'),
+                       paste0((probs[2] - probs[1])*100, '% LB PI'),
+                       paste0((probs[2] - probs[1])*100, '% UB PI'))
   if (!suppress) {
     print(value)
   }
