@@ -13,9 +13,10 @@ LazyData: yes
 Imports:
     Rcpp (>= 0.11.0),
     MASS,
-    numDeriv
+    numDeriv,
+    RcppProgress (>= 0.1)
 Suggests: knitr
-LinkingTo: Rcpp
+LinkingTo: Rcpp, RcppProgress
 ByteCompile: yes
 NeedsCompilation: yes
 RoxygenNote: 5.0.1
