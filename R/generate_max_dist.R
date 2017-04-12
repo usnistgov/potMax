@@ -53,7 +53,7 @@ gumbelMaxDist.default <- function(x, thresh,
   prob_zero_obs <- dpois(0, Lambda)
   if (prob_zero_obs > 0.9) {
 
-    warning(paste0('The probability of zero observations is ', prob_zero_obs, '\n'))
+    warning(paste0('The probability of zero observations is ', prob_zero_obs, '\n'), immediate. = TRUE)
   }
 
   value <- list(par = c(mu, sigma),
@@ -138,12 +138,13 @@ gumbelMaxDistUncert.default <- function(x, cov_mat,
   if (n_neg > 0) {
 
     bootstrap_samples <- bootstrap_samples[bootstrap_samples[, 2] > 0, ]
-    warning(paste0('Removing ', n_neg, ' bootstrap samples because sigma^* <= 0'))
+    warning(paste0('Removing ', n_neg, ' bootstrap samples because sigma^* <= 0'), immediate. = TRUE)
     n_boot <- n_boot - n_neg
   }
 
   Lambda <- lt_gen*exp((-(thresh - bootstrap_samples[, 1])) /
                          bootstrap_samples[, 2])
+  Lambda_orig <- lt_gen*exp((-(thresh - mu))/sigma)
   const <- Lambda/lt_gen
 
   prob_zero_obs <- dpois(0, Lambda)
@@ -151,8 +152,20 @@ gumbelMaxDistUncert.default <- function(x, cov_mat,
   if (sum(zero_prob_high) > 0) {
 
     bootstrap_samples <- bootstrap_samples[!zero_prob_high, ]
-    warning(paste0('Removing ', sum(zero_prob_high), ' bootstrap samples because the probability of zero threshold exceedances is > 90%'))
+    Lambda <- Lambda[!zero_prob_high]
+    const <- const[!zero_prob_high]
+    warning(paste0('Removing ', sum(zero_prob_high), ' bootstrap samples because the probability of zero threshold exceedances is > 90%'), immediate. = TRUE)
     n_boot <- n_boot - sum(zero_prob_high)
+  }
+
+  big_Lambda <- Lambda > 10*Lambda_orig
+  if (sum(big_Lambda) > 0) {
+
+    bootstrap_samples <- bootstrap_samples[!big_Lambda, ]
+    Lambda <- Lambda[!big_Lambda]
+    const <- const[!big_Lambda]
+    warning(paste0('Removing ', sum(big_Lambda), ' bootstrap samples because Lambda* > 10Lambda_orig'), immediate. = TRUE)
+    n_boot <- n_boot - sum(big_Lambda)
   }
 
   value <- list(par = c(mu, sigma),
@@ -227,7 +240,7 @@ fullMaxDist.default <- function(x, thresh,
   prob_zero_obs <- dpois(0, Lambda)
   if (prob_zero_obs > 0.9) {
 
-    warning(paste0('The probability of zero observations is ', prob_zero_obs, '\n'))
+    warning(paste0('The probability of zero observations is ', prob_zero_obs, '\n'), immediate. = TRUE)
   }
 
   value <- list(par = c(mu, sigma, k),
@@ -315,7 +328,7 @@ fullMaxDistUncert.default <- function(x,
   n_neg <- sum(bootstrap_samples[, 2] <= 0)
   if (n_neg > 0) {
     bootstrap_samples <- bootstrap_samples[bootstrap_samples[, 2] > 0, ]
-    warning(paste0('Removing ', n_neg, ' bootstrap samples because sigma^* <= 0'))
+    warning(paste0('Removing ', n_neg, ' bootstrap samples because sigma^* <= 0'), immediate. = TRUE)
     n_boot <- n_boot - n_neg
   }
 
@@ -323,6 +336,9 @@ fullMaxDistUncert.default <- function(x,
     (thresh - bootstrap_samples[, 1])/bootstrap_samples[, 2]
   Lambda <- Lambda^(-1/bootstrap_samples[, 3])
   Lambda <- lt_gen*Lambda
+  Lambda_orig <- 1 + k*(thresh - mu)/sigma
+  Lambda_orig <- Lambda_orig^(-1/k)
+  Lambda_orig <- lt_gen*Lambda_orig
   const <- Lambda/lt_gen
 
   bootstrap_samples <- bootstrap_samples[!is.na(Lambda), ]
@@ -331,7 +347,7 @@ fullMaxDistUncert.default <- function(x,
   new_n_boot <- length(Lambda)
   if (new_n_boot < n_boot) {
     warning(paste0('Removing ', n_boot - n_new_boot,
-                   ' bootstrap samples because Lambda^* is NA'))
+                   ' bootstrap samples because Lambda^* is NA'), immediate. = TRUE)
     n_boot <- new_n_boot
   }
 
@@ -341,8 +357,18 @@ fullMaxDistUncert.default <- function(x,
     bootstrap_samples <- bootstrap_samples[!zero_prob_high, ]
     const <- const[!zero_prob_high]
     Lambda <- Lambda[!zero_prob_high]
-    warning(paste0('Removing ', sum(zero_prob_high), ' bootstrap samples because the probability of zero threshold exceedances is > 90%'))
+    warning(paste0('Removing ', sum(zero_prob_high), ' bootstrap samples because the probability of zero threshold exceedances is > 90%'), immediate. = TRUE)
     n_boot <- n_boot - sum(zero_prob_high)
+  }
+
+  big_Lambda <- Lambda > 10*Lambda_orig
+  if (sum(big_Lambda) > 0) {
+
+    bootstrap_samples <- bootstrap_samples[!big_Lambda, ]
+    Lambda <- Lambda[!big_Lambda]
+    const <- const[!big_Lambda]
+    warning(paste0('Removing ', sum(big_Lambda), ' bootstrap samples because Lambda* > 10Lambda_orig'), immediate. = TRUE)
+    n_boot <- n_boot - sum(big_Lambda)
   }
 
   value <- list(par = c(mu, sigma, k),
