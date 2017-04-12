@@ -267,6 +267,10 @@ gumbelEstThreshold.default <- function (x, lt, n_min, n_max) {
   thresholds <- genThresholds(x, n_min, n_max)
   w_stats <- rep(NA, length(thresholds))
 
+  pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
+                                   complete = '*')
+  pb$tick(0)
+
   for (i in 1:length(thresholds)) {
 
     y <- x[x > thresholds[i]]
@@ -281,6 +285,7 @@ gumbelEstThreshold.default <- function (x, lt, n_min, n_max) {
                                       tf_plot = FALSE,
                                       BW = FALSE,
                                       details = FALSE)
+    pb$tick()
   }
 
   thresh = thresholds[w_stats == min(w_stats)]
@@ -336,6 +341,10 @@ fullEstThreshold.default <- function (x, lt, n_min, n_max,
   thresholds <- genThresholds(x, n_min, n_max)
   w_stats <- rep(NA, length(thresholds))
 
+  pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
+                                   complete = '*')
+  pb$tick(0)
+
   for (i in 1:length(thresholds)) {
 
     y <- x[x > thresholds[i]]
@@ -351,6 +360,7 @@ fullEstThreshold.default <- function (x, lt, n_min, n_max,
                                     tf_plot = FALSE,
                                     BW = FALSE,
                                     details = FALSE)
+    pb$tick()
   }
 
   thresh <- thresholds[w_stats == min(w_stats)]
