@@ -1,6 +1,9 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
+// [[Rcpp::depends(RcppProgress)]]
+#include <progress.hpp>
+
 // [[Rcpp::export]]
 NumericVector gumbelMaxDistCpp(double mu, double sigma,
                                double Lambda,
@@ -11,6 +14,7 @@ NumericVector gumbelMaxDistCpp(double mu, double sigma,
   int indx = 0, i;
   double n;
   double tmp;
+  Progress p(n_mc, true);
 
   while (indx < n_mc) {
 
@@ -30,6 +34,7 @@ NumericVector gumbelMaxDistCpp(double mu, double sigma,
       }
 
       indx++;
+      p.increment();
     }
   }
 
@@ -48,6 +53,7 @@ NumericMatrix gumbelMaxDistUncertCpp(NumericVector mu,
   NumericMatrix max_dist_uncert(n_boot, n_mc);
   double n;
   double tmp;
+  Progress p(n_boot, true);
 
   for (j = 0; j < n_boot; j++) {
 
@@ -73,6 +79,7 @@ NumericMatrix gumbelMaxDistUncertCpp(NumericVector mu,
         indx++;
       }
     }
+    p.increment();
   }
 
   return max_dist_uncert;
@@ -88,6 +95,7 @@ NumericVector fullMaxDistCpp(double mu, double sigma, double k,
   int indx = 0, i;
   double n;
   double tmp;
+  Progress p(n_mc, true);
 
   while (indx < n_mc) {
 
@@ -107,6 +115,7 @@ NumericVector fullMaxDistCpp(double mu, double sigma, double k,
       }
 
       indx++;
+      p.increment();
     }
   }
 
@@ -126,6 +135,7 @@ NumericMatrix fullMaxDistUncertCpp(NumericVector mu,
   NumericMatrix max_dist_uncert(n_boot, n_mc);
   double n;
   double tmp;
+  Progress p(n_boot, true);
 
   for (j = 0; j < n_boot; j++) {
 
@@ -151,6 +161,7 @@ NumericMatrix fullMaxDistUncertCpp(NumericVector mu,
         indx++;
       }
     }
+    p.increment();
   }
 
   return max_dist_uncert;
