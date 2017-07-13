@@ -2,6 +2,7 @@ library(potMax)
 context('Full Maximum Likelihood Estimate')
 
 test_that('fullMLE produces expected result', {
+  set.seed(123456)
   a <- decluster(-scan('../../data/jp1tap1715wind270.csv',
                        skip = 1, quiet = TRUE))
   a1 <- a$declustered_series[a$declustered_series > 1]
@@ -20,4 +21,5 @@ test_that('fullMLE produces expected result', {
                                69500,
                                -33600),
                       nrow = 3))
+  set.seed(as.integer(Sys.time()))
 })
