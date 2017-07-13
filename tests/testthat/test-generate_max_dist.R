@@ -11,16 +11,28 @@ test_that('gumbelMaxDist produces expected result', {
   max_dist <- gumbelMaxDist(x = mle, lt_gen = 100, n_mc = 10,
                             progress_tf = FALSE)
   expect_equal(round(max_dist$max_dist, 5),
-               c(2.82525,
+               c(2.825250,
                  3.37032,
                  3.52029,
-                 3.24737,
+                 3.24736,
                  3.17906,
-                 3.00799,
-                 3.08324,
+                 3.00798,
+                 3.08323,
                  2.95755,
                  3.34291,
-                 3.02834))
+                 3.02833))
+  # original test before log(sigma) parameterization
+  # expect_equal(round(max_dist$max_dist, 5),
+  #              c(2.82525,
+  #                3.37032,
+  #                3.52029,
+  #                3.24737,
+  #                3.17906,
+  #                3.00799,
+  #                3.08324,
+  #                2.95755,
+  #                3.34291,
+  #                3.02834))
   set.seed(as.integer(Sys.time()))
 })
 
@@ -35,17 +47,30 @@ test_that('gumbelMaxDistUncert produces expected result', {
                                          n_mc = 5, n_boot = 2,
                                          progress_tf = FALSE)
   expect_equal(round(max_dist_uncert$boot_samps, 5),
-               matrix(data = c(2.79256,
-                               3.32786,
-                               3.47515,
-                               3.20711,
-                               3.14003,
-                               3.02040,
-                               3.09611,
-                               2.96965,
-                               3.35739,
-                               3.04088),
+               matrix(data = c(2.86320,
+                               3.41960,
+                               3.57269,
+                               3.11000,
+                               3.22437,
+                               3.06887,
+                               2.94405,
+                               2.88431,
+                               3.32675,
+                               2.85085),
                       nrow = 2, byrow = TRUE))
+  # original test before log(sigma) parameterization
+  # expect_equal(round(max_dist_uncert$boot_samps, 5),
+  #              matrix(data = c(2.79256,
+  #                              3.32786,
+  #                              3.47515,
+  #                              3.20711,
+  #                              3.14003,
+  #                              3.02040,
+  #                              3.09611,
+  #                              2.96965,
+  #                              3.35739,
+  #                              3.04088),
+  #                     nrow = 2, byrow = TRUE))
   set.seed(as.integer(Sys.time()))
 })
 
@@ -59,16 +84,28 @@ test_that('fullMaxDist produces expected result', {
   max_dist <- fullMaxDist(x = mle, lt_gen = 100, n_mc = 10,
                           progress_tf = FALSE)
   expect_equal(round(max_dist$max_dist, 5),
-               c(4.053040,
-                 6.04723,
-                 6.74633,
-                 4.84280,
-                 5.25766,
-                 4.63719,
-                 4.90081,
-                 4.46827,
-                 5.92735,
-                 4.70710))
+               c(4.05260,
+                 6.04621,
+                 6.74507,
+                 4.84215,
+                 5.25689,
+                 4.90014,
+                 3.88791,
+                 4.46773,
+                 5.92637,
+                 4.16925))
+  # original test before log(sigma) parameterization
+  # expect_equal(round(max_dist$max_dist, 5),
+  #              c(4.053040,
+  #                6.04723,
+  #                6.74633,
+  #                4.84280,
+  #                5.25766,
+  #                4.63719,
+  #                4.90081,
+  #                4.46827,
+  #                5.92735,
+  #                4.70710))
   set.seed(as.integer(Sys.time()))
 })
 
@@ -83,16 +120,29 @@ test_that('fullMaxDistUncert produces expected result', {
                                        n_mc = 5, n_boot = 2,
                                        progress_tf = FALSE)
   expect_equal(round(max_dist_uncert$boot_samps, 5),
-               matrix(data = c(4.02788,
-                               5.96266,
-                               6.63607,
-                               4.79687,
-                               5.19930,
-                               5.71303,
-                               6.13523,
-                               5.44714,
-                               7.85907,
-                               5.82413),
+               matrix(data = c(3.74424,
+                               4.35250,
+                               5.81958,
+                               4.90459,
+                               4.69721,
+                               5.20606,
+                               5.55851,
+                               4.98283,
+                               4.70907,
+                               6.97544),
                       nrow = 2, byrow = TRUE))
+  # original test before log(sigma) parameterization
+  # expect_equal(round(max_dist_uncert$boot_samps, 5),
+  #              matrix(data = c(4.02788,
+  #                              5.96266,
+  #                              6.63607,
+  #                              4.79687,
+  #                              5.19930,
+  #                              5.71303,
+  #                              6.13523,
+  #                              5.44714,
+  #                              7.85907,
+  #                              5.82413),
+  #                     nrow = 2, byrow = TRUE))
   set.seed(as.integer(Sys.time()))
 })

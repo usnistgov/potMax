@@ -115,7 +115,7 @@ gumbelMaxDistUncert.gumbel_pot_fit <- function(x, lt_gen,
                                                progress_tf = TRUE) {
 
   gumbelMaxDistUncert.default(x = x$par,
-                              cov_mat = -solve(x$hessian),
+                              cov_mat = -solve(x$lhessian),
                               thresh = x$thresh,
                               lt_gen = lt_gen,
                               n_mc = n_mc,
@@ -134,21 +134,12 @@ gumbelMaxDistUncert.default <- function(x, cov_mat,
   sigma <- x[2]
   lt_gen <- lt_gen[1]
 
-  if (sigma <= 0) {
-    stop('must have sigma > 0')
-  }
   if (lt_gen <= 0) {
     stop('must have lt_gen > 0')
   }
 
-  bootstrap_samples <- MASS::mvrnorm(n = n_boot, mu = c(mu, sigma), Sigma = cov_mat)
-  n_neg <- sum(bootstrap_samples[, 2] <= 0)
-  if (n_neg > 0) {
-
-    bootstrap_samples <- bootstrap_samples[bootstrap_samples[, 2] > 0, ]
-    warning(paste0('Removing ', n_neg, ' bootstrap samples because sigma^* <= 0'), immediate. = TRUE)
-    n_boot <- n_boot - n_neg
-  }
+  bootstrap_samples <- MASS::mvrnorm(n = n_boot, mu = c(mu, log(sigma)), Sigma = cov_mat)
+  bootstrap_samples[, 2] <- exp(bootstrap_samples[, 2])
 
   Lambda <- lt_gen*exp((-(thresh - bootstrap_samples[, 1])) /
                          bootstrap_samples[, 2])
@@ -313,7 +304,7 @@ fullMaxDistUncert.full_pot_fit <- function(x, lt_gen,
                                            progress_tf = TRUE) {
 
   fullMaxDistUncert.default(x = x$par,
-                            cov_mat = -solve(x$hessian),
+                            cov_mat = -solve(x$lhessian),
                             thresh = x$thresh,
                             lt_gen = lt_gen,
                             n_mc = n_mc,
@@ -333,21 +324,13 @@ fullMaxDistUncert.default <- function(x,
   k <- x[3]
   lt_gen <- lt_gen[1]
 
-  if (sigma <= 0) {
-    stop('must have sigma > 0')
-  }
   if (lt_gen <= 0) {
     stop('must have lt_gen > 0')
   }
 
-  bootstrap_samples <- MASS::mvrnorm(n = n_boot, mu = c(mu, sigma, k),
+  bootstrap_samples <- MASS::mvrnorm(n = n_boot, mu = c(mu, log(sigma), k),
                                      Sigma = cov_mat)
-  n_neg <- sum(bootstrap_samples[, 2] <= 0)
-  if (n_neg > 0) {
-    bootstrap_samples <- bootstrap_samples[bootstrap_samples[, 2] > 0, ]
-    warning(paste0('Removing ', n_neg, ' bootstrap samples because sigma^* <= 0'), immediate. = TRUE)
-    n_boot <- n_boot - n_neg
-  }
+  bootstrap_samples[, 2] <- exp(bootstrap_samples[, 2])
 
   Lambda <- 1 + bootstrap_samples[, 3] *
     (thresh - bootstrap_samples[, 1])/bootstrap_samples[, 2]

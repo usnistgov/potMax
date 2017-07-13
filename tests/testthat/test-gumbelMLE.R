@@ -9,7 +9,11 @@ test_that('gumbelMLE produces expected result', {
                    lt = 100, thresh = 1)
   expect_equal(round(mle$par, 3),
                c(1.723, 0.272))
-  expect_equal(round(mle$hessian, 0),
-               matrix(data = c(-19457, 51829, 51829, -157518),
+  expect_equal(round(mle$lhessian, 0),
+               matrix(data = c(-19457, 14075, 14075, -11617),
                       nrow = 2))
+  # original test before log(sigma) parameterization
+  # expect_equal(round(mle$hessian, 0),
+  #              matrix(data = c(-19457, 51829, 51829, -157518),
+  #                     nrow = 2))
 })

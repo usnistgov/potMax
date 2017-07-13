@@ -8,8 +8,8 @@
 # #'   other score equation, as a function of sigma is plugged in.  The root of
 # #'   this function provides the MLE for sigma.
 # #'
-# #' @param sigma the value of the scale parameter at which the function is
-# #'   evaluated
+# #' @param lsigma the natural logarithm of the scale parameter at which
+# #'   the function is evaluated
 # #'
 # #' @param N The length of the data vector
 # #'
@@ -19,11 +19,9 @@
 # #'
 # #' @param sum_y The sum of the observations
 # #'
-sigmaScore <- function (sigma, N, lt, thresh, sum_y) {
+sigmaScore <- function(lsigma, N, lt, thresh, sum_y) {
 
-  if (sigma <= 0) {
-    stop('sigma must be > 0')
-  }
+  sigma <- exp(lsigma)
 
   if (N < 1) {
     stop('N must be >= 1')
@@ -75,52 +73,53 @@ sigmaMLE <- function (N, lt, thresh, sum_y) {
     stop('T must be > 0')
   }
 
-  a <- 0.1
+  a <- log(0.1)
 
-  b <- 1
+  b <- log(1)
 
-  eq_a <- sigmaScore(sigma=a, lt=lt, N=N,
-                     thresh=thresh, sum_y=sum_y)
+  eq_a <- sigmaScore(lsigma = a, lt = lt, N = N,
+                     thresh = thresh, sum_y = sum_y)
 
-  eq_b <- sigmaScore(sigma=b, lt=lt, N=N,
-                     thresh=thresh, sum_y=sum_y)
+  eq_b <- sigmaScore(lsigma = b, lt = lt, N = N,
+                     thresh = thresh, sum_y = sum_y)
 
   repeat {
 
-    if(sign(eq_a) != sign(eq_b)) {
+    if (sign(eq_a) != sign(eq_b)) {
 
       break
     }
 
-    a <- a/2
+    a <- a - 1
 
-    eq_a <- sigmaScore(sigma=a, lt=lt, N=N,
-                       thresh=thresh, sum_y=sum_y)
+    eq_a <- sigmaScore(lsigma = a, lt = lt, N = N,
+                       thresh = thresh, sum_y = sum_y)
 
-    if(sign(eq_a) != sign(eq_b)) {
+    if (sign(eq_a) != sign(eq_b)) {
 
       break
     }
 
     b <- b + 1
 
-    eq_b <- sigmaScore(sigma=b, lt=lt, N=N,
-                       thresh=thresh, sum_y=sum_y)
+    eq_b <- sigmaScore(lsigma = b, lt = lt, N = N,
+                       thresh = thresh, sum_y = sum_y)
 
-    if(sign(eq_a) != sign(eq_b)) {
+    if (sign(eq_a) != sign(eq_b)) {
 
       break
     }
 
-    if (b > 500) {
+    if (b > log(500)) {
 
       stop("A reasonable value for sigma does not exist")
     }
   }
 
-  sigma <- uniroot(f=sigmaScore, interval=c(a, b),
-                   lt=lt, N=N, thresh=thresh, sum_y=sum_y)
-  sigma$root
+  lsigma <- uniroot(f = sigmaScore, interval = c(a, b),
+                   lt = lt, N = N, thresh = thresh,
+                   sum_y = sum_y)
+  exp(lsigma$root)
 }
 
 #' @title Maximum Likelihood Estimation for the Gumble Model
@@ -187,34 +186,37 @@ gumbelMLE.thresholded_series <- function (x, hessian_tf) {
 #'
 #' @export
 #'
-gumbelMLE.default <- function (x, lt, thresh, hessian_tf) {
+gumbelMLE.default <- function(x, lt, thresh, hessian_tf) {
 
   N <- length(x)
-  sigma <- sigmaMLE(lt=lt, N=N,
-                    thresh=thresh, sum_y=sum(x))
+  sigma <- sigmaMLE(lt = lt, N = N,
+                    thresh = thresh, sum_y = sum(x))
 
   mu <- sigma*log((N/lt)) + thresh
 
   if (hessian_tf) {
 
-    hess_est <- try(gumbelHessian(theta = c(mu, sigma),
-                                  thresh = thresh, y = x,
-                                  lt = lt, N = N))
-    if (!inherits(hess_est, 'try-error')) {
+    lhess_est <- try(gumbelHessian(theta = c(mu, log(sigma)),
+                                   thresh = thresh, y = x,
+                                   lt = lt, N = N))
+    if (!inherits(lhess_est, 'try-error')) {
 
-      value <- list(par = c(mu, sigma), hessian = hess_est,
+      value <- list(par = c(mu, sigma),
+                    lhessian = lhess_est,
                     y = x, thresh = thresh)
       class(value) <- 'gumbel_pot_fit'
     } else {
 
       warning('Hessian computation failed')
-      value <- list(par = c(mu, sigma), hessian = NULL,
+      value <- list(par = c(mu, sigma),
+                    lhessian = NULL,
                     y = x, thresh = thresh)
       class(value) <- 'gumbel_pot_fit'
     }
   } else {
 
-    value <- list(par = c(mu, sigma), hessian = NULL,
+    value <- list(par = c(mu, sigma),
+                  hessian = NULL,
                   y = x, thresh = thresh)
     class(value) <- 'gumbel_pot_fit'
   }
@@ -241,15 +243,15 @@ gumbelMLE.default <- function (x, lt, thresh, hessian_tf) {
 # #' @param N The number of observations that exceed the threshold (also the
 # #'   length of y)
 # #'
-gumbelLogLike <- function (theta, y, thresh, lt, N) {
+gumbelLogLike <- function(theta, y, thresh, lt, N) {
 
   full_theta <- c(theta, 0.0)
 
-  fullLogLike(theta=full_theta,
-              y=y,
-              thresh=thresh,
-              lt=lt,
-              N=N)
+  fullLogLike(theta = full_theta,
+              y = y,
+              thresh = thresh,
+              lt = lt,
+              N = N)
 }
 
 # #'
@@ -273,12 +275,12 @@ gumbelLogLike <- function (theta, y, thresh, lt, N) {
 # #' @param N The number of observations that exceed the threshold (also the
 # #'   length of y)
 # #'
-gumbelHessian <- function (theta, y, thresh, lt, N) {
+gumbelHessian <- function(theta, y, thresh, lt, N) {
 
-  numDeriv::hessian(func=gumbelLogLike,
-                    x=theta,
-                    y=y,
-                    thresh=thresh,
-                    lt=lt,
-                    N=N)
+  numDeriv::hessian(func = gumbelLogLike,
+                    x = theta,
+                    y = y,
+                    thresh = thresh,
+                    lt = lt,
+                    N = N)
 }

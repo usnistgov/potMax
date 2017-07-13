@@ -10,16 +10,28 @@ test_that('fullMLE produces expected result', {
                  lt = 100, thresh = 1, n_starts = 20)
   expect_equal(round(mle$par, 2),
                c(1.77, 0.37, 0.19))
-  expect_equal(round(mle$hessian/100, 0)*100,
+  expect_equal(round(mle$lhessian/100, 0)*100,
                matrix(data = c(-30200,
-                               65300,
+                               24200,
                                -29900,
-                               65300,
-                               -148500,
-                               69500,
+                               24200,
+                               -20300,
+                               25700,
                                -29900,
-                               69500,
+                               25700,
                                -33600),
                       nrow = 3))
+  # original test before log(sigma) parameterizetion
+  # expect_equal(round(mle$hessian/100, 0)*100,
+  #              matrix(data = c(-30200,
+  #                              65300,
+  #                              -29900,
+  #                              65300,
+  #                              -148500,
+  #                              69500,
+  #                              -29900,
+  #                              69500,
+  #                              -33600),
+  #                     nrow = 3))
   set.seed(as.integer(Sys.time()))
 })

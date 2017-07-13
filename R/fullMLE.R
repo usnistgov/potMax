@@ -14,11 +14,12 @@
 # #'
 # #' @param N - The number of observations (also the length of the y parameter)
 # #'
-fullLogLike <- function (theta, y, thresh, lt, N) {
+fullLogLike <- function(theta, y, thresh, lt, N) {
 
   ## unpack the parameters
   mu <- theta[1]
-  sigma <- theta[2]
+  lsigma <- theta[2]
+  sigma <- exp(lsigma)
   k <- theta[3]
 
   ## missing or null parameter values return
@@ -140,7 +141,7 @@ fullLogLike <- function (theta, y, thresh, lt, N) {
 #'
 #' @export
 #'
-fullMLE <- function (x, n_starts, hessian_tf, ...) {
+fullMLE <- function(x, n_starts, hessian_tf, ...) {
   UseMethod('fullMLE')
 }
 
@@ -148,7 +149,7 @@ fullMLE <- function (x, n_starts, hessian_tf, ...) {
 #'
 #' @export
 #'
-fullMLE.thresholded_series <- function (x, n_starts, hessian_tf) {
+fullMLE.thresholded_series <- function(x, n_starts, hessian_tf) {
 
   fullMLE.default(x = x$y,
                   lt = x$lt,
@@ -166,7 +167,7 @@ fullMLE.thresholded_series <- function (x, n_starts, hessian_tf) {
 #'
 #' @export
 #'
-fullMLE.default <- function (x, lt, thresh, n_starts, hessian_tf) {
+fullMLE.default <- function(x, lt, thresh, n_starts, hessian_tf) {
 
   N <- length(x)
 
@@ -174,12 +175,13 @@ fullMLE.default <- function (x, lt, thresh, n_starts, hessian_tf) {
 
   # Start at the maximum for the Gumbel model first
 
-  start <- gumbelMLE(x = x, lt=lt, thresh=thresh, hessian_tf = FALSE)$par
-  start <- c(start, 0.0)
-  tmp_mle <- try(optim(par=start, fn=fullLogLike,
-                       control=list(fnscale=-1, maxit=10000),
-                       hessian=FALSE, y=x, thresh=thresh,
-                       lt=lt, N=N), FALSE)
+  start <- gumbelMLE(x = x, lt = lt, thresh = thresh,
+                     hessian_tf = FALSE)$par
+  start <- c(start[1], log(start[2]), 0.0)
+  tmp_mle <- try(optim(par = start, fn = fullLogLike,
+                       control = list(fnscale = -1, maxit = 10000),
+                       hessian = FALSE, y = x, thresh = thresh,
+                       lt = lt, N = N), FALSE)
 
   ## check for convergence of optim
   if (!inherits(tmp_mle, "try-error")) {
@@ -199,15 +201,17 @@ fullMLE.default <- function (x, lt, thresh, n_starts, hessian_tf) {
     ## negative infinity as its likelihood value
     repeat {
 
-      tmp_start_mu <- rnorm(n=1, mean=start[1], sd=2)
-      tmp_start_sigma <- abs(rnorm(n=1, mean=start[2], sd=2))
-      tmp_start_k <- runif(n=1, min=-0.25, max=0.25)
+      tmp_start_mu <- rnorm(n = 1, mean = start[1], sd = 2)
+      tmp_start_lsigma <- rnorm(n = 1, mean = start[2],
+                                sd = 2/exp(start[2]))
+      tmp_start_k <- runif(n = 1, min = -0.25, max = 0.25)
       tmp_start <- c(tmp_start_mu,
-                     tmp_start_sigma,
+                     tmp_start_lsigma,
                      tmp_start_k)
 
-      check <- fullLogLike(theta=tmp_start, y=x, thresh=thresh,
-                           lt=lt, N=N)
+      check <- fullLogLike(theta = tmp_start, y = x,
+                           thresh = thresh,
+                           lt = lt, N = N)
 
       if (check > -Inf) {
 
@@ -215,10 +219,10 @@ fullMLE.default <- function (x, lt, thresh, n_starts, hessian_tf) {
       }
     }
 
-    tmp_mle <- try(optim(par=tmp_start, fn=fullLogLike,
-                         control=list(fnscale=-1, maxit=10000),
-                         hessian=FALSE, y=x, thresh=thresh,
-                         lt=lt, N=N), FALSE)
+    tmp_mle <- try(optim(par = tmp_start, fn = fullLogLike,
+                         control = list(fnscale = -1, maxit = 10000),
+                         hessian = FALSE, y = x, thresh = thresh,
+                         lt = lt, N = N), FALSE)
 
     ## check for convergence of optim and if
     ## the new parameter values lead to a larger
@@ -250,10 +254,10 @@ fullMLE.default <- function (x, lt, thresh, n_starts, hessian_tf) {
   # hessian matrix
   if (hessian_tf & !is.null(mle)) {
 
-    tmp_mle <- try(optim(par=mle$par, fn=fullLogLike,
-                         control=list(fnscale=-1, maxit=10000),
-                         hessian=TRUE, y=x, thresh=thresh,
-                         lt=lt, N=N), FALSE)
+    tmp_mle <- try(optim(par = mle$par, fn = fullLogLike,
+                         control = list(fnscale = -1, maxit = 10000),
+                         hessian = TRUE, y = x, thresh = thresh,
+                         lt = lt, N = N), FALSE)
 
     if (!inherits(tmp_mle, "try-error")) {
 
@@ -276,15 +280,15 @@ fullMLE.default <- function (x, lt, thresh, n_starts, hessian_tf) {
 
     if (hessian_tf) {
 
-      value <- list(par = mle$par,
-                    hessian = mle$hessian,
+      value <- list(par = c(mle$par[1], exp(mle$par[2]), mle$par[3]),
+                    lhessian = mle$hessian,
                     y = x,
                     thresh = thresh)
       class(value) <- 'full_pot_fit'
     } else {
 
-      value <- list(par = mle$par,
-                    hessian = NULL,
+      value <- list(par = c(mle$par[1], exp(mle$par[2]), mle$par[3]),
+                    lhessian = NULL,
                     y = x,
                     thresh = thresh)
       class(value) <- 'full_pot_fit'
