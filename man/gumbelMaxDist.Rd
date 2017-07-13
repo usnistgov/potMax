@@ -4,7 +4,7 @@
 \alias{gumbelMaxDist}
 \title{gumbelMaxDist}
 \usage{
-gumbelMaxDist(x, lt_gen, n_mc, ...)
+gumbelMaxDist(x, lt_gen, n_mc, progress_tf = TRUE, ...)
 }
 \arguments{
 \item{lt_gen}{Lengt of each generated series in seconds}
@@ -22,4 +22,3 @@ gumbelMaxDist
 Generates the empirical distribution of the maximum value from a
   Gumbel (zero tail length) POT model over a specified length of time
 }
-

@@ -80,4 +80,3 @@ See the vignette by running \code{vignette(topic = 'potMax_details',
 }
 
 }
-

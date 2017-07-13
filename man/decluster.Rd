@@ -40,4 +40,3 @@ complete_series <- -jp1tap1715wind270$value
 declustered_obs <- decluster(complete_series)
 
 }
-

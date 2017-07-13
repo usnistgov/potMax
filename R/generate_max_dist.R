@@ -19,22 +19,25 @@
 #'
 #' @importFrom Rcpp evalCpp
 #'
-gumbelMaxDist <- function(x, lt_gen, n_mc, ...) {
+gumbelMaxDist <- function(x, lt_gen, n_mc, progress_tf = TRUE, ...) {
   UseMethod('gumbelMaxDist')
 }
 
 #' @export
-gumbelMaxDist.gumbel_pot_fit <- function(x, lt_gen, n_mc) {
+gumbelMaxDist.gumbel_pot_fit <- function(x, lt_gen, n_mc,
+                                         progress_tf = TRUE) {
 
   gumbelMaxDist.default(x = x$par,
                         thresh = x$thresh,
                         lt_gen = lt_gen,
-                        n_mc = n_mc)
+                        n_mc = n_mc,
+                        progress_tf = progress_tf)
 }
 
 #' @export
 gumbelMaxDist.default <- function(x, thresh,
-                                  lt_gen, n_mc) {
+                                  lt_gen, n_mc,
+                                  progress_tf = TRUE) {
 
   mu <- x[1]
   sigma <- x[2]
@@ -60,7 +63,8 @@ gumbelMaxDist.default <- function(x, thresh,
                 thresh = thresh,
                 lt_gen = lt_gen,
                 max_dist = gumbelMaxDistCpp(mu, sigma,
-                                            Lambda, const, n_mc))
+                                            Lambda, const, n_mc,
+                                            progress_tf))
   class(value) <- 'gumbel_max_dist'
   value
 }
@@ -99,6 +103,7 @@ gumbelMaxDist.default <- function(x, thresh,
 gumbelMaxDistUncert <- function(x, lt_gen,
                                 n_mc,
                                 n_boot,
+                                progress_tf = TRUE,
                                 ...) {
   UseMethod('gumbelMaxDistUncert')
 }
@@ -106,21 +111,24 @@ gumbelMaxDistUncert <- function(x, lt_gen,
 #' @export
 gumbelMaxDistUncert.gumbel_pot_fit <- function(x, lt_gen,
                                                n_mc,
-                                               n_boot) {
+                                               n_boot,
+                                               progress_tf = TRUE) {
 
   gumbelMaxDistUncert.default(x = x$par,
                               cov_mat = -solve(x$hessian),
                               thresh = x$thresh,
                               lt_gen = lt_gen,
                               n_mc = n_mc,
-                              n_boot = n_boot)
+                              n_boot = n_boot,
+                              progress_tf = progress_tf)
 }
 
 #' @export
 gumbelMaxDistUncert.default <- function(x, cov_mat,
                                         thresh, lt_gen,
                                         n_mc,
-                                        n_boot) {
+                                        n_boot,
+                                        progress_tf = TRUE) {
 
   mu <- x[1]
   sigma <- x[2]
@@ -175,7 +183,7 @@ gumbelMaxDistUncert.default <- function(x, cov_mat,
                 boot_samps = gumbelMaxDistUncertCpp(bootstrap_samples[, 1],
                                                     bootstrap_samples[, 2],
                                                     Lambda, const,
-                                                    n_mc, n_boot))
+                                                    n_mc, n_boot, progress_tf))
   class(value) <- 'gumbel_max_dist_uncert'
   value
 }
@@ -203,22 +211,26 @@ gumbelMaxDistUncert.default <- function(x, cov_mat,
 #'
 #' @importFrom Rcpp evalCpp
 #'
-fullMaxDist <- function(x, lt_gen, n_mc, ...) {
+fullMaxDist <- function(x, lt_gen, n_mc,
+                        progress_tf = TRUE, ...) {
   UseMethod('fullMaxDist')
 }
 
 #' @export
-fullMaxDist.full_pot_fit <- function(x, lt_gen, n_mc) {
+fullMaxDist.full_pot_fit <- function(x, lt_gen, n_mc,
+                                     progress_tf = TRUE) {
 
   fullMaxDist.default(x = x$par,
                       thresh = x$thresh,
                       lt_gen = lt_gen,
-                      n_mc = n_mc)
+                      n_mc = n_mc,
+                      progress_tf = progress_tf)
 }
 
 #' @export
 fullMaxDist.default <- function(x, thresh,
-                                lt_gen, n_mc) {
+                                lt_gen, n_mc,
+                                progress_tf = TRUE) {
 
   mu <- x[1]
   sigma <- x[2]
@@ -247,7 +259,8 @@ fullMaxDist.default <- function(x, thresh,
                 thresh = thresh,
                 lt_gen = lt_gen,
                 max_dist = fullMaxDistCpp(mu, sigma, k,
-                                          Lambda, const, n_mc))
+                                          Lambda, const, n_mc,
+                                          progress_tf))
   class(value) <- 'full_max_dist'
   value
 }
@@ -288,6 +301,7 @@ fullMaxDist.default <- function(x, thresh,
 fullMaxDistUncert <- function(x, lt_gen,
                               n_mc,
                               n_boot,
+                              progress_tf = TRUE,
                               ...) {
   UseMethod('fullMaxDistUncert')
 }
@@ -295,21 +309,24 @@ fullMaxDistUncert <- function(x, lt_gen,
 #' @export
 fullMaxDistUncert.full_pot_fit <- function(x, lt_gen,
                                            n_mc,
-                                           n_boot) {
+                                           n_boot,
+                                           progress_tf = TRUE) {
 
   fullMaxDistUncert.default(x = x$par,
                             cov_mat = -solve(x$hessian),
                             thresh = x$thresh,
                             lt_gen = lt_gen,
                             n_mc = n_mc,
-                            n_boot = n_boot)
+                            n_boot = n_boot,
+                            progress_tf = progress_tf)
 }
 
 #' @export
 fullMaxDistUncert.default <- function(x,
                                       cov_mat, thresh, lt_gen,
                                       n_mc,
-                                      n_boot) {
+                                      n_boot,
+                                      progress_tf = TRUE) {
 
   mu <- x[1]
   sigma <- x[2]
@@ -379,7 +396,7 @@ fullMaxDistUncert.default <- function(x,
                                                   bootstrap_samples[, 2],
                                                   bootstrap_samples[, 3],
                                                   Lambda, const,
-                                                  n_mc, n_boot))
+                                                  n_mc, n_boot, progress_tf))
   class(value) <- 'full_max_dist_uncert'
   value
 }

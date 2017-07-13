@@ -8,13 +8,13 @@ using namespace Rcpp;
 NumericVector gumbelMaxDistCpp(double mu, double sigma,
                                double Lambda,
                                double integration_constant,
-                               int n_mc) {
+                               int n_mc, bool progress_tf) {
 
   NumericVector max_dist(n_mc);
   int indx = 0, i;
   double n;
   double tmp;
-  Progress p(n_mc, true);
+  Progress p(n_mc, progress_tf);
 
   while (indx < n_mc) {
 
@@ -47,13 +47,14 @@ NumericMatrix gumbelMaxDistUncertCpp(NumericVector mu,
                                      NumericVector Lambda,
                                      NumericVector integration_constant,
                                      int n_mc,
-                                     int n_boot) {
+                                     int n_boot,
+                                     bool progress_tf) {
 
   int indx, i, j;
   NumericMatrix max_dist_uncert(n_boot, n_mc);
   double n;
   double tmp;
-  Progress p(n_boot, true);
+  Progress p(n_boot, progress_tf);
 
   for (j = 0; j < n_boot; j++) {
 
@@ -89,13 +90,14 @@ NumericMatrix gumbelMaxDistUncertCpp(NumericVector mu,
 NumericVector fullMaxDistCpp(double mu, double sigma, double k,
                              double Lambda,
                              double integration_constant,
-                             int n_mc) {
+                             int n_mc,
+                             bool progress_tf) {
 
   NumericVector max_dist(n_mc);
   int indx = 0, i;
   double n;
   double tmp;
-  Progress p(n_mc, true);
+  Progress p(n_mc, progress_tf);
 
   while (indx < n_mc) {
 
@@ -129,13 +131,14 @@ NumericMatrix fullMaxDistUncertCpp(NumericVector mu,
                                    NumericVector Lambda,
                                    NumericVector integration_constant,
                                    int n_mc,
-                                   int n_boot) {
+                                   int n_boot,
+                                   bool progress_tf) {
 
   int indx, i, j;
   NumericMatrix max_dist_uncert(n_boot, n_mc);
   double n;
   double tmp;
-  Progress p(n_boot, true);
+  Progress p(n_boot, progress_tf);
 
   for (j = 0; j < n_boot; j++) {
 

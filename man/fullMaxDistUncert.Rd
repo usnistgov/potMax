@@ -4,7 +4,7 @@
 \alias{fullMaxDistUncert}
 \title{fullMaxDistUncert}
 \usage{
-fullMaxDistUncert(x, lt_gen, n_mc, n_boot, ...)
+fullMaxDistUncert(x, lt_gen, n_mc, n_boot, progress_tf = TRUE, ...)
 }
 \arguments{
 \item{lt_gen}{Lengt of each generated series in seconds that the maximum is
@@ -34,4 +34,3 @@ Generates bootstrap samples of the empirical distribution of the
   maximum value from the full (non-zero tail length) POT model over a
   specified length of time
 }
-

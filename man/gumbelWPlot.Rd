@@ -30,4 +30,3 @@ gumbelWPlot
 \details{
 this is the W plot from the 2004 Richard Smith book chapter
 }
-

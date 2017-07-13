@@ -4,7 +4,7 @@
 \alias{fullMaxDist}
 \title{fullMaxDist}
 \usage{
-fullMaxDist(x, lt_gen, n_mc, ...)
+fullMaxDist(x, lt_gen, n_mc, progress_tf = TRUE, ...)
 }
 \arguments{
 \item{lt_gen}{Lengt of each generated series in seconds}
@@ -24,4 +24,3 @@ fullMaxDist
 Generates the empirical distribution of the maximum value from a
   full (non-zero tail length) POT model over a specified length of time
 }
-

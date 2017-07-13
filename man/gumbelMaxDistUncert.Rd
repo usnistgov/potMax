@@ -4,7 +4,7 @@
 \alias{gumbelMaxDistUncert}
 \title{gumbelMaxDistUncert}
 \usage{
-gumbelMaxDistUncert(x, lt_gen, n_mc, n_boot, ...)
+gumbelMaxDistUncert(x, lt_gen, n_mc, n_boot, progress_tf = TRUE, ...)
 }
 \arguments{
 \item{lt_gen}{Lengt of each generated series in seconds that the maximum is
@@ -32,4 +32,3 @@ Generates bootstrap samples of the empirical distribution of the
   maximum value from a Gumbel (zero tail length) POT model over a specified
   #'   length of time
 }
-

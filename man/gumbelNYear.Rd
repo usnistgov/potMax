@@ -18,4 +18,3 @@ gumbelNYear
 Calculates the N-year return value from a fitted POT model with the
   Gumbel tail length parameter, i.e., 0
 }
-

@@ -22,4 +22,3 @@ gumbelEstThreshold
 \details{
 Select a threshold when using the Gumble POT modle
 }
-

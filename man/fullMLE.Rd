@@ -2,8 +2,8 @@
 % Please edit documentation in R/fullMLE.R
 \name{fullMLE}
 \alias{fullMLE}
-\alias{fullMLE.default}
 \alias{fullMLE.thresholded_series}
+\alias{fullMLE.default}
 \title{Maximum Likelihood Estimation for the Full Model}
 \usage{
 fullMLE(x, n_starts, hessian_tf, ...)
@@ -50,6 +50,7 @@ where
 
 \item \code{default}: 
 }}
+
 \examples{
 
 \dontrun{
@@ -67,4 +68,3 @@ full_pot_fit <- fullMLE(x = thresholded_obs,
 }
 
 }
-

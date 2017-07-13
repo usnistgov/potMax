@@ -18,4 +18,3 @@ fullNYear
 Calculates the N-year return value from a fitted POT model with
   a non-zero tail length parameter
 }
-

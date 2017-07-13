@@ -22,4 +22,3 @@ fullEstThreshold
 \details{
 Select a threshold when using the full POT model
 }
-

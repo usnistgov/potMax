@@ -2,8 +2,8 @@
 % Please edit documentation in R/gumbelMLE.R
 \name{gumbelMLE}
 \alias{gumbelMLE}
-\alias{gumbelMLE.default}
 \alias{gumbelMLE.thresholded_series}
+\alias{gumbelMLE.default}
 \title{Maximum Likelihood Estimation for the Gumble Model}
 \usage{
 gumbelMLE(x, hessian_tf, ...)
@@ -44,6 +44,7 @@ The likelihood is
 
 \item \code{default}: 
 }}
+
 \examples{
 
 \dontrun{
@@ -62,4 +63,3 @@ gumbel_pot_fit <- gumbelMLE(x = thresholded_obs,
 }
 
 }
-
