@@ -13,7 +13,7 @@ The package and its dependencies are installed with the following
 commands:
 
 ```r
-install.packages(c('Rcpp', 'numDeriv', 'devtools', 
+install.packages(c('Rcpp', 'numDeriv', 'devtools', 'nloptr',
                    'knitr', 'progress', 'RcppProgress'), 
                  repos = 'https://cloud.r-project.org/')
 devtools::install_github('usnistgov/potMax', build_vignettes = TRUE)
