@@ -228,9 +228,6 @@ fullMaxDist.default <- function(x, thresh,
   k <- x[3]
   lt_gen <- lt_gen[1] # only scalars are allowed
 
-  if (sigma <= 0) {
-    stop('must have sigma > 0')
-  }
   if (lt_gen <= 0) {
     stop('must have lt_gen > 0')
   }
@@ -346,7 +343,7 @@ fullMaxDistUncert.default <- function(x,
   Lambda <- Lambda[!is.na(Lambda)]
   new_n_boot <- length(Lambda)
   if (new_n_boot < n_boot) {
-    warning(paste0('Removing ', n_boot - n_new_boot,
+    warning(paste0('Removing ', n_boot - new_n_boot,
                    ' bootstrap samples because Lambda^* is NA'), immediate. = TRUE)
     n_boot <- new_n_boot
   }

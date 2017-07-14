@@ -14,7 +14,7 @@
 # #'
 # #' @param N - The number of observations (also the length of the y parameter)
 # #'
-fullLogLike <- function(theta, y, thresh, lt, N) {
+fullLogLike <- function(theta, y, thresh, lt, N, flip = FALSE) {
 
   ## unpack the parameters
   mu <- theta[1]
@@ -40,58 +40,49 @@ fullLogLike <- function(theta, y, thresh, lt, N) {
   # if the shape parameter is zero use limit of the likelihood
   if (round(k, 10) == 0) {
 
-    # the scale parameter must be > zero
-    if (sigma <= 0) {
+    sum_y <- sum(y)
 
-      return(-Inf)
-    } else {
+    term1 <- -N*log(sigma)
 
-      sum_y <- sum(y)
+    term2 <- (-1/sigma)*sum_y
 
-      term1 <- -N*log(sigma)
+    term3 <- N*mu/sigma
 
-      term2 <- (-1/sigma)*sum_y
+    term4 <- -lt
+    term4 <- term4*exp((-(thresh - mu))/sigma)
 
-      term3 <- N*mu/sigma
-
-      term4 <- -lt
-      term4 <- term4*exp((-(thresh - mu))/sigma)
-
-      value <- term1 + term2 + term3 + term4
-    }
+    value <- term1 + term2 + term3 + term4
   } else {
     # if the shape parameter is not zero, use the regular likelihood
 
-    # the scale parameter must be > zero
-    if (sigma <= 0) {
+    # some checks to make sure that the current parameters are consistent with
+    # the threshold and data
+    check <- 1 + k*((thresh - mu)/sigma)
+    term2 <- 1 + k*((y - mu)/sigma)
+    if (min(c(check, term2)) <= 0) {
 
       return(-Inf)
     } else {
 
-      # some checks to make sure that the current parameters are consistent with
-      # the threshold and data
-      check <- 1 + k*((thresh - mu)/sigma)
-      term2 <- 1 + k*((y - mu)/sigma)
-      if (min(c(check, term2)) <= 0) {
+      term2 <- sum(log(term2))
+      term2 <- ((-1/k) - 1)*term2
 
-        return(-Inf)
-      } else {
+      term1 <- (-1)*N*log(sigma)
 
-        term2 <- sum(log(term2))
-        term2 <- ((-1/k) - 1)*term2
+      term3 <- 1 + k*((thresh - mu)/sigma)
+      term3 <- term3^(-1/k)
+      term3 <- lt*term3
 
-        term1 <- (-1)*N*log(sigma)
-
-        term3 <- 1 + k*((thresh - mu)/sigma)
-        term3 <- term3^(-1/k)
-        term3 <- lt*term3
-
-        value <- term1 + term2 - term3
-      }
+      value <- term1 + term2 - term3
     }
   }
 
-  value
+  if (!flip) {
+    return(value)
+  } else {
+    # nloptr can only minimize
+    return(-value)
+  }
 }
 
 #'
@@ -178,21 +169,27 @@ fullMLE.default <- function(x, lt, thresh, n_starts, hessian_tf) {
   start <- gumbelMLE(x = x, lt = lt, thresh = thresh,
                      hessian_tf = FALSE)$par
   start <- c(start[1], log(start[2]), 0.0)
-  tmp_mle <- try(optim(par = start, fn = fullLogLike,
-                       control = list(fnscale = -1, maxit = 10000),
-                       hessian = FALSE, y = x, thresh = thresh,
-                       lt = lt, N = N), FALSE)
+  # original non-nloptr solution
+  # tmp_mle <- try(optim(par = start, fn = fullLogLike,
+  #                      control = list(fnscale = -1, maxit = 10000),
+  #                      hessian = FALSE, y = x, thresh = thresh,
+  #                      lt = lt, N = N), FALSE)
+  tmp_mle <- try(nloptr::nloptr(x0 = start,
+                                eval_f = fullLogLike,
+                                opts = list(algorithm = 'NLOPT_LN_PRAXIS',
+                                            maxeval = 1e5, xtol_rel = 1e-4,
+                                            print_level = 0),
+                                y = x, thresh = thresh, lt = lt, N = N,
+                                flip = TRUE),
+                 FALSE)
 
-  ## check for convergence of optim
+  ## check for an error
   if (!inherits(tmp_mle, "try-error")) {
 
-    if (tmp_mle$convergence == 0) {
-
-      mle <- tmp_mle
-    }
+    mle <- tmp_mle
   }
 
-  # next, we pass several random starts into optim, and we take the parameters
+  # next, we pass several random starts into nloptr, and we take the parameters
   # corresponding to the largest likelihood value.
 
   for (i in 1:n_starts) {
@@ -219,27 +216,32 @@ fullMLE.default <- function(x, lt, thresh, n_starts, hessian_tf) {
       }
     }
 
-    tmp_mle <- try(optim(par = tmp_start, fn = fullLogLike,
-                         control = list(fnscale = -1, maxit = 10000),
-                         hessian = FALSE, y = x, thresh = thresh,
-                         lt = lt, N = N), FALSE)
-
-    ## check for convergence of optim and if
+    # original non-nloptr solution
+    # tmp_mle <- try(optim(par = tmp_start, fn = fullLogLike,
+    #                      control = list(fnscale = -1, maxit = 10000),
+    #                      hessian = FALSE, y = x, thresh = thresh,
+    #                      lt = lt, N = N), FALSE)
+    tmp_mle <- try(nloptr::nloptr(x0 = tmp_start,
+                                  eval_f = fullLogLike,
+                                  opts = list(algorithm = 'NLOPT_LN_PRAXIS',
+                                              maxeval = 1e5, xtol_rel = 1e-4,
+                                              print_level = 0),
+                                  y = x, thresh = thresh, lt = lt, N = N,
+                                  flip = TRUE),
+                   FALSE)
+    ## check for an error and if
     ## the new parameter values lead to a larger
     ## likelihood than the old parameter values
     if (!inherits(tmp_mle, "try-error")) {
 
-      if (tmp_mle$convergence == 0) {
+      if (is.null(mle)) {
 
-        if (is.null(mle)) {
+        mle <- tmp_mle
+      } else {
+
+        if (tmp_mle$objective < mle$objective) {
 
           mle <- tmp_mle
-        } else {
-
-          if (tmp_mle$value > mle$value) {
-
-            mle <- tmp_mle
-          }
         }
       }
     }
@@ -250,29 +252,27 @@ fullMLE.default <- function(x, lt, thresh, n_starts, hessian_tf) {
     warning('fullMLE unable to maximize the log-likelihood')
   }
 
-  # if hessian is TRUE and optim converged we run optim one last time to get the
+  # if hessian is TRUE we run numDeriv::hessian to get the
   # hessian matrix
   if (hessian_tf & !is.null(mle)) {
 
-    tmp_mle <- try(optim(par = mle$par, fn = fullLogLike,
-                         control = list(fnscale = -1, maxit = 10000),
-                         hessian = TRUE, y = x, thresh = thresh,
-                         lt = lt, N = N), FALSE)
+    # before nloptr
+    # tmp_mle <- try(optim(par = mle$par, fn = fullLogLike,
+    #                      control = list(fnscale = -1, maxit = 10000),
+    #                      hessian = TRUE, y = x, thresh = thresh,
+    #                      lt = lt, N = N), FALSE)
+    lhessian <- try(numDeriv::hessian(func = fullLogLike,
+                                      x = mle$solution,
+                                      y = x,
+                                      thresh = thresh,
+                                      lt = lt,
+                                      N = N,
+                                      flip = FALSE),
+                    FALSE)
 
-    if (!inherits(tmp_mle, "try-error")) {
+    if (inherits(lhessian, "try-error")) {
 
-      if (tmp_mle$convergence == 0) {
-
-        mle <- tmp_mle
-      } else {
-
-        mle <- NULL
-        warning('fullMLE failed hessian computation')
-      }
-    } else {
-
-      mle <- NULL
-      warning('fullMLE failed hessian computation')
+       warning('fullMLE failed hessian computation')
     }
   }
 
@@ -280,14 +280,14 @@ fullMLE.default <- function(x, lt, thresh, n_starts, hessian_tf) {
 
     if (hessian_tf) {
 
-      value <- list(par = c(mle$par[1], exp(mle$par[2]), mle$par[3]),
-                    lhessian = mle$hessian,
+      value <- list(par = c(mle$solution[1], exp(mle$solution[2]), mle$solution[3]),
+                    lhessian = lhessian,
                     y = x,
                     thresh = thresh)
       class(value) <- 'full_pot_fit'
     } else {
 
-      value <- list(par = c(mle$par[1], exp(mle$par[2]), mle$par[3]),
+      value <- list(par = c(mle$solution[1], exp(mle$solution[2]), mle$solution[3]),
                     lhessian = NULL,
                     y = x,
                     thresh = thresh)

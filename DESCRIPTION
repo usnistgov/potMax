@@ -15,7 +15,8 @@ Imports:
     MASS,
     numDeriv,
     RcppProgress (>= 0.1),
-    progress
+    progress,
+    nloptr
 Suggests: knitr,
     testthat
 LinkingTo: Rcpp, RcppProgress
