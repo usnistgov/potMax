@@ -2,26 +2,26 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 declusterCpp <- function(complete_series, y, series_mean) {
-    .Call('potMax_declusterCpp', PACKAGE = 'potMax', complete_series, y, series_mean)
+    .Call('_potMax_declusterCpp', PACKAGE = 'potMax', complete_series, y, series_mean)
 }
 
 declusterWithTimeCpp <- function(complete_series, obs_times, y, t, series_mean) {
-    .Call('potMax_declusterWithTimeCpp', PACKAGE = 'potMax', complete_series, obs_times, y, t, series_mean)
+    .Call('_potMax_declusterWithTimeCpp', PACKAGE = 'potMax', complete_series, obs_times, y, t, series_mean)
 }
 
 gumbelMaxDistCpp <- function(mu, sigma, Lambda, integration_constant, n_mc, progress_tf) {
-    .Call('potMax_gumbelMaxDistCpp', PACKAGE = 'potMax', mu, sigma, Lambda, integration_constant, n_mc, progress_tf)
+    .Call('_potMax_gumbelMaxDistCpp', PACKAGE = 'potMax', mu, sigma, Lambda, integration_constant, n_mc, progress_tf)
 }
 
 gumbelMaxDistUncertCpp <- function(mu, sigma, Lambda, integration_constant, n_mc, n_boot, progress_tf) {
-    .Call('potMax_gumbelMaxDistUncertCpp', PACKAGE = 'potMax', mu, sigma, Lambda, integration_constant, n_mc, n_boot, progress_tf)
+    .Call('_potMax_gumbelMaxDistUncertCpp', PACKAGE = 'potMax', mu, sigma, Lambda, integration_constant, n_mc, n_boot, progress_tf)
 }
 
 fullMaxDistCpp <- function(mu, sigma, k, Lambda, integration_constant, n_mc, progress_tf) {
-    .Call('potMax_fullMaxDistCpp', PACKAGE = 'potMax', mu, sigma, k, Lambda, integration_constant, n_mc, progress_tf)
+    .Call('_potMax_fullMaxDistCpp', PACKAGE = 'potMax', mu, sigma, k, Lambda, integration_constant, n_mc, progress_tf)
 }
 
 fullMaxDistUncertCpp <- function(mu, sigma, k, Lambda, integration_constant, n_mc, n_boot, progress_tf) {
-    .Call('potMax_fullMaxDistUncertCpp', PACKAGE = 'potMax', mu, sigma, k, Lambda, integration_constant, n_mc, n_boot, progress_tf)
+    .Call('_potMax_fullMaxDistUncertCpp', PACKAGE = 'potMax', mu, sigma, k, Lambda, integration_constant, n_mc, n_boot, progress_tf)
 }
 

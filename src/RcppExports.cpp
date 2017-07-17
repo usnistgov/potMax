@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // declusterCpp
 int declusterCpp(NumericVector complete_series, NumericVector y, double series_mean);
-RcppExport SEXP potMax_declusterCpp(SEXP complete_seriesSEXP, SEXP ySEXP, SEXP series_meanSEXP) {
+RcppExport SEXP _potMax_declusterCpp(SEXP complete_seriesSEXP, SEXP ySEXP, SEXP series_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,7 +20,7 @@ END_RCPP
 }
 // declusterWithTimeCpp
 int declusterWithTimeCpp(NumericVector complete_series, NumericVector obs_times, NumericVector y, NumericVector t, double series_mean);
-RcppExport SEXP potMax_declusterWithTimeCpp(SEXP complete_seriesSEXP, SEXP obs_timesSEXP, SEXP ySEXP, SEXP tSEXP, SEXP series_meanSEXP) {
+RcppExport SEXP _potMax_declusterWithTimeCpp(SEXP complete_seriesSEXP, SEXP obs_timesSEXP, SEXP ySEXP, SEXP tSEXP, SEXP series_meanSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -35,7 +35,7 @@ END_RCPP
 }
 // gumbelMaxDistCpp
 NumericVector gumbelMaxDistCpp(double mu, double sigma, double Lambda, double integration_constant, int n_mc, bool progress_tf);
-RcppExport SEXP potMax_gumbelMaxDistCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP, SEXP progress_tfSEXP) {
+RcppExport SEXP _potMax_gumbelMaxDistCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP, SEXP progress_tfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -51,7 +51,7 @@ END_RCPP
 }
 // gumbelMaxDistUncertCpp
 NumericMatrix gumbelMaxDistUncertCpp(NumericVector mu, NumericVector sigma, NumericVector Lambda, NumericVector integration_constant, int n_mc, int n_boot, bool progress_tf);
-RcppExport SEXP potMax_gumbelMaxDistUncertCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP, SEXP n_bootSEXP, SEXP progress_tfSEXP) {
+RcppExport SEXP _potMax_gumbelMaxDistUncertCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP, SEXP n_bootSEXP, SEXP progress_tfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -68,7 +68,7 @@ END_RCPP
 }
 // fullMaxDistCpp
 NumericVector fullMaxDistCpp(double mu, double sigma, double k, double Lambda, double integration_constant, int n_mc, bool progress_tf);
-RcppExport SEXP potMax_fullMaxDistCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP kSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP, SEXP progress_tfSEXP) {
+RcppExport SEXP _potMax_fullMaxDistCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP kSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP, SEXP progress_tfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -85,7 +85,7 @@ END_RCPP
 }
 // fullMaxDistUncertCpp
 NumericMatrix fullMaxDistUncertCpp(NumericVector mu, NumericVector sigma, NumericVector k, NumericVector Lambda, NumericVector integration_constant, int n_mc, int n_boot, bool progress_tf);
-RcppExport SEXP potMax_fullMaxDistUncertCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP kSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP, SEXP n_bootSEXP, SEXP progress_tfSEXP) {
+RcppExport SEXP _potMax_fullMaxDistUncertCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP kSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP, SEXP n_bootSEXP, SEXP progress_tfSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -103,12 +103,12 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"potMax_declusterCpp", (DL_FUNC) &potMax_declusterCpp, 3},
-    {"potMax_declusterWithTimeCpp", (DL_FUNC) &potMax_declusterWithTimeCpp, 5},
-    {"potMax_gumbelMaxDistCpp", (DL_FUNC) &potMax_gumbelMaxDistCpp, 6},
-    {"potMax_gumbelMaxDistUncertCpp", (DL_FUNC) &potMax_gumbelMaxDistUncertCpp, 7},
-    {"potMax_fullMaxDistCpp", (DL_FUNC) &potMax_fullMaxDistCpp, 7},
-    {"potMax_fullMaxDistUncertCpp", (DL_FUNC) &potMax_fullMaxDistUncertCpp, 8},
+    {"_potMax_declusterCpp", (DL_FUNC) &_potMax_declusterCpp, 3},
+    {"_potMax_declusterWithTimeCpp", (DL_FUNC) &_potMax_declusterWithTimeCpp, 5},
+    {"_potMax_gumbelMaxDistCpp", (DL_FUNC) &_potMax_gumbelMaxDistCpp, 6},
+    {"_potMax_gumbelMaxDistUncertCpp", (DL_FUNC) &_potMax_gumbelMaxDistUncertCpp, 7},
+    {"_potMax_fullMaxDistCpp", (DL_FUNC) &_potMax_fullMaxDistCpp, 7},
+    {"_potMax_fullMaxDistUncertCpp", (DL_FUNC) &_potMax_fullMaxDistUncertCpp, 8},
     {NULL, NULL, 0}
 };
 
