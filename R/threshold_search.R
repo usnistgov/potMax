@@ -131,16 +131,11 @@ fullWPlot.default <- function(x,
 
   if (details) {
 
-    value1 <- abs((W - exp1_quantiles))
-    value2 <- abs(W + log((n - 1:n + 1)/(n + 1)))
-    data.frame(y, excesses, W1, W2, W3, W4, W, value1, value2)
+    value <- abs((W - exp1_quantiles))
+    data.frame(y, excesses, W1, W2, W3, W4, W, value)
   } else {
 
-    invisible(list(value1 = max(abs((W - exp1_quantiles))),
-                   value2 = max(abs(W + log((n - 1:n + 1)/(n + 1)))),
-                   prob = NA
-                   )
-              )
+    invisible(list(value = max(abs((W - exp1_quantiles)))))
   }
 }
 
@@ -220,7 +215,7 @@ gumbelWPlot.default <- function (x,
 # #'
 # #' @param n_max
 # #'
-genThresholds <- function (y_all, n_min, n_max) {
+genThresholds <- function(y_all, n_min, n_max) {
 
   y <- sort(y_all, decreasing = TRUE)
   thresholds <- NULL
@@ -251,14 +246,14 @@ genThresholds <- function (y_all, n_min, n_max) {
 #'
 #' @export
 #'
-gumbelEstThreshold <- function (x, lt, n_min, n_max) {
+gumbelEstThreshold <- function(x, lt, n_min, n_max) {
   UseMethod('gumbelEstThreshold')
 }
 
 #' @export
-gumbelEstThreshold.declustered_series <- function (x, lt,
-                                                   n_min,
-                                                   n_max) {
+gumbelEstThreshold.declustered_series <- function(x, lt,
+                                                  n_min,
+                                                  n_max) {
 
   gumbelEstThreshold.default(x = x$declustered_series,
                              lt = lt,
@@ -270,9 +265,7 @@ gumbelEstThreshold.declustered_series <- function (x, lt,
 gumbelEstThreshold.default <- function(x, lt, n_min, n_max) {
 
   thresholds <- genThresholds(x, n_min, n_max)
-  w_stats1 <- rep(NA, length(thresholds))
-  w_stats2 <- rep(NA, length(thresholds))
-  probs <- rep(NA, length(thresholds))
+  w_stats <- rep(NA, length(thresholds))
 
   pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
                                    complete = '*')
@@ -286,30 +279,23 @@ gumbelEstThreshold.default <- function(x, lt, n_min, n_max) {
                                  lt = lt,
                                  thresh = thresholds[i],
                                  hessian_tf = FALSE)
-    tmp <- gumbelWPlot.default(x = pot_fit$par,
-                               y = y,
-                               thresh = thresholds[i],
-                               tf_plot = FALSE,
-                               BW = FALSE,
-                               details = FALSE)
-    w_stats1[i] <- tmp$value1
-    w_stats2[i] <- tmp$value2
-    probs[i] <- tmp$prob
+    w_stats[i] <- gumbelWPlot.default(x = pot_fit$par,
+                                      y = y,
+                                      thresh = thresholds[i],
+                                      tf_plot = FALSE,
+                                      BW = FALSE,
+                                      details = FALSE)
+
     pb$tick()
   }
 
-  thresh1 = thresholds[w_stats1 == min(w_stats1)]
-  thresh2 = thresholds[w_stats2 == min(w_stats2)]
+  thresh <- thresholds[w_stats == min(w_stats)]
 
-  value <- list(selected_threshold = thresh1,
-                selected_threshold_alt = thresh2,
+  value <- list(selected_threshold = thresh,
                 lt = lt,
-                y = x[x > thresh1],
-                y_alt = x[x > thresh2],
+                y = x[x > thresh],
                 checked_thresholds = thresholds,
-                w_stats = w_stats1,
-                w_stat_alt = w_stats2,
-                probs = probs)
+                w_stats = w_stats)
   class(value) <- 'thresholded_series'
   value
 }
@@ -354,9 +340,7 @@ fullEstThreshold.default <- function(x, lt, n_min, n_max,
                                      n_starts) {
 
   thresholds <- genThresholds(x, n_min, n_max)
-  w_stats1 <- rep(NA, length(thresholds))
-  w_stats2 <- rep(NA, length(thresholds))
-  probs <- rep(NA, length(thresholds))
+  w_stats <- rep(NA, length(thresholds))
 
   pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
                                    complete = '*')
@@ -371,75 +355,23 @@ fullEstThreshold.default <- function(x, lt, n_min, n_max,
                                thresh = thresholds[i],
                                n_starts = n_starts,
                                hessian_tf = FALSE)
-    tmp <- fullWPlot.default(x = pot_fit$par,
-                             y = y,
-                             thresh = thresholds[i],
-                             tf_plot = FALSE,
-                             BW = FALSE,
-                             details = FALSE)
-    w_stats1[i] <- tmp$value1
-    w_stats2[i] <- tmp$value2
-    probs[i] <- tmp$prob
+    w_stats <- fullWPlot.default(x = pot_fit$par,
+                                 y = y,
+                                 thresh = thresholds[i],
+                                 tf_plot = FALSE,
+                                 BW = FALSE,
+                                details = FALSE)
+
     pb$tick()
   }
 
-  thresh1 <- thresholds[w_stats1 == min(w_stats1)]
-  thresh2 <- thresholds[w_stats2 == min(w_stats2)]
+  thresh <- thresholds[w_stats == min(w_stats)]
 
-  value <- list(selected_threshold = thresh1,
-                selected_threshold_alt = thresh2,
+  value <- list(selected_threshold = thresh,
                 lt = lt,
-                y = x[x > thresh1],
-                y_alt = x[x > thresh2],
+                y = x[x > thresh],
                 checked_thresholds = thresholds,
-                w_stats = w_stats1,
-                w_stats_alt = w_stats2,
-                probs = probs)
+                w_stats = w_stats)
   class(value) <- 'thresholded_series'
   value
 }
-
-# #' @export
-# thresholdSeries <- function (x, lt, n_target) {
-#   UseMethod('thresholdSeries')
-# }
-#
-# #' @export
-# thresholdSeries.declustered_series <- function (x, lt, n_target) {
-#   thresholdSeries.default(x = x$declustered_series,
-#                           lt = lt,
-#                           n_target = n_target)
-# }
-#
-# #' @export
-# thresholdSeries.default <- function (x, lt, n_target) {
-#
-#   n <- length(x)
-#   x <- sort(x)
-#   if (n <= n_target) {
-#     value <- list(selected_threshold = min(x),
-#                   lt = lt,
-#                   y = x,
-#                   checked_thresholds = NULL,
-#                   w_stats = NULL)
-#     class(value) <- 'thresholded_series'
-#   } else {
-#
-#     for (i in 1:(n - 1)) {
-#
-#       thresh <- mean(c(x[i], x[i + 1]))
-#       y <- x[x > thresh]
-#       if (length(y) == n_target) {
-#
-#         value <- list(selected_threshold = thresh,
-#                   lt = lt,
-#                   y = y,
-#                   checked_thresholds = NULL,
-#                   w_stats = NULL)
-#         class(value) <- 'thresholded_series'
-#         break
-#       }
-#     }
-#   }
-#   value
-# }
