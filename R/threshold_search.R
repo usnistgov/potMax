@@ -135,7 +135,7 @@ fullWPlot.default <- function(x,
     data.frame(y, excesses, W1, W2, W3, W4, W, value)
   } else {
 
-    invisible(list(value = max(abs((W - exp1_quantiles)))))
+    invisible(max(abs((W - exp1_quantiles))))
   }
 }
 
