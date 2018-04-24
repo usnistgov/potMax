@@ -16,7 +16,9 @@ Imports:
     numDeriv,
     RcppProgress (>= 0.1),
     progress,
-    nloptr
+    nloptr,
+    pbapply,
+    ggplot2
 Suggests: knitr,
     testthat
 LinkingTo: Rcpp, RcppProgress

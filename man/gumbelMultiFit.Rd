@@ -15,7 +15,7 @@ recorded}
 \item{n_max}{The maximum number of thresholded observations to include}
 
 \item{weight_scale}{The weights are
-exp[-0.5*weight_scale/(max_w - min_w)*(w - min_w)]
+exp[-weight_scale/(max_w - min_w)*(w - min_w)]
 normalized to sum to unity}
 
 \item{y_all}{The unthresholded series of observations}

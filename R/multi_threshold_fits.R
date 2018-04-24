@@ -57,7 +57,7 @@ gumbelMultiFit.default <- function(x, lt, n_min, n_max, weight_scale) {
     all_fits[[i]] <- gumbelMLE.default(x = y,
                                        lt = lt,
                                        thresh = thresholds[i],
-                                       hessian_tf = TRUE)
+                                       hessian_tf = FALSE)
     w_stats[i] <- gumbelWPlot.default(x = all_fits[[i]]$par,
                                       y = y,
                                       thresh = thresholds[i],
@@ -73,7 +73,11 @@ gumbelMultiFit.default <- function(x, lt, n_min, n_max, weight_scale) {
   w_stats <- weight_scale/(max_w - min_w)*(w_stats - min_w)
   w_stats <- exp(-w_stats)
   value <- list(all_fits = all_fits,
-                weights = w_stats/sum(w_stats))
+                weights = w_stats/sum(w_stats),
+                lt = lt,
+                n_min = n_min,
+                n_max = n_max,
+                weight_scale = weight_scale)
   class(value) <- 'gumbel_multi_fit'
   value
 }
@@ -146,7 +150,7 @@ fullMultiFit.default <- function(x, lt, n_min, n_max,
                                      lt = lt,
                                      thresh = thresholds[i],
                                      n_starts = n_starts,
-                                     hessian_tf = TRUE)
+                                     hessian_tf = FALSE)
     w_stats[i] <- fullWPlot.default(x = all_fits[[i]]$par,
                                     y = y,
                                     thresh = thresholds[i],
