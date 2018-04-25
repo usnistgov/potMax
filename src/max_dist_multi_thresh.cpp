@@ -21,7 +21,7 @@ NumericVector gumbelMaxDistMultiCpp(NumericVector mu,
   for (k = 0; k < n_mc; k++) {
 
     n = R::rpois(Lambda[k]);
-    while (n <= 0) {
+    while (n < 1.0) {
       n = R::rpois(Lambda[k]);
     }
 
