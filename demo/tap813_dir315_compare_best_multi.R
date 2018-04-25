@@ -1,4 +1,3 @@
-library(ggplot2)
 
 all_dat <- jp1tap813wind315$value
 tdat <- -all_dat[1:floor(0.33*length(all_dat))]

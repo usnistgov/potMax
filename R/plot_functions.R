@@ -1,45 +1,54 @@
 #' @export
-plot.gumbel_max_dist <- function (x,
-                                  add_mean = TRUE,
-                                  mean_col = 'red',
-                                  lwd = 1, ...) {
-  par(lwd = lwd)
-  hist(x$max_dist,
-       xlab = 'Peak Value',
-       main = 'Distribution of the Peak Value',
-       freq = FALSE,
-       ...)
-  par(lwd = 1)
-  if (add_mean) {
+plot.gumbel_max_dist <- function(x,
+                                 add_mean = TRUE,
+                                 mean_col = 'red',
+                                 binwidth = NULL,
+                                 mean_size = 5,
+                                 ...) {
 
-    points(mean(x), 0,
-           col = mean_col,
-           pch = 17, cex = 2)
-    legend('topright', legend = 'Mean',
-           col = mean_col, pch = 17, bty = 'n')
+  if (is.null(binwidth)) {
+    binwidth <- (max(x$max_dist) - min(x$max_dist))/30
   }
+  p <- ggplot2::ggplot(data = data.frame(x = x$max_dist),
+              mapping = ggplot2::aes(x = x, y = ..density..)) +
+    ggplot2::geom_histogram(binwidth = binwidth) +
+    ggplot2::xlab('Peak Value') +
+    ggplot2::ylab('Density') +
+    ggplot2::ggtitle('Distribution of the Peak Value') +
+    ggplot2::geom_point(data = data.frame(x = mean(x), y = 0),
+               mapping = ggplot2::aes(x = x, y = y),
+               col = mean_col, size = mean_size) +
+    ggplot2::annotate('text', Inf, Inf,
+                      label = paste0(mean_col, ' point is the mean'),
+                      hjust = 1, vjust = 1) +
+    ggplot2::theme_classic()
+  p
 }
 
 #' @export
-plot.full_max_dist <- function (x,
-                                add_mean = TRUE,
-                                mean_col = 'red',
-                                lwd = 1, ...) {
-  par(lwd = lwd)
-  hist(x$max_dist,
-       xlab = 'Peak Value',
-       main = 'Distribution of the Peak Value',
-       freq = FALSE,
-       ...)
-  par(lwd = 1)
-  if (add_mean) {
-
-    points(mean(x), 0,
-           col = mean_col,
-           pch = 17, cex = 2)
-    legend('topright', legend = 'Mean',
-           col = mean_col, pch = 17, bty = 'n')
+plot.full_max_dist <- function(x,
+                               add_mean = TRUE,
+                               mean_col = 'red',
+                               binwidth = NULL,
+                               mean_size = 5,
+                               ...) {
+  if (is.null(binwidth)) {
+    binwidth <- (max(x$max_dist) - min(x$max_dist))/30
   }
+  p <- ggplot2::ggplot(data = data.frame(x = x$max_dist),
+                       mapping = ggplot2::aes(x = x, y = ..density..)) +
+    ggplot2::geom_histogram(binwidth = binwidth) +
+    ggplot2::xlab('Peak Value') +
+    ggplot2::ylab('Density') +
+    ggplot2::ggtitle('Distribution of the Peak Value') +
+    ggplot2::geom_point(data = data.frame(x = mean(x), y = 0),
+                        mapping = ggplot2::aes(x = x, y = y),
+                        col = mean_col, size = mean_size) +
+    ggplot2::annotate('text', Inf, Inf,
+                      label = paste0(mean_col, ' point is the mean'),
+                      hjust = 1, vjust = 1) +
+    ggplot2::theme_classic()
+  p
 }
 
 #' @export
