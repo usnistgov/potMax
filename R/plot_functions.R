@@ -18,9 +18,6 @@ plot.gumbel_max_dist <- function(x,
     ggplot2::geom_point(data = data.frame(x = mean(x), y = 0),
                mapping = ggplot2::aes(x = x, y = y),
                col = mean_col, size = mean_size) +
-    ggplot2::annotate('text', Inf, Inf,
-                      label = paste0(mean_col, ' point is the mean'),
-                      hjust = 1, vjust = 1) +
     ggplot2::theme_classic()
   p
 }
@@ -44,146 +41,94 @@ plot.full_max_dist <- function(x,
     ggplot2::geom_point(data = data.frame(x = mean(x), y = 0),
                         mapping = ggplot2::aes(x = x, y = y),
                         col = mean_col, size = mean_size) +
-    ggplot2::annotate('text', Inf, Inf,
-                      label = paste0(mean_col, ' point is the mean'),
-                      hjust = 1, vjust = 1) +
     ggplot2::theme_classic()
   p
 }
 
 #' @export
-plot.gumbel_max_dist_uncert <- function (x,
-                                         add_int = TRUE,
-                                         int_col = 'red',
-                                         n_plot = 50,
-                                         add = FALSE, ...) {
+plot.gumbel_max_dist_uncert <- function(x,
+                                        add_int = TRUE,
+                                        int_col = 'red',
+                                        int_size = 3,
+                                        int_prob = 0.8,
+                                        n_plot = 50,
+                                        add = FALSE,
+                                        dens_line_alpha = 0.25,
+                                        ...) {
 
-  dist_indices <- sample(x = 1:dim(x$boot_samps)[1],
+  dist_indices <- sample(x = 1:nrow(x$boot_samps),
                          size = n_plot, replace = FALSE)
-  densx <- NULL
-  densy <- NULL
-  for (i in 1:n_plot) {
-
-    tmp <- density(x$boot_samps[dist_indices[i], ])
-    densx <- rbind(densx, tmp$x)
-    densy <- rbind(densy, tmp$y)
-  }
-
+  ggdata <- data.frame(x = as.numeric(t(x$boot_samps[dist_indices, ])),
+                       dist_indices = rep(dist_indices, each = ncol(x$boot_samps)))
   if (add) {
-
-    add_col <- rgb(128, 128, 128, 100,
-                   maxColorValue = 255)
-    for (i in 1:n_plot) {
-
-      lines(densx[i, ], densy[i, ],
-            col = add_col)
-    }
-
-    if (add_int) {
-
-      lines(summary(x, suppress = TRUE)[2:3],
-            rep(0, times = 2),
-            col = int_col, lwd = 2)
-      legend('right',
-             legend = c('Bootstrap Replicates',
-                        '80% CI for the Mean'),
-             bty = 'n', col = c(add_col, int_col),
-             lty = 'solid')
-    } else {
-
-      legend('right', legend = 'Bootstrap Replicates',
-             bty = 'n', col = add_col, lty = 'solid')
-    }
+    p <- ggplot2::last_plot() +
+      ggplot2::geom_density(data = ggdata,
+                            mapping = ggplot2::aes(x = x, group = dist_indices),
+                            color = ggplot2::alpha('black', dens_line_alpha))
   } else {
-
-    plot(c(min(densx), max(densx)),
-         c(min(densy), max(densy)),
-         ylab = 'Density',
-         xlab = 'Peak Value',
-         main = 'Bootstrap Replicates of the Distribution of the Peak',
-         bty = 'l',
-         type = 'n',
-         ...)
-    for (i in 1:n_plot) {
-
-      lines(densx[i, ], densy[i, ], ...)
-    }
-
-    if (add_int) {
-
-      lines(summary(x, suppress = TRUE)[2:3],
-            rep(0, times = 2),
-            col = int_col, lwd = 2)
-      legend('topright', legend = '80% CI for Mean',
-             col = int_col, lty = 'solid', bty = 'n')
-    }
+    p <- ggplot2::ggplot(data = ggdata,
+                         mapping = ggplot2::aes(x = x, group = dist_indices)) +
+      ggplot2::geom_density(color = ggplot2::alpha('black', dens_line_alpha))
   }
+
+  p <- p + ggplot2::xlab('Peak Value') +
+      ggplot2::ylab('Density') +
+      ggplot2::ggtitle('Distribution of the Peak Value') +
+      ggplot2::theme_classic()
+
+  if (add_int) {
+
+    int_df <- data.frame(x = unlist(summary(x, probs = c(0.5 - int_prob/2, 0.5 + int_prob/2),
+                                            suppress = TRUE)[2:3]),
+                         y = rep(0, times = 2))
+    p <- p + ggplot2::geom_line(data = int_df,
+                                mapping = ggplot2::aes(x = x, y = y, group = NULL),
+                                col = int_col, size = int_size)
+  }
+
+  p
 }
 
 #' @export
-plot.full_max_dist_uncert <- function (x,
-                                       add_int = TRUE,
-                                       int_col = 'red',
-                                       n_plot = 50,
-                                       add = FALSE, ...) {
+plot.full_max_dist_uncert <- function(x,
+                                      add_int = TRUE,
+                                      int_col = 'red',
+                                      int_size = 3,
+                                      int_prob = 0.8,
+                                      n_plot = 50,
+                                      add = FALSE,
+                                      dens_line_alpha = 0.25,
+                                        ...) {
 
-  dist_indices <- sample(x = 1:dim(x$boot_samps)[1],
+  dist_indices <- sample(x = 1:nrow(x$boot_samps),
                          size = n_plot, replace = FALSE)
-  densx <- NULL
-  densy <- NULL
-  for (i in 1:n_plot) {
-
-    tmp <- density(x$boot_samps[dist_indices[i], ])
-    densx <- rbind(densx, tmp$x)
-    densy <- rbind(densy, tmp$y)
-  }
-
+  ggdata <- data.frame(x = as.numeric(t(x$boot_samps[dist_indices, ])),
+                       dist_indices = rep(dist_indices, each = ncol(x$boot_samps)))
   if (add) {
-
-    add_col <- rgb(128, 128, 128, 100,
-                   maxColorValue = 255)
-    for (i in 1:n_plot) {
-
-      lines(densx[i, ], densy[i, ],
-            col = add_col)
-    }
-
-    if (add_int) {
-
-      lines(summary(x, suppress = TRUE)[2:3],
-            rep(0, times = 2),
-            col = int_col, lwd = 2)
-      legend('right',
-             legend = c('Bootstrap Replicates',
-                        '80% CI for the Mean'),
-             bty = 'n', col = c(add_col, int_col),
-             lty = 'solid')
-    } else {
-
-      legend('right', legend = 'Bootstrap Replicates',
-             bty = 'n', col = add_col, lty = 'solid')
-    }
+    p <- ggplot2::last_plot() +
+      ggplot2::geom_density(data = ggdata,
+                            mapping = ggplot2::aes(x = x, group = dist_indices),
+                            color = ggplot2::alpha('black', dens_line_alpha))
   } else {
-
-    plot(c(min(densx), max(densx)),
-         c(min(densy), max(densy)),
-         ylab = 'Density',
-         main = 'Bootstrap Replicates of the Distribution of the Peak',
-         bty = 'l',
-         type = 'n',
-         ...)
-    for (i in 1:n_plot) {
-
-      lines(densx[i, ], densy[i, ], ...)
-    }
-
-    if (add_int) {
-
-      lines(summary(x, suppress = TRUE)[2:3],
-            rep(0, times = 2),
-            col = int_col, lwd = 2)
-      legend('topright', legend = '80% CI for Mean',
-             col = int_col, lty = 'solid', bty = 'n')
-    }
+    p <- ggplot2::ggplot(data = ggdata,
+                         mapping = ggplot2::aes(x = x, group = dist_indices)) +
+      ggplot2::geom_density(color = ggplot2::alpha('black', dens_line_alpha))
   }
+
+  p <- p + ggplot2::xlab('Peak Value') +
+      ggplot2::ylab('Density') +
+      ggplot2::ggtitle('Distribution of the Peak Value') +
+      ggplot2::theme_classic()
+
+  if (add_int) {
+
+    int_df <- data.frame(x = unlist(summary(x, probs = c(0.5 - int_prob/2, 0.5 + int_prob/2),
+                                            suppress = TRUE)[2:3]),
+                         y = rep(0, times = 2))
+    p <- p + ggplot2::geom_line(data = int_df,
+                                mapping = ggplot2::aes(x = x, y = y, group = NULL),
+                                col = int_col, size = int_size)
+  }
+
+  p
 }
