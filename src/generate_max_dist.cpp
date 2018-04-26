@@ -52,7 +52,7 @@ NumericMatrix gumbelMaxDistUncertCpp(NumericVector mu,
   int indx, i, j;
   NumericMatrix max_dist_uncert(n_boot, n_mc);
   double n;
-  double tmp;
+  double tmp, tmp_max;
   Progress p(n_boot, progress_tf);
 
   for (j = 0; j < n_boot; j++) {
@@ -64,16 +64,17 @@ NumericMatrix gumbelMaxDistUncertCpp(NumericVector mu,
         n = R::rpois(Lambda[j]);
       }
 
-      max_dist_uncert(j, indx) = mu[j] - sigma[j]*(log(integration_constant[j]) + log(1 - R::runif(0, 1)));
+      tmp_max = mu[j] - sigma[j]*(log(integration_constant[j]) + log(1 - R::runif(0, 1)));
 
       for (i = 1; i < n; i++) {
 
         tmp = mu[j] - sigma[j]*(log(integration_constant[j]) + log(1 - R::runif(0, 1)));
-        if (tmp > max_dist_uncert(j, indx)) {
+        if (tmp > tmp_max) {
 
-          max_dist_uncert(j, indx) = tmp;
+          tmp_max = tmp;
         }
       }
+      max_dist_uncert(j, indx) = tmp_max;
     }
     p.increment();
   }
@@ -130,7 +131,7 @@ NumericMatrix fullMaxDistUncertCpp(NumericVector mu,
   int indx, i, j;
   NumericMatrix max_dist_uncert(n_boot, n_mc);
   double n;
-  double tmp;
+  double tmp, tmp_max;
   Progress p(n_boot, progress_tf);
 
   for (j = 0; j < n_boot; j++) {
@@ -142,16 +143,17 @@ NumericMatrix fullMaxDistUncertCpp(NumericVector mu,
         n = R::rpois(Lambda[j]);
       }
 
-      max_dist_uncert(j, indx) = (sigma[j]/k[j])*(pow(integration_constant[j]*(1 - R::runif(0, 1)), -k[j]) - 1) + mu[j];
+      tmp_max = (sigma[j]/k[j])*(pow(integration_constant[j]*(1 - R::runif(0, 1)), -k[j]) - 1) + mu[j];
 
       for (i = 1; i < n; i++) {
 
         tmp = (sigma[j]/k[j])*(pow(integration_constant[j]*(1 - R::runif(0, 1)), -k[j]) - 1) + mu[j];
-        if (tmp > max_dist_uncert(j, indx)) {
+        if (tmp > tmp_max) {
 
-          max_dist_uncert(j, indx) = tmp;
+          tmp_max = tmp;
         }
       }
+      max_dist_uncert(j, indx) = tmp_max;
     }
     p.increment();
   }
