@@ -73,4 +73,5 @@ gumbelMaxDistUncert.gumbel_multi_fit <- function(x,
                             progress_tf = FALSE)
   }
   class(boot_max_dist) <- 'gumbel_max_dist_uncert_multi_thresh'
+  boot_max_dist
 }

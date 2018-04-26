@@ -23,6 +23,22 @@ plot.gumbel_max_dist <- function(x,
 }
 
 #' @export
+plot.gumbel_max_dist_multi_thresh <- function(x,
+                                              add_mean = TRUE,
+                                              mean_col = 'red',
+                                              binwidth = NULL,
+                                              mean_size = 5,
+                                              ...) {
+
+  plot.gumbel_max_dist(x = x,
+                       add_mean = add_mean,
+                       mean_col = mean_col,
+                       binwidth = binwidth,
+                       mean_size = mean_size,
+                       ...)
+}
+
+#' @export
 plot.full_max_dist <- function(x,
                                add_mean = TRUE,
                                mean_col = 'red',
@@ -58,6 +74,41 @@ plot.full_max_dist <- function(x,
 #   p
 # }
 
+createUncertPlot <- function(boot_df, int_df,
+                             add_int,
+                             int_col,
+                             int_size,
+                             int_prob,
+                             n_plot,
+                             add,
+                             dens_line_alpha) {
+
+  if (add) {
+    p <- ggplot2::last_plot() +
+      ggplot2::geom_density(data = boot_df,
+                            mapping = ggplot2::aes(x = x, group = dist_indices),
+                            color = ggplot2::alpha('black', dens_line_alpha))
+  } else {
+    p <- ggplot2::ggplot(data = boot_df,
+                         mapping = ggplot2::aes(x = x, group = dist_indices)) +
+      ggplot2::geom_density(color = ggplot2::alpha('black', dens_line_alpha))
+  }
+
+  p <- p + ggplot2::xlab('Peak Value') +
+      ggplot2::ylab('Density') +
+      ggplot2::ggtitle('Distribution of the Peak Value') +
+      ggplot2::theme_classic()
+
+  if (add_int) {
+
+    p <- p + ggplot2::geom_line(data = int_df,
+                                mapping = ggplot2::aes(x = x, y = y, group = NULL),
+                                col = int_col, size = int_size)
+  }
+
+  p
+}
+
 #' @export
 plot.gumbel_max_dist_uncert <- function(x,
                                         add_int = TRUE,
@@ -73,33 +124,61 @@ plot.gumbel_max_dist_uncert <- function(x,
                          size = n_plot, replace = FALSE)
   ggdata <- data.frame(x = as.numeric(t(x$boot_samps[dist_indices, ])),
                        dist_indices = rep(dist_indices, each = ncol(x$boot_samps)))
-  if (add) {
-    p <- ggplot2::last_plot() +
-      ggplot2::geom_density(data = ggdata,
-                            mapping = ggplot2::aes(x = x, group = dist_indices),
-                            color = ggplot2::alpha('black', dens_line_alpha))
-  } else {
-    p <- ggplot2::ggplot(data = ggdata,
-                         mapping = ggplot2::aes(x = x, group = dist_indices)) +
-      ggplot2::geom_density(color = ggplot2::alpha('black', dens_line_alpha))
-  }
 
-  p <- p + ggplot2::xlab('Peak Value') +
-      ggplot2::ylab('Density') +
-      ggplot2::ggtitle('Distribution of the Peak Value') +
-      ggplot2::theme_classic()
-
+  int_df <- NULL
   if (add_int) {
 
     int_df <- data.frame(x = unlist(summary(x, probs = c(0.5 - int_prob/2, 0.5 + int_prob/2),
                                             suppress = TRUE)[2:3]),
                          y = rep(0, times = 2))
-    p <- p + ggplot2::geom_line(data = int_df,
-                                mapping = ggplot2::aes(x = x, y = y, group = NULL),
-                                col = int_col, size = int_size)
   }
 
-  p
+  createUncertPlot(boot_df = ggdata,
+                   int_df = int_df,
+                   add_int = add_int,
+                   int_col = int_col,
+                   int_size = int_size,
+                   int_prob = int_prob,
+                   n_plot = n_plot,
+                   add = add,
+                   dens_line_alpha = dens_line_alpha)
+}
+
+#' @export
+plot.gumbel_max_dist_uncert_multi_thresh <- function(x,
+                                                     add_int = TRUE,
+                                                     int_col = 'red',
+                                                     int_size = 3,
+                                                     int_prob = 0.8,
+                                                     n_plot = 50,
+                                                     add = FALSE,
+                                                     dens_line_alpha = 0.25,
+                                                     ...) {
+
+  dist_indices <- sample(x = 1:length(x),
+                         size = n_plot, replace = FALSE)
+  dist_indices_n <- unlist(lapply(x, function(x)sum(x$n_each)))
+  dist_indices_n <- dist_indices_n[dist_indices]
+  boot_df <- data.frame(x = unlist(lapply(x[dist_indices], function(x)x$max_dist)),
+                        dist_indices = rep(dist_indices, dist_indices_n))
+
+  int_df <- NULL
+  if (add_int) {
+
+    int_df <- data.frame(x = unlist(summary(x, probs = c(0.5 - int_prob/2, 0.5 + int_prob/2),
+                                            suppress = TRUE)[2:3]),
+                         y = rep(0, times = 2))
+  }
+
+  createUncertPlot(boot_df = boot_df,
+                   int_df = int_df,
+                   add_int = add_int,
+                   int_col = int_col,
+                   int_size = int_size,
+                   int_prob = int_prob,
+                   n_plot = n_plot,
+                   add = add,
+                   dens_line_alpha = dens_line_alpha)
 }
 
 #' @export
