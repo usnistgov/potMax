@@ -14,20 +14,35 @@ best_dist <- gumbelMaxDist(x = best_est, lt_gen = 67, n_mc = 5000)
 
 multi_dist <- gumbelMaxDist(x = multi_est, lt_gen = 67, n_mc = 5000)
 
-system.time(multi_dist_uncert <- gumbelMaxDistUncert(x = multi_est,
+multi_dist_uncert <- gumbelMaxDistUncert(x = multi_est,
                                          declust_obs = dtdat$declustered_series,
-                                         lt_gen = 67, n_mc = 5000, n_boot = 100, progress_tf = T))
+                                         lt_gen = 67, n_mc = 5000, n_boot = 100, progress_tf = T)
 
-system.time(best_dist_uncert <- gumbelMaxDistUncert(x = best_est, lt_gen = 67, n_mc = 5000, n_boot = 100))
+best_dist_uncert <- gumbelMaxDistUncert(x = best_est, lt_gen = 67, n_mc = 5000, n_boot = 100)
 
-ggdat <- tibble(y = c(best_dist$max_dist, multi_dist$max_dist),
-                type = rep(c('best', 'multi'),
-                           c(length(best_dist$max_dist), length(multi_dist$max_dist))))
 
-ggplot(ggdat, aes(x = y, fill = type)) +
-  geom_density(alpha = 0.3) +
-  geom_vline(xintercept = mean(best_dist$max_dist)) +
-  geom_vline(xintercept = mean(multi_dist$max_dist), linetype = 'dashed') +
-  geom_vline(xintercept = max(vdat), linetype = 'dotted') +
-  theme_classic()
+plot(best_dist)
+plot(best_dist_uncert, add = TRUE)
+plot(multi_dist)
+plot(multi_dist_uncert, add = TRUE)
 
+fbest_thresh <- fullEstThreshold(x = dtdat, lt = 33, n_min = 10, n_max = 50, n_starts = 2)
+fbest_est <- fullMLE(x = fbest_thresh, hessian_tf = TRUE, n_starts = 1)
+
+fmulti_est <- fullMultiFit(x = dtdat, lt = 33, n_min = 10, n_max = 50,
+                           weight_scale = 5, n_starts = 1)
+
+fbest_dist <- fullMaxDist(x = fbest_est, lt_gen = 67, n_mc = 5000)
+
+fmulti_dist <- fullMaxDist(x = fmulti_est, lt_gen = 67, n_mc = 5000)
+
+fmulti_dist_uncert <- fullMaxDistUncert(x = fmulti_est,
+                                        declust_obs = dtdat$declustered_series,
+                                        lt_gen = 67, n_mc = 5000, n_boot = 100,
+                                        n_starts = 1, progress_tf = T)
+
+fbest_dist_uncert <- fullMaxDistUncert(x = fbest_est, lt_gen = 67, n_mc = 5000, n_boot = 100)
+
+plot(fbest_dist)
+plot(fbest_dist_uncert, add = TRUE)
+plot(fmulti_dist)

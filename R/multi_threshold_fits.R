@@ -166,7 +166,11 @@ fullMultiFit.default <- function(x, lt, n_min, n_max,
   w_stats <- weight_scale/(max_w - min_w)*(w_stats - min_w)
   w_stats <- exp(-w_stats)
   value <- list(all_fits = all_fits,
-                weights = w_stats/sum(w_stats))
+                weights = w_stats/sum(w_stats),
+                lt = lt,
+                n_min = n_min,
+                n_max = n_max,
+                weight_scale = weight_scale)
   class(value) <- 'full_multi_fit'
   value
 }

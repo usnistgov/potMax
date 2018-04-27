@@ -13,26 +13,65 @@ NumericVector gumbelMaxDistMultiCpp(NumericVector mu,
                                     bool progress_tf) {
 
   NumericVector max_dist(n_mc);
-  int i, k;
+  int i, indx;
   double n;
   double tmp;
   Progress p(n_mc, progress_tf);
 
-  for (k = 0; k < n_mc; k++) {
+  for (indx = 0; indx < n_mc; indx++) {
 
-    n = R::rpois(Lambda[k]);
+    n = R::rpois(Lambda[indx]);
     while (n < 1.0) {
-      n = R::rpois(Lambda[k]);
+      n = R::rpois(Lambda[indx]);
     }
 
-    max_dist[k] = mu[k] - sigma[k]*(log(integration_constant[k]) + log(1 - R::runif(0, 1)));
+    max_dist[indx] = mu[indx] - sigma[indx]*(log(integration_constant[indx]) + log(1 - R::runif(0, 1)));
 
     for (i = 1; i < n; i++) {
 
-      tmp = mu[k] - sigma[k]*(log(integration_constant[k]) + log(1 - R::runif(0, 1)));
-      if (tmp > max_dist[k]) {
+      tmp = mu[indx] - sigma[indx]*(log(integration_constant[indx]) + log(1 - R::runif(0, 1)));
+      if (tmp > max_dist[indx]) {
 
-        max_dist[k] = tmp;
+        max_dist[indx] = tmp;
+      }
+    }
+
+    p.increment();
+  }
+
+  return max_dist;
+}
+
+// [[Rcpp::export]]
+NumericVector fullMaxDistMultiCpp(NumericVector mu,
+                                  NumericVector sigma,
+                                  NumericVector k,
+                                  NumericVector Lambda,
+                                  NumericVector integration_constant,
+                                  int n_mc,
+                                  bool progress_tf) {
+
+  NumericVector max_dist(n_mc);
+  int i, indx;
+  double n;
+  double tmp;
+  Progress p(n_mc, progress_tf);
+
+  for (indx = 0; indx < n_mc; indx++) {
+
+    n = R::rpois(Lambda[indx]);
+    while (n < 1.0) {
+      n = R::rpois(Lambda[indx]);
+    }
+
+    max_dist[indx] = (sigma[indx]/k[indx])*(pow(integration_constant[indx]*(1 - R::runif(0, 1)), -k[indx]) - 1) + mu[indx];
+
+    for (i = 1; i < n; i++) {
+
+      tmp = (sigma[indx]/k[indx])*(pow(integration_constant[indx]*(1 - R::runif(0, 1)), -k[indx]) - 1) + mu[indx];
+      if (tmp > max_dist[indx]) {
+
+        max_dist[indx] = tmp;
       }
     }
 

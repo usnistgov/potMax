@@ -355,12 +355,12 @@ fullEstThreshold.default <- function(x, lt, n_min, n_max,
                                thresh = thresholds[i],
                                n_starts = n_starts,
                                hessian_tf = FALSE)
-    w_stats <- fullWPlot.default(x = pot_fit$par,
-                                 y = y,
-                                 thresh = thresholds[i],
-                                 tf_plot = FALSE,
-                                 BW = FALSE,
-                                details = FALSE)
+    w_stats[i] <- fullWPlot.default(x = pot_fit$par,
+                                    y = y,
+                                    thresh = thresholds[i],
+                                    tf_plot = FALSE,
+                                    BW = FALSE,
+                                    details = FALSE)
 
     pb$tick()
   }

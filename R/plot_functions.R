@@ -52,6 +52,20 @@ plot.full_max_dist <- function(x,
                        mean_size = mean_size,
                        ...)
 }
+
+plot.full_max_dist_multi_thresh <- function(x,
+                                            add_mean = TRUE,
+                                            mean_col = 'red',
+                                            binwidth = NULL,
+                                            mean_size = 5,
+                                            ...) {
+  plot.gumbel_max_dist(x = x,
+                       add_mean = add_mean,
+                       mean_col = mean_col,
+                       binwidth = binwidth,
+                       mean_size = mean_size,
+                       ...)
+}
 # plot.full_max_dist <- function(x,
 #                                add_mean = TRUE,
 #                                mean_col = 'red',
@@ -202,6 +216,27 @@ plot.full_max_dist_uncert <- function(x,
                               dens_line_alpha = dens_line_alpha,
                               ...)
 }
+
+plot.full_max_dist_uncert_multi_thresh <- function(x,
+                                                   add_int = TRUE,
+                                                   int_col = 'red',
+                                                   int_size = 3,
+                                                   int_prob = 0.8,
+                                                   n_plot = 50,
+                                                   add = FALSE,
+                                                   dens_line_alpha = 0.25,
+                                                   ...) {
+  plot.gumbel_max_dist_uncert_multi_thresh(x = x,
+                                           add_int = add_int,
+                                           int_col = int_col,
+                                           int_size = int_size,
+                                           int_prob = int_prob,
+                                           n_plot = n_plot,
+                                           add = add,
+                                           dens_line_alpha = dens_line_alpha,
+                                           ...)
+}
+
 # plot.full_max_dist_uncert <- function(x,
 #                                       add_int = TRUE,
 #                                       int_col = 'red',
