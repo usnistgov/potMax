@@ -4,7 +4,7 @@
 \alias{gumbelMultiFit}
 \title{gumbelMultiFit}
 \usage{
-gumbelMultiFit(x, lt, n_min, n_max, weight_scale)
+gumbelMultiFit(x, lt, n_min, n_max, weight_scale, progress_tf = TRUE)
 }
 \arguments{
 \item{lt}{The lenght of time in seconds over which the observations are

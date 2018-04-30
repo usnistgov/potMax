@@ -6,9 +6,14 @@ vdat <- -all_dat[ceiling(0.33*length(all_dat)):length(all_dat)]
 dtdat <- decluster(tdat)
 
 best_thresh <- gumbelEstThreshold(x = dtdat, 33, n_min = 10, n_max = 50)
+
+threshPlot(best_thresh)
+
 best_est <- gumbelMLE(x = best_thresh, hessian_tf = TRUE)
 
 multi_est <- gumbelMultiFit(x = dtdat, lt = 33, n_min = 10, n_max = 50, weight_scale = 5)
+
+threshPlot(multi_est)
 
 best_dist <- gumbelMaxDist(x = best_est, lt_gen = 67, n_mc = 5000)
 
@@ -26,11 +31,15 @@ plot(best_dist_uncert, add = TRUE)
 plot(multi_dist)
 plot(multi_dist_uncert, add = TRUE)
 
-fbest_thresh <- fullEstThreshold(x = dtdat, lt = 33, n_min = 10, n_max = 50, n_starts = 2)
+fbest_thresh <- fullEstThreshold(x = dtdat, lt = 33, n_min = 20, n_max = 200, n_starts = 2)
 fbest_est <- fullMLE(x = fbest_thresh, hessian_tf = TRUE, n_starts = 1)
 
-fmulti_est <- fullMultiFit(x = dtdat, lt = 33, n_min = 10, n_max = 50,
+threshPlot(fbest_thresh)
+
+fmulti_est <- fullMultiFit(x = dtdat, lt = 33, n_min = 20, n_max = 200,
                            weight_scale = 5, n_starts = 1)
+
+threshPlot(fmulti_est)
 
 fbest_dist <- fullMaxDist(x = fbest_est, lt_gen = 67, n_mc = 5000)
 
@@ -46,3 +55,4 @@ fbest_dist_uncert <- fullMaxDistUncert(x = fbest_est, lt_gen = 67, n_mc = 5000, 
 plot(fbest_dist)
 plot(fbest_dist_uncert, add = TRUE)
 plot(fmulti_dist)
+plot(fmulti_dist_uncert, add = TRUE)

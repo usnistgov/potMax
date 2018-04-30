@@ -80,6 +80,14 @@ summary.gumbel_max_dist_uncert_multi_thresh <- function(object, probs = c(0.1, 0
 }
 
 #' @export
+summary.full_max_dist_uncert_multi_thresh <- function(object, probs = c(0.1, 0.9),
+                                                      suppress = FALSE) {
+  summary.gumbel_max_dist_uncert_multi_thresh(object = object,
+                                              probs = probs,
+                                              suppress = suppress)
+}
+
+#' @export
 mean.gumbel_max_dist <- function(x) {
   mean(x$max_dist)
 }
@@ -89,7 +97,13 @@ mean.full_max_dist <- function(x) {
   mean.gumbel_max_dist(x)
 }
 
+#' @export
 mean.gumbel_max_dist_multi_thresh <- function(x) {
+  mean.gumbel_max_dist(x)
+}
+
+#' @export
+mean.full_max_dist_multi_thresh <- function(x) {
   mean.gumbel_max_dist(x)
 }
 

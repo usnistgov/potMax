@@ -4,7 +4,7 @@
 \alias{fullMultiFit}
 \title{fullMultiFit}
 \usage{
-fullMultiFit(x, lt, n_min, n_max, weight_scale, n_starts)
+fullMultiFit(x, lt, n_min, n_max, weight_scale, n_starts, progress_tf)
 }
 \arguments{
 \item{lt}{The lenght of time in seconds over which the observations

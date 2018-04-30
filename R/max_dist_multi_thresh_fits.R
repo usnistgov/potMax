@@ -57,13 +57,25 @@ gumbelMaxDistUncert.gumbel_multi_fit <- function(x,
   boot_samps <- lapply(1:n_boot, function(i, x)sample(x,length(x),TRUE),
                        x = declust_obs)
 
-  boot_multi_fits <- lapply(boot_samps, gumbelMultiFit.default,
-                            lt = x$lt,
-                            n_min = x$n_min,
-                            n_max = x$n_max,
-                            weight_scale = x$weight_scale)
+  if (progress_tf) {
+    print('Fitting Models:')
+    boot_multi_fits <- pbapply::pblapply(boot_samps, gumbelMultiFit.default,
+                                         lt = x$lt,
+                                         n_min = x$n_min,
+                                         n_max = x$n_max,
+                                         weight_scale = x$weight_scale,
+                                         progress_tf = FALSE)
+  } else {
+    boot_multi_fits <- lapply(boot_samps, gumbelMultiFit.default,
+                              lt = x$lt,
+                              n_min = x$n_min,
+                              n_max = x$n_max,
+                              weight_scale = x$weight_scale,
+                              progress_tf = FALSE)
+  }
 
   if (progress_tf) {
+    print('Calculating Peak Distribution:')
     boot_max_dist <- pbapply::pblapply(boot_multi_fits, gumbelMaxDist,
                                        lt_gen = lt_gen, n_mc = n_mc,
                                        progress_tf = FALSE)
@@ -140,15 +152,27 @@ fullMaxDistUncert.full_multi_fit <- function(x,
   boot_samps <- lapply(1:n_boot, function(i, x)sample(x,length(x),TRUE),
                        x = declust_obs)
 
-  boot_multi_fits <- lapply(boot_samps, fullMultiFit.default,
-                            lt = x$lt,
-                            n_min = x$n_min,
-                            n_max = x$n_max,
-                            weight_scale = x$weight_scale,
-                            n_starts = n_starts,
-                            progress_tf = FALSE)
+  if (progress_tf) {
+    print('Fitting Models:')
+    boot_multi_fits <- pbapply::pblapply(boot_samps, fullMultiFit.default,
+                                         lt = x$lt,
+                                         n_min = x$n_min,
+                                         n_max = x$n_max,
+                                         weight_scale = x$weight_scale,
+                                         n_starts = n_starts,
+                                         progress_tf = FALSE)
+  } else {
+    boot_multi_fits <- lapply(boot_samps, fullMultiFit.default,
+                              lt = x$lt,
+                              n_min = x$n_min,
+                              n_max = x$n_max,
+                              weight_scale = x$weight_scale,
+                              n_starts = n_starts,
+                              progress_tf = FALSE)
+  }
 
   if (progress_tf) {
+    print('Calculating Peak Distribution:')
     boot_max_dist <- pbapply::pblapply(boot_multi_fits, fullMaxDist,
                                        lt_gen = lt_gen, n_mc = n_mc,
                                        progress_tf = FALSE)

@@ -20,7 +20,8 @@
 #'
 #' @export
 #'
-gumbelMultiFit <- function(x, lt, n_min, n_max, weight_scale) {
+gumbelMultiFit <- function(x, lt, n_min, n_max, weight_scale,
+                           progress_tf = TRUE) {
   UseMethod('gumbelMultiFit')
 }
 
@@ -30,25 +31,30 @@ gumbelMultiFit <- function(x, lt, n_min, n_max, weight_scale) {
 gumbelMultiFit.declustered_series <- function(x, lt,
                                               n_min,
                                               n_max,
-                                              weight_scale) {
+                                              weight_scale,
+                                              progress_tf = TRUE) {
 
   gumbelMultiFit.default(x = x$declustered_series,
                          lt = lt,
                          n_min = n_min,
                          n_max = n_max,
-                         weight_scale = weight_scale)
+                         weight_scale = weight_scale,
+                         progress_tf = progress_tf)
 }
 
 #' @export
-gumbelMultiFit.default <- function(x, lt, n_min, n_max, weight_scale) {
+gumbelMultiFit.default <- function(x, lt, n_min, n_max, weight_scale,
+                                   progress_tf = TRUE) {
 
   thresholds <- genThresholds(x, n_min, n_max)
   all_fits <- list()
   w_stats <- rep(NA, length(thresholds))
 
-  pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
-                                   complete = '*')
-  pb$tick(0)
+  if (progress_tf) {
+    pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
+                                     complete = '*')
+    pb$tick(0)
+  }
 
   for (i in 1:length(thresholds)) {
 
@@ -65,15 +71,19 @@ gumbelMultiFit.default <- function(x, lt, n_min, n_max, weight_scale) {
                                       BW = FALSE,
                                       details = FALSE)
 
-    pb$tick()
+    if (progress_tf) {
+      pb$tick()
+    }
   }
 
   min_w <- min(w_stats)
   max_w <- max(w_stats)
-  w_stats <- weight_scale/(max_w - min_w)*(w_stats - min_w)
-  w_stats <- exp(-w_stats)
+  tw_stats <- weight_scale/(max_w - min_w)*(w_stats - min_w)
+  tw_stats <- exp(-tw_stats)
   value <- list(all_fits = all_fits,
-                weights = w_stats/sum(w_stats),
+                w_stats = w_stats,
+                thresholds = thresholds,
+                weights = tw_stats/sum(tw_stats),
                 lt = lt,
                 n_min = n_min,
                 n_max = n_max,
@@ -109,7 +119,8 @@ gumbelMultiFit.default <- function(x, lt, n_min, n_max, weight_scale) {
 #'
 #' @export
 #'
-fullMultiFit <- function(x, lt, n_min, n_max, weight_scale, n_starts) {
+fullMultiFit <- function(x, lt, n_min, n_max, weight_scale, n_starts,
+                         progress_tf) {
   UseMethod('fullMultiFit')
 }
 
@@ -120,27 +131,32 @@ fullMultiFit.declustered_series <- function(x, lt,
                                             n_min,
                                             n_max,
                                             weight_scale,
-                                            n_starts) {
+                                            n_starts,
+                                            progress_tf = TRUE) {
 
   fullMultiFit.default(x = x$declustered_series,
                        lt = lt,
                        n_min = n_min,
                        n_max = n_max,
                        weight_scale = weight_scale,
-                       n_starts = n_starts)
+                       n_starts = n_starts,
+                       progress_tf = progress_tf)
 }
 
 #' @export
 fullMultiFit.default <- function(x, lt, n_min, n_max,
-                                 weight_scale, n_starts) {
+                                 weight_scale, n_starts,
+                                 progress_tf = TRUE) {
 
   thresholds <- genThresholds(x, n_min, n_max)
   all_fits <- list()
   w_stats <- rep(NA, length(thresholds))
 
-  pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
-                                   complete = '*')
-  pb$tick(0)
+  if (progress_tf) {
+    pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
+                                     complete = '*')
+    pb$tick(0)
+  }
 
   for (i in 1:length(thresholds)) {
 
@@ -158,15 +174,19 @@ fullMultiFit.default <- function(x, lt, n_min, n_max,
                                     BW = FALSE,
                                     details = FALSE)
 
-    pb$tick()
+    if (progress_tf) {
+      pb$tick()
+    }
   }
 
   min_w <- min(w_stats)
   max_w <- max(w_stats)
-  w_stats <- weight_scale/(max_w - min_w)*(w_stats - min_w)
-  w_stats <- exp(-w_stats)
+  tw_stats <- weight_scale/(max_w - min_w)*(w_stats - min_w)
+  tw_stats <- exp(-tw_stats)
   value <- list(all_fits = all_fits,
-                weights = w_stats/sum(w_stats),
+                w_stats = w_stats,
+                thresholds = thresholds,
+                weights = tw_stats/sum(tw_stats),
                 lt = lt,
                 n_min = n_min,
                 n_max = n_max,
