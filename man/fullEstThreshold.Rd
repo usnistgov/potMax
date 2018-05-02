@@ -4,7 +4,7 @@
 \alias{fullEstThreshold}
 \title{fullEstThreshold}
 \usage{
-fullEstThreshold(x, lt, n_min, n_max, n_starts)
+fullEstThreshold(x, lt, n_min, n_max, n_starts, progress_tf = TRUE)
 }
 \arguments{
 \item{lt}{The lenght of time in seconds over which the observations are

@@ -246,30 +246,38 @@ genThresholds <- function(y_all, n_min, n_max) {
 #'
 #' @export
 #'
-gumbelEstThreshold <- function(x, lt, n_min, n_max) {
+gumbelEstThreshold <- function(x, lt, n_min, n_max, progress_tf = TRUE) {
   UseMethod('gumbelEstThreshold')
 }
 
 #' @export
 gumbelEstThreshold.declustered_series <- function(x, lt,
                                                   n_min,
-                                                  n_max) {
+                                                  n_max,
+                                                  progress_tf = TRUE) {
 
   gumbelEstThreshold.default(x = x$declustered_series,
                              lt = lt,
                              n_min = n_min,
-                             n_max = n_max)
+                             n_max = n_max,
+                             progress_tf = progress_tf)
 }
 
 #' @export
-gumbelEstThreshold.default <- function(x, lt, n_min, n_max) {
+gumbelEstThreshold.default <- function(x, lt, n_min, n_max,
+                                       progress_tf = TRUE) {
 
   thresholds <- genThresholds(x, n_min, n_max)
   w_stats <- rep(NA, length(thresholds))
 
-  pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
-                                   complete = '*')
-  pb$tick(0)
+  if (progress_tf) {
+    pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
+                                     format = '|:bar| :percent ~ :eta',
+                                     complete = '+', incomplete = ' ',
+                                     current = ' ', width = 0.6*getOption('width'))
+
+    pb$tick(0)
+  }
 
   for (i in 1:length(thresholds)) {
 
@@ -286,7 +294,9 @@ gumbelEstThreshold.default <- function(x, lt, n_min, n_max) {
                                       BW = FALSE,
                                       details = FALSE)
 
-    pb$tick()
+    if (progress_tf) {
+      pb$tick()
+    }
   }
 
   thresh <- thresholds[w_stats == min(w_stats)]
@@ -318,7 +328,7 @@ gumbelEstThreshold.default <- function(x, lt, n_min, n_max) {
 #'
 #' @export
 #'
-fullEstThreshold <- function (x, lt, n_min, n_max, n_starts) {
+fullEstThreshold <- function(x, lt, n_min, n_max, n_starts, progress_tf = TRUE) {
   UseMethod('fullEstThreshold')
 }
 
@@ -326,25 +336,32 @@ fullEstThreshold <- function (x, lt, n_min, n_max, n_starts) {
 fullEstThreshold.declustered_series <- function(x, lt,
                                                 n_min,
                                                 n_max,
-                                                n_starts) {
+                                                n_starts,
+                                                progress_tf = TRUE) {
 
   fullEstThreshold.default(x = x$declustered_series,
                            lt = lt,
                            n_min = n_min,
                            n_max = n_max,
-                           n_starts = n_starts)
+                           n_starts = n_starts,
+                           progress_tf = progress_tf)
 }
 
 #' @export
 fullEstThreshold.default <- function(x, lt, n_min, n_max,
-                                     n_starts) {
+                                     n_starts, progress_tf = TRUE) {
 
   thresholds <- genThresholds(x, n_min, n_max)
   w_stats <- rep(NA, length(thresholds))
 
-  pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
-                                   complete = '*')
-  pb$tick(0)
+  if (progress_tf) {
+    pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
+                                     format = '|:bar| :percent ~ :eta',
+                                     complete = '+', incomplete = ' ',
+                                     current = ' ',
+                                     width = 0.6*getOption('width'))
+    pb$tick(0)
+  }
 
   for (i in 1:length(thresholds)) {
 
@@ -362,7 +379,9 @@ fullEstThreshold.default <- function(x, lt, n_min, n_max,
                                     BW = FALSE,
                                     details = FALSE)
 
-    pb$tick()
+    if (progress_tf) {
+      pb$tick()
+    }
   }
 
   thresh <- thresholds[w_stats == min(w_stats)]

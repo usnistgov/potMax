@@ -1,8 +1,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::depends(RcppProgress)]]
-#include <progress.hpp>
+#include <RProgress.h>
 
 // [[Rcpp::export]]
 NumericVector gumbelMaxDistCpp(double mu, double sigma,
@@ -13,8 +12,14 @@ NumericVector gumbelMaxDistCpp(double mu, double sigma,
   NumericVector max_dist(n_mc);
   int indx, i;
   double n;
+  RProgress::RProgress p("|:bar| :percent ~ :eta",
+                         n_mc,
+                         0.6*Rf_GetOptionWidth(),
+                         '+',
+                         ' ',
+                         false,
+                         0.2);
   double tmp;
-  Progress p(n_mc, progress_tf);
 
   for (indx = 0; indx < n_mc; indx++) {
 
@@ -34,7 +39,9 @@ NumericVector gumbelMaxDistCpp(double mu, double sigma,
       }
     }
 
-    p.increment();
+    if (progress_tf) {
+      p.tick();
+    }
   }
 
   return max_dist;
@@ -53,7 +60,13 @@ NumericMatrix gumbelMaxDistUncertCpp(NumericVector mu,
   NumericMatrix max_dist_uncert(n_boot, n_mc);
   double n;
   double tmp, tmp_max;
-  Progress p(n_boot, progress_tf);
+  RProgress::RProgress p("|:bar| :percent ~ :eta",
+                         n_boot,
+                         0.6*Rf_GetOptionWidth(),
+                         '+',
+                         ' ',
+                         false,
+                         0.2);
 
   for (j = 0; j < n_boot; j++) {
 
@@ -76,7 +89,9 @@ NumericMatrix gumbelMaxDistUncertCpp(NumericVector mu,
       }
       max_dist_uncert(j, indx) = tmp_max;
     }
-    p.increment();
+    if(progress_tf) {
+      p.tick();
+    }
   }
 
   return max_dist_uncert;
@@ -93,7 +108,13 @@ NumericVector fullMaxDistCpp(double mu, double sigma, double k,
   int indx, i;
   double n;
   double tmp;
-  Progress p(n_mc, progress_tf);
+  RProgress::RProgress p("|:bar| :percent ~ :eta",
+                         n_mc,
+                         0.6*Rf_GetOptionWidth(),
+                         '+',
+                         ' ',
+                         false,
+                         0.2);
 
   for (indx = 0; indx < n_mc; indx++) {
 
@@ -112,7 +133,9 @@ NumericVector fullMaxDistCpp(double mu, double sigma, double k,
         max_dist[indx] = tmp;
       }
     }
-    p.increment();
+    if (progress_tf) {
+      p.tick();
+    }
   }
 
   return max_dist;
@@ -132,7 +155,13 @@ NumericMatrix fullMaxDistUncertCpp(NumericVector mu,
   NumericMatrix max_dist_uncert(n_boot, n_mc);
   double n;
   double tmp, tmp_max;
-  Progress p(n_boot, progress_tf);
+  RProgress::RProgress p("|:bar| :percent ~ :eta",
+                         n_boot,
+                         0.6*Rf_GetOptionWidth(),
+                         '+',
+                         ' ',
+                         false,
+                         0.2);
 
   for (j = 0; j < n_boot; j++) {
 
@@ -155,7 +184,9 @@ NumericMatrix fullMaxDistUncertCpp(NumericVector mu,
       }
       max_dist_uncert(j, indx) = tmp_max;
     }
-    p.increment();
+    if (progress_tf) {
+      p.tick();
+    }
   }
 
   return max_dist_uncert;

@@ -54,36 +54,36 @@ gumbelMaxDistUncert.gumbel_multi_fit <- function(x,
                                                  n_boot,
                                                  progress_tf = TRUE) {
 
+  if (progress_tf) {
+    pb <- progress::progress_bar$new(total = n_boot, clear = FALSE,
+                                     format = '|:bar| :percent ~ :eta',
+                                     complete = '+', incomplete = ' ',
+                                     current = ' ',
+                                     width = 0.6*getOption('width'))
+    pb$tick(0)
+  }
+
   boot_samps <- lapply(1:n_boot, function(i, x)sample(x,length(x),TRUE),
                        x = declust_obs)
 
-  if (progress_tf) {
-    print('Fitting Models:')
-    boot_multi_fits <- pbapply::pblapply(boot_samps, gumbelMultiFit.default,
-                                         lt = x$lt,
-                                         n_min = x$n_min,
-                                         n_max = x$n_max,
-                                         weight_scale = x$weight_scale,
-                                         progress_tf = FALSE)
-  } else {
-    boot_multi_fits <- lapply(boot_samps, gumbelMultiFit.default,
-                              lt = x$lt,
-                              n_min = x$n_min,
-                              n_max = x$n_max,
-                              weight_scale = x$weight_scale,
-                              progress_tf = FALSE)
+  boot_max_dist <- list()
+
+  for (i in 1:n_boot) {
+
+    boot_multi_fit <- gumbelMultiFit.default(x = boot_samps[[i]],
+                                             lt = x$lt,
+                                             n_min = x$n_min,
+                                             n_max = x$n_max,
+                                             weight_scale = x$weight_scale,
+                                             progress_tf = FALSE)
+    boot_max_dist[[i]] <- gumbelMaxDist(x = boot_multi_fit,
+                                        lt_gen = lt_gen, n_mc = n_mc,
+                                        progress_tf = FALSE)
+    if (progress_tf) {
+      pb$tick()
+    }
   }
 
-  if (progress_tf) {
-    print('Calculating Peak Distribution:')
-    boot_max_dist <- pbapply::pblapply(boot_multi_fits, gumbelMaxDist,
-                                       lt_gen = lt_gen, n_mc = n_mc,
-                                       progress_tf = FALSE)
-  } else {
-    boot_max_dist <- lapply(boot_multi_fits, gumbelMaxDist,
-                            lt_gen = lt_gen, n_mc = n_mc,
-                            progress_tf = FALSE)
-  }
   class(boot_max_dist) <- 'gumbel_max_dist_uncert_multi_thresh'
   boot_max_dist
 }
@@ -151,36 +151,37 @@ fullMaxDistUncert.full_multi_fit <- function(x,
 
   boot_samps <- lapply(1:n_boot, function(i, x)sample(x,length(x),TRUE),
                        x = declust_obs)
-
   if (progress_tf) {
-    print('Fitting Models:')
-    boot_multi_fits <- pbapply::pblapply(boot_samps, fullMultiFit.default,
-                                         lt = x$lt,
-                                         n_min = x$n_min,
-                                         n_max = x$n_max,
-                                         weight_scale = x$weight_scale,
-                                         n_starts = n_starts,
-                                         progress_tf = FALSE)
-  } else {
-    boot_multi_fits <- lapply(boot_samps, fullMultiFit.default,
-                              lt = x$lt,
-                              n_min = x$n_min,
-                              n_max = x$n_max,
-                              weight_scale = x$weight_scale,
-                              n_starts = n_starts,
-                              progress_tf = FALSE)
+    pb <- progress::progress_bar$new(total = n_boot, clear = FALSE,
+                                     format = '|:bar| :percent ~ :eta',
+                                     complete = '+', incomplete = ' ',
+                                     current = ' ',
+                                     width = 0.6*getOption('width'))
+    pb$tick(0)
   }
 
-  if (progress_tf) {
-    print('Calculating Peak Distribution:')
-    boot_max_dist <- pbapply::pblapply(boot_multi_fits, fullMaxDist,
-                                       lt_gen = lt_gen, n_mc = n_mc,
-                                       progress_tf = FALSE)
-  } else {
-    boot_max_dist <- lapply(boot_multi_fits, fullMaxDist,
-                            lt_gen = lt_gen, n_mc = n_mc,
-                            progress_tf = FALSE)
+  boot_samps <- lapply(1:n_boot, function(i, x)sample(x,length(x),TRUE),
+                       x = declust_obs)
+
+  boot_max_dist <- list()
+
+  for (i in 1:n_boot) {
+
+    boot_multi_fit <- fullMultiFit.default(x = boot_samps[[i]],
+                                           lt = x$lt,
+                                           n_min = x$n_min,
+                                           n_max = x$n_max,
+                                           weight_scale = x$weight_scale,
+                                           n_starts = n_starts,
+                                           progress_tf = FALSE)
+    boot_max_dist[[i]] <- fullMaxDist(x = boot_multi_fit,
+                                      lt_gen = lt_gen, n_mc = n_mc,
+                                      progress_tf = FALSE)
+    if (progress_tf) {
+      pb$tick()
+    }
   }
+
   class(boot_max_dist) <- 'full_max_dist_uncert_multi_thresh'
   boot_max_dist
 }

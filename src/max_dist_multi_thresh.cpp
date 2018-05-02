@@ -1,8 +1,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::depends(RcppProgress)]]
-#include <progress.hpp>
+#include <RProgress.h>
 
 // [[Rcpp::export]]
 NumericVector gumbelMaxDistMultiCpp(NumericVector mu,
@@ -16,7 +15,13 @@ NumericVector gumbelMaxDistMultiCpp(NumericVector mu,
   int i, indx;
   double n;
   double tmp;
-  Progress p(n_mc, progress_tf);
+  RProgress::RProgress p("|:bar| :percent ~ :eta",
+                         n_mc,
+                         0.6*Rf_GetOptionWidth(),
+                         '+',
+                         ' ',
+                         false,
+                         0.2);
 
   for (indx = 0; indx < n_mc; indx++) {
 
@@ -35,8 +40,9 @@ NumericVector gumbelMaxDistMultiCpp(NumericVector mu,
         max_dist[indx] = tmp;
       }
     }
-
-    p.increment();
+    if (progress_tf) {
+      p.tick();
+    }
   }
 
   return max_dist;
@@ -55,7 +61,13 @@ NumericVector fullMaxDistMultiCpp(NumericVector mu,
   int i, indx;
   double n;
   double tmp;
-  Progress p(n_mc, progress_tf);
+  RProgress::RProgress p("|:bar| :percent ~ :eta",
+                         n_mc,
+                         0.6*Rf_GetOptionWidth(),
+                         '+',
+                         ' ',
+                         false,
+                         0.2);
 
   for (indx = 0; indx < n_mc; indx++) {
 
@@ -74,8 +86,9 @@ NumericVector fullMaxDistMultiCpp(NumericVector mu,
         max_dist[indx] = tmp;
       }
     }
-
-    p.increment();
+    if (progress_tf) {
+      p.tick();
+    }
   }
 
   return max_dist;

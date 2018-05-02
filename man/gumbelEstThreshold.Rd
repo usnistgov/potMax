@@ -4,7 +4,7 @@
 \alias{gumbelEstThreshold}
 \title{gumbelEstThreshold}
 \usage{
-gumbelEstThreshold(x, lt, n_min, n_max)
+gumbelEstThreshold(x, lt, n_min, n_max, progress_tf = TRUE)
 }
 \arguments{
 \item{lt}{The lenght of time in seconds over which the observations are

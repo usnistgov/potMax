@@ -52,7 +52,10 @@ gumbelMultiFit.default <- function(x, lt, n_min, n_max, weight_scale,
 
   if (progress_tf) {
     pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
-                                     complete = '*')
+                                     format = '|:bar| :percent ~ :eta',
+                                     complete = '+', incomplete = ' ',
+                                     current = ' ',
+                                     width = 0.6*getOption('width'))
     pb$tick(0)
   }
 
@@ -154,7 +157,10 @@ fullMultiFit.default <- function(x, lt, n_min, n_max,
 
   if (progress_tf) {
     pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
-                                     complete = '*')
+                                     format = '|:bar| :percent ~ :eta',
+                                     complete = '+', incomplete = ' ',
+                                     current = ' ',
+                                     width = 0.6*getOption('width'))
     pb$tick(0)
   }
 
