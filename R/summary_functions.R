@@ -108,6 +108,11 @@ mean.full_max_dist_multi_thresh <- function(x) {
 }
 
 #' @export
+meanAndSd <- function(x){
+  UseMethod('meanAndSd')
+}
+
+#' @export
 meanAndSd.gumbel_max_dist <- function(x) {
   c(mean(x$max_dist), sd(x$max_dist))
 }
