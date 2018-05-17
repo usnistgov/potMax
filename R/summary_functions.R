@@ -108,6 +108,26 @@ mean.full_max_dist_multi_thresh <- function(x) {
 }
 
 #' @export
+meanAndSd.gumbel_max_dist <- function(x) {
+  c(mean(x$max_dist), sd(x$max_dist))
+}
+
+#' @export
+meanAndSd.full_max_dist <- function(x) {
+  meanAndSd.gumbel_max_dist(x)
+}
+
+#' @export
+meanAndSd.gumbel_max_dist_multi_thresh <- function(x) {
+  meanAndSd.gumbel_max_dist(x)
+}
+
+#' @export
+meanAndSd.full_max_dist_multi_thresh <- function(x) {
+  meanAndSd.gumbel_max_dist(x)
+}
+
+#' @export
 summary.full_pot_fit <- function(x, suppress = FALSE) {
 
   value <- data.frame(t(x$par))
