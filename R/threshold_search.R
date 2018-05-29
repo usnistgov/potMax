@@ -226,6 +226,30 @@ genThresholds <- function(y_all, n_min, n_max) {
   y2 <- y[(n_min + 1):(n_max + 1)]
 
   thresholds <- unique((y1 + y2)/2)
+
+  for (i in seq_along(thresholds)) {
+
+    tmp <- y[y > thresholds[i]]
+    if (length(unique(tmp)) < 2) {
+      thresholds[i] <- NA
+    } else {
+      break
+    }
+  }
+  thresholds <- thresholds[!is.na(thresholds)]
+
+  if (length(thresholds) < 1) {
+    tmp <- unique(y)
+    if (length(tmp) > 2) {
+      thresholds <- mean(tmp[2:3])
+    } else if (length(tmp) == 2) {
+      thresholds <- 0.99*tmp[2]
+    } else {
+      stop(paste0('potMax:::genThresholds: The data are constantly ', tmp))
+    }
+  }
+
+  thresholds
 }
 
 #'
