@@ -298,7 +298,8 @@ gumbelEstThreshold.default <- function(x, lt, n_min, n_max,
     pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
                                      format = '|:bar| :percent ~ :eta',
                                      complete = '+', incomplete = ' ',
-                                     current = ' ', width = 0.6*getOption('width'))
+                                     current = ' ',
+                                     width = floor(0.6*getOption('width')))
 
     pb$tick(0)
   }
@@ -383,7 +384,7 @@ fullEstThreshold.default <- function(x, lt, n_min, n_max,
                                      format = '|:bar| :percent ~ :eta',
                                      complete = '+', incomplete = ' ',
                                      current = ' ',
-                                     width = 0.6*getOption('width'))
+                                     width = floor(0.6*getOption('width')))
     pb$tick(0)
   }
 

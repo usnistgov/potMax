@@ -55,7 +55,7 @@ gumbelMultiFit.default <- function(x, lt, n_min, n_max, weight_scale,
                                      format = '|:bar| :percent ~ :eta',
                                      complete = '+', incomplete = ' ',
                                      current = ' ',
-                                     width = 0.6*getOption('width'))
+                                     width = floor(0.6*getOption('width')))
     pb$tick(0)
   }
 
@@ -160,7 +160,7 @@ fullMultiFit.default <- function(x, lt, n_min, n_max,
                                      format = '|:bar| :percent ~ :eta',
                                      complete = '+', incomplete = ' ',
                                      current = ' ',
-                                     width = 0.6*getOption('width'))
+                                     width = floor(0.6*getOption('width')))
     pb$tick(0)
   }
 

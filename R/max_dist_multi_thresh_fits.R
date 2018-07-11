@@ -59,7 +59,7 @@ gumbelMaxDistUncert.gumbel_multi_fit <- function(x,
                                      format = '|:bar| :percent ~ :eta',
                                      complete = '+', incomplete = ' ',
                                      current = ' ',
-                                     width = 0.6*getOption('width'))
+                                     width = floor(0.6*getOption('width')))
     pb$tick(0)
   }
 
@@ -156,7 +156,7 @@ fullMaxDistUncert.full_multi_fit <- function(x,
                                      format = '|:bar| :percent ~ :eta',
                                      complete = '+', incomplete = ' ',
                                      current = ' ',
-                                     width = 0.6*getOption('width'))
+                                     width = floor(0.6*getOption('width')))
     pb$tick(0)
   }
 
