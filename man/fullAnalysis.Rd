@@ -4,9 +4,10 @@
 \alias{fullAnalysis}
 \title{Full Analysis}
 \usage{
-fullAnalysis(complete_series, length_series, n_min, n_max, length_target_series,
-  n_starts = 20, wplot_filename = NULL, BW = NULL, n_mc = 1000,
-  max_dist_hist_filename = NULL, n_boot = 1000, ci_level = 0.8)
+fullAnalysis(complete_series, length_series, n_min, n_max,
+  length_target_series, n_starts = 20, wplot_filename = NULL,
+  BW = NULL, n_mc = 1000, max_dist_hist_filename = NULL,
+  n_boot = 1000, ci_level = 0.8)
 }
 \arguments{
 \item{complete_series}{(numeric vector) The observed time series that is a

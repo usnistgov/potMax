@@ -56,3 +56,16 @@ plot(fbest_dist)
 plot(fbest_dist_uncert, add = TRUE)
 plot(fmulti_dist)
 plot(fmulti_dist_uncert, add = TRUE)
+
+# The following N-year values are actually N-second values
+
+gumbelNYear(x = best_est, N = 150)
+summary(gumbelNYearUncert(x = best_est, N = 150, n_boot = 1000)$boot_samps)
+
+gumbelNYear(x = multi_est, N = 150)
+multi_N_year_uncert <- gumbelNYearUncert(x = multi_est, N = 150,
+                                         declust_obs = dtdat$declustered_series,
+                                         n_boot = 1000, progress_tf = TRUE)
+multi_N_year_uncert_vals <- sapply(multi_N_year_uncert,
+                                   function(x)x$N_year_val)
+summary(multi_N_year_uncert_vals)
