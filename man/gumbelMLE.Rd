@@ -23,20 +23,35 @@ of time (seconds, minutes, hours, etc.).}
 
 \item{thresh}{(numeric scalar) The threshold for the values}
 }
+\value{
+An S3 object of class \code{gumbel_pot_fit} with elements
+
+\describe{
+
+  \item{\code{$par}}{(numeric vector of length 2) The estimated location and
+  scale parameter, respectively}
+
+  \item{\code{$lhessian}}{The Hessian matrix at the MLE if requested, else NULL}
+
+  \item{\code{$y}}{The observed values used to fit the model}
+
+  \item{\code{$thresh}}{The threshold}
+}
+}
 \description{
-Solves the score equations for the Poisson process likelihood
-  using the Gumbel intensity function
+Solves the score equations for the 2D extremal Poisson process
+  likelihood using the Gumbel like intensity function
 }
 \details{
 The likelihood is
 
-  \deqn{\left(\prod_{i = 1}^I \lambda(t_i,
-  y_i)\right)\exp\left[-\int_\mathcal{D} \lambda(t, y)dtdy\right]}
+  \deqn{\Big(\prod_{i = 1}^I \lambda(t_i,
+  y_i)\Big)\exp\Big[-\int_\mathcal{D} \lambda(t, y)dtdy\Big]}
 
   where
 
-  \deqn{\lambda(t, y) = \frac{1}{\sigma}\exp\left[\frac{-(y -
-  \mu)}{\sigma}\right]}
+  \deqn{\lambda(t, y) = \frac{1}{\sigma}\exp\Big[\frac{-(y -
+  \mu)}{\sigma}\Big]}
 }
 \section{Methods (by class)}{
 \itemize{

@@ -2,25 +2,91 @@
 % Please edit documentation in R/generate_max_dist.R
 \name{fullMaxDist}
 \alias{fullMaxDist}
-\title{fullMaxDist}
+\alias{fullMaxDist.full_pot_fit}
+\alias{fullMaxDist.default}
+\title{Distribution of the Maximum Using the Full Model}
 \usage{
 fullMaxDist(x, lt_gen, n_mc, progress_tf = TRUE, ...)
+
+\method{fullMaxDist}{full_pot_fit}(x, lt_gen, n_mc, progress_tf = TRUE)
+
+\method{fullMaxDist}{default}(x, thresh, lt_gen, n_mc,
+  progress_tf = TRUE)
 }
 \arguments{
-\item{lt_gen}{Lengt of each generated series in seconds}
+\item{x}{An S3 object of class \code{full_pot_fit} or a numeric vector of
+lenght 3.  If the latter the first element of the vector should be the
+estimated location parameter \eqn{\mu}, the second element should be the
+estimated scale parameter \eqn{\sigma}, and the thrid element should be the
+estimated tail length parameter \eqn{k}.}
 
-\item{mu}{Location parameter}
+\item{lt_gen}{Length of each generated series.  The units (seconds, minutes,
+hours, etc.) should be consistent with the value of \code{lt} provided to
+\code{gumbelMLE}.}
 
-\item{sigma}{Scale parameter}
+\item{n_mc}{The number of samples to draw from the distribution of the
+maximum}
 
-\item{k}{Tail length parameter}
+\item{progress_tf}{Display a progress bar if TRUE, else not.}
 
 \item{thresh}{The threshold}
 }
+\value{
+An S3 object of class \code{full_max_dist} with elements
+
+\describe{
+  \item{\code{$par}}{The parameters used to generate the random processes}
+
+  \item{\code{$thres}}{The threshold used}
+
+  \item{\code{$lt_gen}}{The value of the \code{lt_gen} argument}
+
+  \item{\code{$max_dist}}{A numeric vector of length \code{n_mc} containing
+  the samples from the distribution of the maximum}
+
+}
+}
 \description{
-fullMaxDist
+Empirically build the distribution of the maximum value over
+  some user defined length of time assuming the underlying data generating
+  mechanism is the 2D extremal Poisson process with the full intensity
+  function
 }
 \details{
-Generates the empirical distribution of the maximum value from a
-  full (non-zero tail length) POT model over a specified length of time
+The results of fitting the 2D extremal Poisson process are
+  fed into this function.  Random processes are repeatedly generated from the
+  fitted model, and the maximum of each random process is recorded.  The
+  recoreded maximums represent an iid sample from the distribution of the
+  maximum value for a process of the desired length.  Note that the desired
+  length of the process can be different from the length of time over which
+  the data used to fit the model were observed.
+}
+\section{Methods (by class)}{
+\itemize{
+\item \code{full_pot_fit}: 
+
+\item \code{default}: 
+}}
+
+\examples{
+
+\dontrun{
+
+complete_series <- -jp1tap1715wind270$value
+
+declustered_obs <- decluster(complete_series)
+
+thresholded_obs <- fullEstThreshold(x = declustered_obs,
+                                    lt = 100,
+                                    n_min = 10,
+                                    n_max = 100,
+                                    n_starts = 10)
+
+full_pot_fit <- fullMLE(x = thresholded_obs,
+                        hessian_tf = TRUE,
+                        n_starts = 10)
+
+full_max_dist <- fullMaxDist(x = full_pot_fit, lt_gen = 200, n_mc = 1000)
+}
+
 }

@@ -1,5 +1,71 @@
-
+#' @title Distribution of the Maximum Using the Gumbel Model with Many Thresholds
+#'
+#' @description Empirically build the distribution of the maximum value over
+#'   some user defined length of time assuming the underlying data generating
+#'   mechanism is a 2D extremal Poisson process with the Gumbel like intensity
+#'   function (i.e. the tail length is zero), but without specifying a single
+#'   threshold.
+#'
+#' @details The results of fitting a Gumbel like 2D extremal Poisson process for
+#'   many thresholds are fed into this function.  Random processes are
+#'   repeatedly generated from each fitted model, according to the weights
+#'   described in \code{gumbelMultiFit}, and the maximum of each random process
+#'   is recorded.  The recoreded maximums represent an iid sample from a mixture
+#'   of the distributions of maximum values.  Each potential threshold gives
+#'   rise to a different distribution of the maximum value. Note that the
+#'   desired length of the processes generated can be different from the length
+#'   of time over which the data used to fit the models were observed.
+#'
+#' @param x An S3 object of class \code{gumbel_multi_fit}.
+#'
+#' @param lt_gen (numeric scalar) Length of each generated series.  The units
+#'   (seconds, minutes, hours, etc.) should be consistent with the value of
+#'   \code{lt} provided to \code{gumbelMultiFit}.
+#'
+#' @param n_mc (numeric scalar) The number of samples to draw from the mixture
+#'   distribution of the maximums
+#'
+#' @param progress_tf (logical scalar) Display a progress bar if TRUE, else not.
+#'
+#' @return An S3 object of class \code{gumbel_max_dist_multi_thresh} with elements
+#'
+#' \describe{
+#'   \item{\code{$mu}}{The estimated location parameter for each threshold}
+#'
+#'   \item{\code{$sigma}}{The estimated scale parameter for each threshold}
+#'
+#'   \item{\code{$thres}}{The thresholds}
+#'
+#'   \item{\code{$lt_gen}}{The value of the \code{lt_gen} argument}
+#'
+#'   \item{\code{$n_each}}{The number of samples drawn from each mixture
+#'   component.  The sum of \code{$n_each} should be \code{n_mc}}
+#'
+#'   \item{\code{$max_dist}}{A numeric vector of length \code{n_mc} containing
+#'   the samples from the mixture distribution of the maximums}
+#'
+#' }
+#' @examples
+#'
+#' \dontrun{
+#'
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' gumbel_multi_fit <- gumbelMultiFit(x = declustered_obs, lt = 100,
+#'                                    n_min = 10, n_max = 50,
+#'                                    weight_scale = 5)
+#'
+#' gumbel_max_dist <- gumbelMaxDist(x = gumbel_multi_fit, lt_gen = 200, n_mc = 1000)
+#' }
+#'
 #' @export
+#'
+#' @useDynLib potMax
+#'
+#' @importFrom Rcpp evalCpp
+#'
 gumbelMaxDist.gumbel_multi_fit <- function(x,
                                            lt_gen, n_mc,
                                            progress_tf = TRUE) {
@@ -46,7 +112,67 @@ gumbelMaxDist.gumbel_multi_fit <- function(x,
   value
 }
 
+#' @title Uncertainty in the Distribution of the Maximum Using the Gumbel Model
+#'   With Many Thresholds
+#'
+#' @description Evaluate uncertainty in the mixture of distributions of maximums
+#'   assuming the underlying data generating mechanism is the 2D extremal
+#'   Poisson process with the Gumbel like intensity function (i.e. the tail
+#'   length is zero), but without specifying a single threshold.  The mixture is
+#'   across multiple thresholds.
+#'
+#' @details The results of fitting a many Gumbel like 2D extremal Poisson
+#'   process are fed into this function.  The declustered data are repeatedly
+#'   sampled with replacement, and for each resampled data set the distribution
+#'   of the maximum is empirically constructed as described in
+#'   \code{gumbelMaxDist.gumbel_multi_fit}. The bootstrap replicates of the
+#'   mixture of distributions of the maximum may be used to quantify uncertainty
+#'   and construct intervals.
+#'
+#' @param x An S3 object of class \code{gumbel_multi_fit}.
+#'
+#' @param declust_obs (numeric vector) The observed data used by
+#'   \code{gumbelMultiFit}.  This will very often be the
+#'   \code{$declustered_series} element of an S3 object of class
+#'   \code{declustered_series}
+#'
+#' @param lt_gen (numeric scalar) Length of each generated series.  The units
+#'   (seconds, minutes, hours, etc.) should be consistent with the value of
+#'   \code{lt} provided to \code{gumbelMLE}.
+#'
+#' @param n_mc (numeric scalar) The number of samples to draw from the
+#'   distribution of the maximum
+#'
+#' @param n_boot (numeric scalar) The number of bootstrap replicates of the
+#'   distribution of the maximum to create.
+#'
+#' @param progress_tf Display a progress bar if TRUE, else not.
+#'
+#' @return An S3 object of class \code{gumbel_max_dist_uncert_multi_thresh},
+#'   which is a list of length \code{n_boot} of S3 objects of class
+#'   \code{gumbel_max_dist_multi_thresh}.
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' gumbel_multi_fit <- gumbelMultiFit(x = declustered_obs, lt = 100,
+#'                                    n_min = 10, n_max = 50,
+#'                                    weight_scale = 5)
+#'
+#' gumbel_multi_fit_uncert <- gumbelMaxDistUncert(x = gumbel_multi_fit,
+#'                                                declust_obs = declustered_obs$declustered_series,
+#'                                                lt_gen = 200,
+#'                                                n_mc = 1000,
+#'                                                n_boot = 200)
+#' }
+#'
 #' @export
+#'
 gumbelMaxDistUncert.gumbel_multi_fit <- function(x,
                                                  declust_obs,
                                                  lt_gen,
@@ -88,7 +214,75 @@ gumbelMaxDistUncert.gumbel_multi_fit <- function(x,
   boot_max_dist
 }
 
+#' @title Distribution of the Maximum Using the Full Model with Many Thresholds
+#'
+#' @description Empirically build the distribution of the maximum value over
+#'   some user defined length of time assuming the underlying data generating
+#'   mechanism is a 2D extremal Poisson process, but without specifying a single
+#'   threshold.
+#'
+#' @details The results of fitting a 2D extremal Poisson process for many
+#'   thresholds are fed into this function.  Random processes are repeatedly
+#'   generated from each fitted model, according to the weights described in
+#'   \code{fullMultiFit}, and the maximum of each random process is recorded.
+#'   The recoreded maximums represent an iid sample from a mixture of the
+#'   distributions of maximum values.  Each threshold gives rise to a different
+#'   distribution of the maximum value. Note that the desired length of the
+#'   processes generated can be different from the length of time over which the
+#'   data used to fit the models were observed.
+#'
+#' @param x An S3 object of class \code{full_multi_fit}.
+#'
+#' @param lt_gen (numeric scalar) Length of each generated series.  The units
+#'   (seconds, minutes, hours, etc.) should be consistent with the value of
+#'   \code{lt} provided to \code{fullMultiFit}.
+#'
+#' @param n_mc (numeric scalar) The number of samples to draw from the mixture
+#'   distribution of the maximums
+#'
+#' @param progress_tf (logical scalar) Display a progress bar if TRUE, else not.
+#'
+#' @return An S3 object of class \code{full_max_dist_multi_thresh} with elements
+#'
+#' \describe{
+#'   \item{\code{$mu}}{The estimated location parameter for each threshold}
+#'
+#'   \item{\code{$sigma}}{The estimated scale parameter for each threshold}
+#'
+#'   \item{\code{$k}}{The estimated tail length parameter for each threshold}
+#'
+#'   \item{\code{$thres}}{The thresholds}
+#'
+#'   \item{\code{$lt_gen}}{The value of the \code{lt_gen} argument}
+#'
+#'   \item{\code{$n_each}}{The number of samples drawn from each mixture
+#'   component.  The sum of \code{$n_each} should be \code{n_mc}}
+#'
+#'   \item{\code{$max_dist}}{A numeric vector of length \code{n_mc} containing
+#'   the samples from the mixture distribution of the maximums}
+#'
+#' }
+#' @examples
+#'
+#' \dontrun{
+#'
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' full_multi_fit <- fullMultiFit(x = declustered_obs, lt = 100,
+#'                                n_min = 10, n_max = 50,
+#'                                weight_scale = 5, n_starts = 20)
+#'
+#' full_max_dist <- fullMaxDist(x = full_multi_fit, lt_gen = 200, n_mc = 1000)
+#' }
+#'
 #' @export
+#'
+#' @useDynLib potMax
+#'
+#' @importFrom Rcpp evalCpp
+#'
 fullMaxDist.full_multi_fit <- function(x,
                                        lt_gen, n_mc,
                                        progress_tf = TRUE) {
@@ -140,7 +334,70 @@ fullMaxDist.full_multi_fit <- function(x,
   value
 }
 
+#' @title Uncertainty in the Distribution of the Maximum Using the Full Model
+#'   With Many Thresholds
+#'
+#' @description Evaluate uncertainty in the mixture of distributions of maximums
+#'   assuming the underlying data generating mechanism is the 2D extremal
+#'   Poisson process, but without specifying a single threshold.  The mixture is
+#'   across multiple thresholds.
+#'
+#' @details The results of fitting many 2D extremal Poisson process are fed into
+#'   this function.  The declustered data are repeatedly sampled with
+#'   replacement, and for each resampled data set the distribution of the
+#'   maximum is empirically constructed as described in
+#'   \code{fullMaxDist.full_multi_fit}. The bootstrap replicates of the mixture
+#'   of distributions of the maximum may be used to quantify uncertainty and
+#'   construct intervals.
+#'
+#' @param x An S3 object of class \code{full_multi_fit}.
+#'
+#' @param declust_obs (numeric vector) The observed data used by
+#'   \code{fullMultiFit}.  This will very often be the
+#'   \code{$declustered_series} element of an S3 object of class
+#'   \code{declustered_series}
+#'
+#' @param lt_gen (numeric scalar) Length of each generated series.  The units
+#'   (seconds, minutes, hours, etc.) should be consistent with the value of
+#'   \code{lt} provided to
+#'   \code{gumbelMLE}.
+#'
+#' @param n_mc (numeric scalar) The number of samples to draw from the
+#'   distribution of the maximum
+#'
+#' @param n_boot (numeric scalar) The number of bootstrap replicates of the
+#'   distribution of the maximum to create.
+#'
+#' @param n_starts (numeric scalar) The number of random starts to use in the
+#'   search for the maximum
+#'
+#' @param progress_tf (logical scalar) Display a progress bar if TRUE, else not.
+#'
+#' @return An S3 object of class \code{full_max_dist_uncert_multi_thresh},
+#'   which is a list of length \code{n_boot} of S3 objects of class
+#'   \code{full_max_dist_multi_thresh}.
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' full_multi_fit <- fullMultiFit(x = declustered_obs, lt = 100,
+#'                                n_min = 10, n_max = 50,
+#'                                weight_scale = 5, n_starts = 20)
+#'
+#' full_multi_fit_uncert <- fullMaxDistUncert(x = full_multi_fit,
+#'                                            declust_obs = declustered_obs$declustered_series,
+#'                                            lt_gen = 200,
+#'                                            n_mc = 1000,
+#'                                            n_boot = 200)
+#' }
+#'
 #' @export
+#'
 fullMaxDistUncert.full_multi_fit <- function(x,
                                              declust_obs,
                                              lt_gen,

@@ -88,31 +88,33 @@ fullLogLike <- function(theta, y, thresh, lt, N, flip = FALSE) {
 #'
 #' @title Maximum Likelihood Estimation for the Full Model
 #'
-#' @description Maximizes the Poisson process likelihood that uses the full
-#'   intensity function
+#' @description Maximizes the 2D extremal Poisson process likelihood that uses
+#'   the full intensity function
 #'
 #' @details
 #'
 #' The likelihood is
 #'
-#' \deqn{\left(\prod_{i = 1}^I \lambda(t_i,
-#' y_i)\right)\exp\left[-\int_\mathcal{D} \lambda(t, y)dtdy\right]}
+#' \deqn{\Big(\prod_{i = 1}^I \lambda(t_i,
+#' y_i)\Big)\exp\Big[-\int_\mathcal{D} \lambda(t, y)dtdy\Big]}
 #'
 #' where
 #'
-#' \deqn{\lambda(t, y) = \frac{1}{\sigma}\left[1 + \frac{k(y -
-#' \mu)}{\sigma}\right]^{-1/k - 1}_+}
+#' \deqn{\lambda(t, y) = \frac{1}{\sigma}\Big[1 + \frac{k(y -
+#' \mu)}{\sigma}\Big]^{-1/k - 1}_+}
 #'
 #' @param x An S3 object of class \code{thresholded_series} or a numeric vector.
 #'   If the latter, the values used in fitting.
 #'
-#' @param N - (numeric scalar) The number of observations that exceed the
-#'   threshold (also the length of y)
-#'
 #' @param n_starts (numeric scalar) The number of random starts to use in the
 #'   search for the maximum
 #'
-#' @param hessian (logical scalar) Compute the Hessian matrix (TRUE) or not
+#' @param hessian_tf (logical scalar) Compute the Hessian matrix (TRUE) or not
+#'
+#' @return An S3 object of class \code{full_pot_fit}, which contains the
+#'   estimated parameters \code{$par}, the threshold \code{$thresh}, the Hessian
+#'   matrix \code{$lhessian} if requested, and the data used for the fit
+#'   \code{$x}.
 #'
 #' @examples
 #'
@@ -152,7 +154,7 @@ fullMLE.thresholded_series <- function(x, n_starts, hessian_tf) {
 #' @describeIn fullMLE
 #'
 #' @param lt (numeric scalar) The length of time over which data were observed
-#'   in seconds
+#'   in units of time (seconds, minutes, hours, etc.)
 #'
 #' @param thresh (numeric scalar) The threshold
 #'

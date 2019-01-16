@@ -107,35 +107,35 @@ mean.full_max_dist_multi_thresh <- function(x) {
   mean.gumbel_max_dist(x)
 }
 
-#' @export
+# #' @export
 meanAndSd <- function(x){
   UseMethod('meanAndSd')
 }
 
-#' @export
+# #' @export
 meanAndSd.gumbel_max_dist <- function(x) {
   c(mean(x$max_dist), sd(x$max_dist))
 }
 
-#' @export
+# #' @export
 meanAndSd.full_max_dist <- function(x) {
   meanAndSd.gumbel_max_dist(x)
 }
 
-#' @export
+# #' @export
 meanAndSd.gumbel_max_dist_multi_thresh <- function(x) {
   meanAndSd.gumbel_max_dist(x)
 }
 
-#' @export
+# #' @export
 meanAndSd.full_max_dist_multi_thresh <- function(x) {
   meanAndSd.gumbel_max_dist(x)
 }
 
 #' @export
-summary.full_pot_fit <- function(x, suppress = FALSE) {
+summary.full_pot_fit <- function(object, suppress = FALSE) {
 
-  value <- data.frame(t(x$par))
+  value <- data.frame(t(object$par))
   colnames(value) <- c('mu', 'sigma', 'k')
   if (!suppress) {
    print(value)
@@ -144,9 +144,9 @@ summary.full_pot_fit <- function(x, suppress = FALSE) {
 }
 
 #' @export
-summary.gumbel_pot_fit <- function(x, suppress = FALSE) {
+summary.gumbel_pot_fit <- function(object, suppress = FALSE) {
 
-  value <- data.frame(t(x$par))
+  value <- data.frame(t(object$par))
   colnames(value) <- c('mu', 'sigma')
   if (!suppress) {
     print(value)
@@ -155,12 +155,12 @@ summary.gumbel_pot_fit <- function(x, suppress = FALSE) {
 }
 
 #' @export
-summary.gumbel_multi_fit <- function(x, suppress = FALSE) {
+summary.gumbel_multi_fit <- function(object, suppress = FALSE) {
 
-  mu <- sapply(x$all_fits, function(x)x$par[1])
-  sigma <- sapply(x$all_fits, function(x)x$par[2])
-  thresh <- sapply(x$all_fits, function(x)x$thresh)
-  weights <- x$weights
+  mu <- sapply(object$all_fits, function(x)x$par[1])
+  sigma <- sapply(object$all_fits, function(x)x$par[2])
+  thresh <- sapply(object$all_fits, function(x)x$thresh)
+  weights <- object$weights
   value <- data.frame(mu = mu,
                       sigma = sigma,
                       thresh = thresh,
@@ -172,13 +172,13 @@ summary.gumbel_multi_fit <- function(x, suppress = FALSE) {
 }
 
 #' @export
-summary.full_multi_fit <- function(x, suppress = FALSE) {
+summary.full_multi_fit <- function(object, suppress = FALSE) {
 
-  mu <- sapply(x$all_fits, function(x)x$par[1])
-  sigma <- sapply(x$all_fits, function(x)x$par[2])
-  k <- sapply(x$all_fits, function(x)x$par[3])
-  thresh <- sapply(x$all_fits, function(x)x$thresh)
-  weights <- x$weights
+  mu <- sapply(object$all_fits, function(x)x$par[1])
+  sigma <- sapply(object$all_fits, function(x)x$par[2])
+  k <- sapply(object$all_fits, function(x)x$par[3])
+  thresh <- sapply(object$all_fits, function(x)x$thresh)
+  weights <- object$weights
   value <- data.frame(mu = mu,
                       sigma = sigma,
                       k = k,

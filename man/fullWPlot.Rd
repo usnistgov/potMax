@@ -2,33 +2,73 @@
 % Please edit documentation in R/threshold_search.R
 \name{fullWPlot}
 \alias{fullWPlot}
-\title{fullWPlot}
+\alias{fullWPlot.full_pot_fit}
+\alias{fullWPlot.default}
+\title{W plot for the Full Poisson Process Intensity Function}
 \usage{
 fullWPlot(x, tf_plot, BW, details, ...)
+
+\method{fullWPlot}{full_pot_fit}(x, tf_plot, BW, details, ...)
+
+\method{fullWPlot}{default}(x, y, thresh, tf_plot, BW, details, ...)
 }
 \arguments{
-\item{tf_plot}{}
+\item{x}{An S3 object of type \code{full_pot_fit} or numeric vector of length
+3 where the first, second, and thrid components are \eqn{\mu}, \eqn{\sigma},
+and \eqn{k}, respectively.}
 
-\item{BW}{(logical) only use black and white for the plot.  Ignored if
-tf_plot == FALSE}
+\item{tf_plot}{(logical scalar) Create the plot if TRUE, else not.}
 
-\item{details}{}
+\item{BW}{(logical scalar) The plot is created in black and white if TRUE,
+else not}
 
-\item{...}{}
+\item{details}{(logical scalar) Should details of the calculation be returned
+as a \code{data.frame}}
 
-\item{mu}{}
-
-\item{sigma}{}
-
-\item{k}{}
-
-\item{y}{}
-
-\item{thresh}{}
+\item{y}{(numeric vector) The observations that exceed the threshold, NOT the
+excesses or differences, but the actual observations}
+}
+\value{
+If details is TRUE, a \code{data.frame} with the details of the
+  calculation, else invisibly return the maximum vertical distance from the
+  points of the plot to the \eqn{45^\circ} line
 }
 \description{
-fullWPlot
+Plot of W-statistics versus standard exponential quantiles for
+  the full Poisson process intensity function described in \code{fullMLE}
 }
 \details{
-this is the W plot from the 2004 Richard Smith book chapter
+This is the W plot from Chapter 1 of "Extreme Values in Finance,
+  Telecomunications, and the Environment." The chapter was authored by
+  Richard Smith. The formula for \eqn{W} is
+
+  \deqn{W = \frac{1}{k}\log\Big\{1 + \frac{ky}{\sigma + k(u - \mu)}\Big\}}
+
+  where \eqn{y} is the excess of (difference from) the threshold \eqn{u}
+}
+\section{Methods (by class)}{
+\itemize{
+\item \code{full_pot_fit}: 
+
+\item \code{default}: 
+}}
+
+\examples{
+
+\dontrun{
+complete_series <- -jp1tap1715wind270$value
+
+declustered_obs <- decluster(complete_series)
+
+thresholded_obs <- fullEstThreshold(x = declustered_obs,
+                                    lt = 100,
+                                    n_min = 10,
+                                    n_max = 100)
+
+full_pot_fit <- fullMLE(x = thresholded_obs,
+                        hessian_tf = TRUE)
+
+fullWPlot(x = full_pot_fit, tf_plot = TRUE, BW = FALSE, details = FALSE)
+}
+
 }

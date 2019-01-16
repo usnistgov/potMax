@@ -2,31 +2,73 @@
 % Please edit documentation in R/threshold_search.R
 \name{gumbelWPlot}
 \alias{gumbelWPlot}
-\title{gumbelWPlot}
+\alias{gumbelWPlot.gumbel_pot_fit}
+\alias{gumbelWPlot.default}
+\title{W plot for the Gumbel Poisson Process Intensity Function}
 \usage{
 gumbelWPlot(x, tf_plot, BW, details, ...)
+
+\method{gumbelWPlot}{gumbel_pot_fit}(x, tf_plot, BW, details, ...)
+
+\method{gumbelWPlot}{default}(x, y, thresh, tf_plot, BW, details, ...)
 }
 \arguments{
-\item{tf_plot}{}
+\item{x}{An S3 object of type \code{gumbel_pot_fit} or numeric vector of length
+2 where the first and second components are \eqn{\mu}, \eqn{\sigma},
+respectively.}
 
-\item{BW}{(logical) only use black and white for the plot.  Ignored if
-tf_plot == FALSE}
+\item{tf_plot}{(logical scalar) Create the plot if TRUE, else not.}
 
-\item{details}{}
+\item{BW}{(logical scalar) The plot is created in black and white if TRUE,
+else not}
 
-\item{...}{}
+\item{details}{(logical scalar) Should details of the calculation be returned
+as a \code{data.frame}}
 
-\item{mu}{}
-
-\item{sigma}{}
-
-\item{y}{}
-
-\item{thresh}{}
+\item{y}{(numeric vector) The observations that exceed the threshold, NOT the
+excesses or differences, but the actual observations}
+}
+\value{
+If details is TRUE, a \code{data.frame} with the details of the
+  calculation, else invisibly return the maximum vertical distance from the
+  points of the plot to the \eqn{45^\circ} line
 }
 \description{
-gumbelWPlot
+Plot of W-statistics versus standard exponential quantiles for
+  the Gumbel like intensity function described in \code{gumbelMLE}
 }
 \details{
-this is the W plot from the 2004 Richard Smith book chapter
+This is the W plot from Chapter 1 of "Extreme Values in Finance,
+  Telecomunications, and the Environment," but modified by taking the limit
+  of the formula for \eqn{W} as the tail length parameter goes to zero
+
+  \deqn{W = \frac{y}{\sigma}}
+
+  where \eqn{y} is the excess of (difference from) the threshold.
+}
+\section{Methods (by class)}{
+\itemize{
+\item \code{gumbel_pot_fit}: 
+
+\item \code{default}: 
+}}
+
+\examples{
+
+\dontrun{
+complete_series <- -jp1tap1715wind270$value
+
+declustered_obs <- decluster(complete_series)
+
+thresholded_obs <- gumbelEstThreshold(x = declustered_obs,
+                                     lt = 100,
+                                     n_min = 10,
+                                     n_max = 100)
+
+gumbel_pot_fit <- gumbelMLE(x = thresholded_obs,
+                            hessian_tf = TRUE)
+
+gumbelWPlot(x = gumbel_pot_fit, tf_plot = TRUE, BW = FALSE, details = FALSE)
+}
+
 }

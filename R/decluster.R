@@ -17,9 +17,9 @@
 #'
 #'   \describe{
 #'
-#'   \item{\code{declustered_series}}{The cluster maximums.}
+#'   \item{\code{$declustered_series}}{The cluster maximums.}
 #'
-#'   \item{\code{declustered_times}}{If \code{obs_times} is non NULL, the
+#'   \item{\code{$declustered_times}}{If \code{obs_times} is non NULL, the
 #'   observed times of the cluster maximums; otherwise NULL.}
 #'
 #'   }
