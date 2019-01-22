@@ -217,29 +217,69 @@ plot.full_max_dist_uncert_multi_thresh <- function(x,
                                            ...)
 }
 
+#'
+#' @title Plot Fit Statistics versus Thresholds
+#'
+#' @description This function creates a plot of of the fit statistics versus the
+#'   associated thresholds
+#'
+#' @details The fit statistics are the maximum vertical distances of the points
+#'   to the \eqn{45^\circ} line in the W-plots described in \code{gumbelWPlot}
+#'   and \code{fullWPlot}
+#'
+#' @param x An object of class \code{thresholded_series},
+#'   \code{gumbel_multi_fit}, or \code{full_multi_fit}
+#'
+#' @return A \code{ggplot} object
+#'
+#' @examples
+#'
+#' \dontrun{
+#'   complete_series <- -jp1tap1715wind270$value
+#'
+#'   declustered_obs <- decluster(complete_series)
+#'
+#'   thresholded_series <- gumbelEstThreshold(x = declustered_obs,
+#'                                            lt = 100,
+#'                                            n_min = 10,
+#'                                            n_max = 100)
+#'
+#'   threshPlot(thresholded_series)
+#' }
+#'
 #' @export
+#'
 threshPlot <- function(x, ...) {
   UseMethod('threshPlot')
 }
 
+#' @describeIn threshPlot
+#'
 #' @export
+#'
 threshPlot.thresholded_series <- function(x, ...) {
   threshPlot.default(w_stats = x$w_stats,
                      thresholds = x$checked_thresholds)
 }
 
+#' @describeIn threshPlot
+#'
 #' @export
+#'
 threshPlot.gumbel_multi_fit <- function(x, ...) {
   threshPlot.default(w_stats = x$w_stats,
                      thresholds = x$thresholds)
 }
 
+#' @describeIn threshPlot
+#'
 #' @export
+#'
 threshPlot.full_multi_fit <- function(x, ...) {
   threshPlot.gumbel_multi_fit(x = x)
 }
 
-#' @export
+# #' @export
 threshPlot.default <- function(w_stats, thresholds) {
 
   mindf <- data.frame(w_stats = min(w_stats),

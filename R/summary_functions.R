@@ -189,3 +189,12 @@ summary.full_multi_fit <- function(object, suppress = FALSE) {
   }
   invisible(value)
 }
+
+#' @export
+summary.gumbel_N_year_uncert_multi_thresh <- function(object, conf_int_level = 0.8) {
+
+  N_year_vals <- sapply(object, function(x){x$N_year_val})
+  list(standard_error = sd(N_year_vals),
+       conf_int = quantile(N_year_vals, probs = c((1 - conf_int_level)/2,
+                                                  (0.5 + conf_int_level/2))))
+}
