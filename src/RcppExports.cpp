@@ -101,6 +101,39 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// gumbelMaxDistMultiCpp
+NumericVector gumbelMaxDistMultiCpp(NumericVector mu, NumericVector sigma, NumericVector Lambda, NumericVector integration_constant, int n_mc, bool progress_tf);
+RcppExport SEXP _potMax_gumbelMaxDistMultiCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP, SEXP progress_tfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type integration_constant(integration_constantSEXP);
+    Rcpp::traits::input_parameter< int >::type n_mc(n_mcSEXP);
+    Rcpp::traits::input_parameter< bool >::type progress_tf(progress_tfSEXP);
+    rcpp_result_gen = Rcpp::wrap(gumbelMaxDistMultiCpp(mu, sigma, Lambda, integration_constant, n_mc, progress_tf));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fullMaxDistMultiCpp
+NumericVector fullMaxDistMultiCpp(NumericVector mu, NumericVector sigma, NumericVector k, NumericVector Lambda, NumericVector integration_constant, int n_mc, bool progress_tf);
+RcppExport SEXP _potMax_fullMaxDistMultiCpp(SEXP muSEXP, SEXP sigmaSEXP, SEXP kSEXP, SEXP LambdaSEXP, SEXP integration_constantSEXP, SEXP n_mcSEXP, SEXP progress_tfSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type k(kSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type integration_constant(integration_constantSEXP);
+    Rcpp::traits::input_parameter< int >::type n_mc(n_mcSEXP);
+    Rcpp::traits::input_parameter< bool >::type progress_tf(progress_tfSEXP);
+    rcpp_result_gen = Rcpp::wrap(fullMaxDistMultiCpp(mu, sigma, k, Lambda, integration_constant, n_mc, progress_tf));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_potMax_declusterCpp", (DL_FUNC) &_potMax_declusterCpp, 3},
@@ -109,6 +142,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_potMax_gumbelMaxDistUncertCpp", (DL_FUNC) &_potMax_gumbelMaxDistUncertCpp, 7},
     {"_potMax_fullMaxDistCpp", (DL_FUNC) &_potMax_fullMaxDistCpp, 7},
     {"_potMax_fullMaxDistUncertCpp", (DL_FUNC) &_potMax_fullMaxDistUncertCpp, 8},
+    {"_potMax_gumbelMaxDistMultiCpp", (DL_FUNC) &_potMax_gumbelMaxDistMultiCpp, 6},
+    {"_potMax_fullMaxDistMultiCpp", (DL_FUNC) &_potMax_fullMaxDistMultiCpp, 7},
     {NULL, NULL, 0}
 };
 

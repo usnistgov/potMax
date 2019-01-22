@@ -1,180 +1,296 @@
 #' @export
-plot.gumbel_max_dist <- function (x,
-                                  add_mean = TRUE,
-                                  mean_col = 'red',
-                                  lwd = 1, ...) {
-  par(lwd = lwd)
-  hist(x$max_dist,
-       xlab = 'Peak Value',
-       main = 'Distribution of the Peak Value',
-       freq = FALSE,
-       ...)
-  par(lwd = 1)
-  if (add_mean) {
+plot.gumbel_max_dist <- function(x,
+                                 add_mean = TRUE,
+                                 mean_col = 'red',
+                                 binwidth = NULL,
+                                 mean_size = 5,
+                                 ...) {
 
-    points(mean(x), 0,
-           col = mean_col,
-           pch = 17, cex = 2)
-    legend('topright', legend = 'Mean',
-           col = mean_col, pch = 17, bty = 'n')
+  if (is.null(binwidth)) {
+    binwidth <- (max(x$max_dist) - min(x$max_dist))/30
   }
+  p <- ggplot2::ggplot(data = data.frame(x = x$max_dist),
+              mapping = ggplot2::aes(x = x, y = ..density..)) +
+    ggplot2::geom_histogram(binwidth = binwidth) +
+    ggplot2::xlab('Peak Value') +
+    ggplot2::ylab('Density') +
+    ggplot2::ggtitle('Distribution of the Peak Value') +
+    ggplot2::geom_point(data = data.frame(x = mean(x), y = 0),
+               mapping = ggplot2::aes(x = x, y = y),
+               col = mean_col, size = mean_size) +
+    ggplot2::theme_classic()
+  p
 }
 
 #' @export
-plot.full_max_dist <- function (x,
-                                add_mean = TRUE,
-                                mean_col = 'red',
-                                lwd = 1, ...) {
-  par(lwd = lwd)
-  hist(x$max_dist,
-       xlab = 'Peak Value',
-       main = 'Distribution of the Peak Value',
-       freq = FALSE,
-       ...)
-  par(lwd = 1)
-  if (add_mean) {
+plot.gumbel_max_dist_multi_thresh <- function(x,
+                                              add_mean = TRUE,
+                                              mean_col = 'red',
+                                              binwidth = NULL,
+                                              mean_size = 5,
+                                              ...) {
 
-    points(mean(x), 0,
-           col = mean_col,
-           pch = 17, cex = 2)
-    legend('topright', legend = 'Mean',
-           col = mean_col, pch = 17, bty = 'n')
-  }
+  plot.gumbel_max_dist(x = x,
+                       add_mean = add_mean,
+                       mean_col = mean_col,
+                       binwidth = binwidth,
+                       mean_size = mean_size,
+                       ...)
 }
 
 #' @export
-plot.gumbel_max_dist_uncert <- function (x,
-                                         add_int = TRUE,
-                                         int_col = 'red',
-                                         n_plot = 50,
-                                         add = FALSE, ...) {
+plot.full_max_dist <- function(x,
+                               add_mean = TRUE,
+                               mean_col = 'red',
+                               binwidth = NULL,
+                               mean_size = 5,
+                               ...) {
+  plot.gumbel_max_dist(x = x,
+                       add_mean = add_mean,
+                       mean_col = mean_col,
+                       binwidth = binwidth,
+                       mean_size = mean_size,
+                       ...)
+}
 
-  dist_indices <- sample(x = 1:dim(x$boot_samps)[1],
-                         size = n_plot, replace = FALSE)
-  densx <- NULL
-  densy <- NULL
-  for (i in 1:n_plot) {
+#' @export
+plot.full_max_dist_multi_thresh <- function(x,
+                                            add_mean = TRUE,
+                                            mean_col = 'red',
+                                            binwidth = NULL,
+                                            mean_size = 5,
+                                            ...) {
+  plot.gumbel_max_dist(x = x,
+                       add_mean = add_mean,
+                       mean_col = mean_col,
+                       binwidth = binwidth,
+                       mean_size = mean_size,
+                       ...)
+}
 
-    tmp <- density(x$boot_samps[dist_indices[i], ])
-    densx <- rbind(densx, tmp$x)
-    densy <- rbind(densy, tmp$y)
-  }
+createUncertPlot <- function(boot_df, int_df,
+                             add_int,
+                             int_col,
+                             int_size,
+                             int_prob,
+                             n_plot,
+                             add,
+                             dens_line_alpha) {
 
   if (add) {
-
-    add_col <- rgb(128, 128, 128, 100,
-                   maxColorValue = 255)
-    for (i in 1:n_plot) {
-
-      lines(densx[i, ], densy[i, ],
-            col = add_col)
-    }
-
-    if (add_int) {
-
-      lines(summary(x, suppress = TRUE)[2:3],
-            rep(0, times = 2),
-            col = int_col, lwd = 2)
-      legend('right',
-             legend = c('Bootstrap Replicates',
-                        '80% CI for the Mean'),
-             bty = 'n', col = c(add_col, int_col),
-             lty = 'solid')
-    } else {
-
-      legend('right', legend = 'Bootstrap Replicates',
-             bty = 'n', col = add_col, lty = 'solid')
-    }
+    p <- ggplot2::last_plot() +
+      ggplot2::geom_density(data = boot_df,
+                            mapping = ggplot2::aes(x = x, group = dist_indices),
+                            color = ggplot2::alpha('black', dens_line_alpha))
   } else {
-
-    plot(c(min(densx), max(densx)),
-         c(min(densy), max(densy)),
-         ylab = 'Density',
-         xlab = 'Peak Value',
-         main = 'Bootstrap Replicates of the Distribution of the Peak',
-         bty = 'l',
-         type = 'n',
-         ...)
-    for (i in 1:n_plot) {
-
-      lines(densx[i, ], densy[i, ], ...)
-    }
-
-    if (add_int) {
-
-      lines(summary(x, suppress = TRUE)[2:3],
-            rep(0, times = 2),
-            col = int_col, lwd = 2)
-      legend('topright', legend = '80% CI for Mean',
-             col = int_col, lty = 'solid', bty = 'n')
-    }
+    p <- ggplot2::ggplot(data = boot_df,
+                         mapping = ggplot2::aes(x = x, group = dist_indices)) +
+      ggplot2::geom_density(color = ggplot2::alpha('black', dens_line_alpha))
   }
+  p <- p + ggplot2::xlab('Peak Value') +
+      ggplot2::ylab('Density') +
+      ggplot2::ggtitle('Distribution of the Peak Value') +
+      ggplot2::theme_classic()
+
+  if (add_int) {
+
+    p <- p + ggplot2::geom_line(data = int_df,
+                                mapping = ggplot2::aes(x = x, y = y, group = NULL),
+                                col = int_col, size = int_size)
+  }
+
+  p
 }
 
 #' @export
-plot.full_max_dist_uncert <- function (x,
-                                       add_int = TRUE,
-                                       int_col = 'red',
-                                       n_plot = 50,
-                                       add = FALSE, ...) {
+plot.gumbel_max_dist_uncert <- function(x,
+                                        add_int = TRUE,
+                                        int_col = 'red',
+                                        int_size = 3,
+                                        int_prob = 0.8,
+                                        n_plot = 50,
+                                        add = FALSE,
+                                        dens_line_alpha = 0.25,
+                                        ...) {
 
-  dist_indices <- sample(x = 1:dim(x$boot_samps)[1],
+  dist_indices <- sample(x = 1:nrow(x$boot_samps),
                          size = n_plot, replace = FALSE)
-  densx <- NULL
-  densy <- NULL
-  for (i in 1:n_plot) {
+  ggdata <- data.frame(x = as.numeric(t(x$boot_samps[dist_indices, ])),
+                       dist_indices = rep(dist_indices, each = ncol(x$boot_samps)))
 
-    tmp <- density(x$boot_samps[dist_indices[i], ])
-    densx <- rbind(densx, tmp$x)
-    densy <- rbind(densy, tmp$y)
+  int_df <- NULL
+  if (add_int) {
+
+    int_df <- data.frame(x = unlist(summary(x, probs = c(0.5 - int_prob/2, 0.5 + int_prob/2),
+                                            suppress = TRUE)[2:3]),
+                         y = rep(0, times = 2))
   }
 
-  if (add) {
+  createUncertPlot(boot_df = ggdata,
+                   int_df = int_df,
+                   add_int = add_int,
+                   int_col = int_col,
+                   int_size = int_size,
+                   int_prob = int_prob,
+                   n_plot = n_plot,
+                   add = add,
+                   dens_line_alpha = dens_line_alpha)
+}
 
-    add_col <- rgb(128, 128, 128, 100,
-                   maxColorValue = 255)
-    for (i in 1:n_plot) {
+#' @export
+#'
+plot.gumbel_max_dist_uncert_multi_thresh <- function(x,
+                                                     add_int = TRUE,
+                                                     int_col = 'red',
+                                                     int_size = 3,
+                                                     int_prob = 0.8,
+                                                     n_plot = 50,
+                                                     add = FALSE,
+                                                     dens_line_alpha = 0.25,
+                                                     ...) {
 
-      lines(densx[i, ], densy[i, ],
-            col = add_col)
-    }
+  dist_indices <- sample(x = 1:length(x),
+                         size = n_plot, replace = FALSE)
+  dist_indices_n <- unlist(lapply(x, function(x)sum(x$n_each)))
+  dist_indices_n <- dist_indices_n[dist_indices]
+  boot_df <- data.frame(x = unlist(lapply(x[dist_indices], function(x)x$max_dist)),
+                        dist_indices = rep(dist_indices, dist_indices_n))
 
-    if (add_int) {
+  int_df <- NULL
+  if (add_int) {
 
-      lines(summary(x, suppress = TRUE)[2:3],
-            rep(0, times = 2),
-            col = int_col, lwd = 2)
-      legend('right',
-             legend = c('Bootstrap Replicates',
-                        '80% CI for the Mean'),
-             bty = 'n', col = c(add_col, int_col),
-             lty = 'solid')
-    } else {
-
-      legend('right', legend = 'Bootstrap Replicates',
-             bty = 'n', col = add_col, lty = 'solid')
-    }
-  } else {
-
-    plot(c(min(densx), max(densx)),
-         c(min(densy), max(densy)),
-         ylab = 'Density',
-         main = 'Bootstrap Replicates of the Distribution of the Peak',
-         bty = 'l',
-         type = 'n',
-         ...)
-    for (i in 1:n_plot) {
-
-      lines(densx[i, ], densy[i, ], ...)
-    }
-
-    if (add_int) {
-
-      lines(summary(x, suppress = TRUE)[2:3],
-            rep(0, times = 2),
-            col = int_col, lwd = 2)
-      legend('topright', legend = '80% CI for Mean',
-             col = int_col, lty = 'solid', bty = 'n')
-    }
+    int_df <- data.frame(x = unlist(summary(x, probs = c(0.5 - int_prob/2, 0.5 + int_prob/2),
+                                            suppress = TRUE)[2:3]),
+                         y = rep(0, times = 2))
   }
+  createUncertPlot(boot_df = boot_df,
+                   int_df = int_df,
+                   add_int = add_int,
+                   int_col = int_col,
+                   int_size = int_size,
+                   int_prob = int_prob,
+                   n_plot = n_plot,
+                   add = add,
+                   dens_line_alpha = dens_line_alpha)
+}
+
+#' @export
+#'
+plot.full_max_dist_uncert <- function(x,
+                                      add_int = TRUE,
+                                      int_col = 'red',
+                                      int_size = 3,
+                                      int_prob = 0.8,
+                                      n_plot = 50,
+                                      add = FALSE,
+                                      dens_line_alpha = 0.25,
+                                        ...) {
+  plot.gumbel_max_dist_uncert(x = x,
+                              add_int = add_int,
+                              int_col = int_col,
+                              int_size = int_size,
+                              int_prob = int_prob,
+                              n_plot = n_plot,
+                              add = add,
+                              dens_line_alpha = dens_line_alpha,
+                              ...)
+}
+
+#' @export
+plot.full_max_dist_uncert_multi_thresh <- function(x,
+                                                   add_int = TRUE,
+                                                   int_col = 'red',
+                                                   int_size = 3,
+                                                   int_prob = 0.8,
+                                                   n_plot = 50,
+                                                   add = FALSE,
+                                                   dens_line_alpha = 0.25,
+                                                   ...) {
+  plot.gumbel_max_dist_uncert_multi_thresh(x = x,
+                                           add_int = add_int,
+                                           int_col = int_col,
+                                           int_size = int_size,
+                                           int_prob = int_prob,
+                                           n_plot = n_plot,
+                                           add = add,
+                                           dens_line_alpha = dens_line_alpha,
+                                           ...)
+}
+
+#'
+#' @title Plot Fit Statistics versus Thresholds
+#'
+#' @description This function creates a plot of of the fit statistics versus the
+#'   associated thresholds
+#'
+#' @details The fit statistics are the maximum vertical distances of the points
+#'   to the \eqn{45^\circ} line in the W-plots described in \code{gumbelWPlot}
+#'   and \code{fullWPlot}
+#'
+#' @param x An object of class \code{thresholded_series},
+#'   \code{gumbel_multi_fit}, or \code{full_multi_fit}
+#'
+#' @return A \code{ggplot} object
+#'
+#' @examples
+#'
+#' \dontrun{
+#'   complete_series <- -jp1tap1715wind270$value
+#'
+#'   declustered_obs <- decluster(complete_series)
+#'
+#'   thresholded_series <- gumbelEstThreshold(x = declustered_obs,
+#'                                            lt = 100,
+#'                                            n_min = 10,
+#'                                            n_max = 100)
+#'
+#'   threshPlot(thresholded_series)
+#' }
+#'
+#' @export
+#'
+threshPlot <- function(x, ...) {
+  UseMethod('threshPlot')
+}
+
+#' @describeIn threshPlot
+#'
+#' @export
+#'
+threshPlot.thresholded_series <- function(x, ...) {
+  threshPlot.default(w_stats = x$w_stats,
+                     thresholds = x$checked_thresholds)
+}
+
+#' @describeIn threshPlot
+#'
+#' @export
+#'
+threshPlot.gumbel_multi_fit <- function(x, ...) {
+  threshPlot.default(w_stats = x$w_stats,
+                     thresholds = x$thresholds)
+}
+
+#' @describeIn threshPlot
+#'
+#' @export
+#'
+threshPlot.full_multi_fit <- function(x, ...) {
+  threshPlot.gumbel_multi_fit(x = x)
+}
+
+# #' @export
+threshPlot.default <- function(w_stats, thresholds) {
+
+  mindf <- data.frame(w_stats = min(w_stats),
+                      thresholds = thresholds[w_stats == min(w_stats)])
+  ggdf <- data.frame(w_stats = w_stats, thresholds = thresholds)
+  p <- ggplot2::ggplot(data = ggdf,
+                       mapping = ggplot2::aes(x = thresholds, y = w_stats)) +
+    ggplot2::geom_point() +
+    ggplot2::geom_point(data = mindf, color = 'red', size = 3) +
+    ggplot2::xlab('Threshold') +
+    ggplot2::ylab('W-statistic') +
+    ggplot2::theme_classic()
+  p
 }

@@ -1,27 +1,49 @@
-#' @title fullWPlot
+#' @title W plot for the Full Poisson Process Intensity Function
 #'
-#' @description fullWPlot
+#' @description Plot of W-statistics versus standard exponential quantiles for
+#'   the full Poisson process intensity function described in \code{fullMLE}
 #'
-#' @details this is the W plot from the 2004 Richard Smith book chapter
+#' @details This is the W plot from Chapter 1 of "Extreme Values in Finance,
+#'   Telecomunications, and the Environment." The chapter was authored by
+#'   Richard Smith. The formula for \eqn{W} is
 #'
-#' @param mu
+#'   \deqn{W = \frac{1}{k}\log\Big\{1 + \frac{ky}{\sigma + k(u - \mu)}\Big\}}
 #'
-#' @param sigma
+#'   where \eqn{y} is the excess of (difference from) the threshold \eqn{u}
 #'
-#' @param k
+#' @param x An S3 object of type \code{full_pot_fit} or numeric vector of length
+#'   3 where the first, second, and thrid components are \eqn{\mu}, \eqn{\sigma},
+#'   and \eqn{k}, respectively.
 #'
-#' @param y
+#' @param tf_plot (logical scalar) Create the plot if TRUE, else not.
 #'
-#' @param thresh
+#' @param BW (logical scalar) The plot is created in black and white if TRUE,
+#'   else not
 #'
-#' @param tf_plot
+#' @param details (logical scalar) Should details of the calculation be returned
+#'   as a \code{data.frame}
 #'
-#' @param BW (logical) only use black and white for the plot.  Ignored if
-#'   tf_plot == FALSE
+#' @return If details is TRUE, a \code{data.frame} with the details of the
+#'   calculation, else invisibly return the maximum vertical distance from the
+#'   points of the plot to the \eqn{45^\circ} line
 #'
-#' @param details
+#' @examples
 #'
-#' @param ...
+#' \dontrun{
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' thresholded_obs <- fullEstThreshold(x = declustered_obs,
+#'                                     lt = 100,
+#'                                     n_min = 10,
+#'                                     n_max = 100)
+#'
+#' full_pot_fit <- fullMLE(x = thresholded_obs,
+#'                         hessian_tf = TRUE)
+#'
+#' fullWPlot(x = full_pot_fit, tf_plot = TRUE, BW = FALSE, details = FALSE)
+#' }
 #'
 #' @export
 #'
@@ -29,7 +51,10 @@ fullWPlot <- function (x, tf_plot, BW, details, ...) {
   UseMethod('fullWPlot')
 }
 
+#' @describeIn fullWPlot
+#'
 #' @export
+#'
 fullWPlot.full_pot_fit <- function (x,
                                     tf_plot,
                                     BW,
@@ -44,14 +69,20 @@ fullWPlot.full_pot_fit <- function (x,
                               ...))
 }
 
+#' @describeIn fullWPlot
+#'
+#' @param y (numeric vector) The observations that exceed the threshold, NOT the
+#'   excesses or differences, but the actual observations
+#'
 #' @export
-fullWPlot.default <- function (x,
-                               y,
-                               thresh,
-                               tf_plot,
-                               BW,
-                               details,
-                               ...) {
+#'
+fullWPlot.default <- function(x,
+                              y,
+                              thresh,
+                              tf_plot,
+                              BW,
+                              details,
+                              ...) {
 
   mu <- x[1]
   sigma <- x[2]
@@ -104,28 +135,28 @@ fullWPlot.default <- function (x,
     W3 <- W3[order(W)]
     W4 <- W4[order(W)]
   }
-  W <- sort(x=W)
+  W <- sort(x = W)
 
   ## calculate the appropriate exp(1)
   ## quantiles
   quantiles <- ((1:n) - 0.375)/(n + 0.25)
-  exp1_quantiles <- qexp(p=quantiles)
+  exp1_quantiles <- qexp(p = quantiles)
 
   if (tf_plot) {
 
-    plot(x=exp1_quantiles, y=W,
-         xlab="exp(1) quantiles",
-         ylab="Ordered W-Statistics",
-         main="W-Statistic Plot",
+    plot(x = exp1_quantiles, y = W,
+         xlab = "exp(1) quantiles",
+         ylab = "Ordered W-Statistics",
+         main = "W-Statistic Plot",
          bty = "l",
          ...)
 
     if (BW) {
 
-      abline(a=0, b=1, col="black")
+      abline(a = 0, b = 1, col = "black")
     } else {
 
-      abline(a=0, b=1, col="red")
+      abline(a = 0, b = 1, col = "red")
     }
   }
 
@@ -139,28 +170,52 @@ fullWPlot.default <- function (x,
   }
 }
 
-#' @title gumbelWPlot
+#' @title W plot for the Gumbel Poisson Process Intensity Function
 #'
-#' @description gumbelWPlot
+#' @description Plot of W-statistics versus standard exponential quantiles for
+#'   the Gumbel like intensity function described in \code{gumbelMLE}
 #'
-#' @details this is the W plot from the 2004 Richard Smith book chapter
+#' @details This is the W plot from Chapter 1 of "Extreme Values in Finance,
+#'   Telecomunications, and the Environment," but modified by taking the limit
+#'   of the formula for \eqn{W} as the tail length parameter goes to zero
 #'
-#' @param mu
+#'   \deqn{W = \frac{y}{\sigma}}
 #'
-#' @param sigma
+#'   where \eqn{y} is the excess of (difference from) the threshold.
 #'
-#' @param y
+#' @param x An S3 object of type \code{gumbel_pot_fit} or numeric vector of length
+#'   2 where the first and second components are \eqn{\mu}, \eqn{\sigma},
+#'   respectively.
 #'
-#' @param thresh
+#' @param tf_plot (logical scalar) Create the plot if TRUE, else not.
 #'
-#' @param tf_plot
+#' @param BW (logical scalar) The plot is created in black and white if TRUE,
+#'   else not
 #'
-#' @param BW (logical) only use black and white for the plot.  Ignored if
-#'   tf_plot == FALSE
+#' @param details (logical scalar) Should details of the calculation be returned
+#'   as a \code{data.frame}
 #'
-#' @param details
+#' @return If details is TRUE, a \code{data.frame} with the details of the
+#'   calculation, else invisibly return the maximum vertical distance from the
+#'   points of the plot to the \eqn{45^\circ} line
 #'
-#' @param ...
+#' @examples
+#'
+#' \dontrun{
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' thresholded_obs <- gumbelEstThreshold(x = declustered_obs,
+#'                                      lt = 100,
+#'                                      n_min = 10,
+#'                                      n_max = 100)
+#'
+#' gumbel_pot_fit <- gumbelMLE(x = thresholded_obs,
+#'                             hessian_tf = TRUE)
+#'
+#' gumbelWPlot(x = gumbel_pot_fit, tf_plot = TRUE, BW = FALSE, details = FALSE)
+#' }
 #'
 #' @export
 #'
@@ -168,7 +223,10 @@ gumbelWPlot <- function (x, tf_plot, BW, details, ...) {
   UseMethod('gumbelWPlot')
 }
 
+#' @describeIn gumbelWPlot
+#'
 #' @export
+#'
 gumbelWPlot.gumbel_pot_fit <- function (x,
                                         tf_plot,
                                         BW,
@@ -184,7 +242,13 @@ gumbelWPlot.gumbel_pot_fit <- function (x,
                                 ...))
 }
 
+#' @describeIn gumbelWPlot
+#'
+#' @param y (numeric vector) The observations that exceed the threshold, NOT the
+#'   excesses or differences, but the actual observations
+#'
 #' @export
+#'
 gumbelWPlot.default <- function (x,
                                  y,
                                  thresh,
@@ -215,7 +279,7 @@ gumbelWPlot.default <- function (x,
 # #'
 # #' @param n_max
 # #'
-genThresholds <- function (y_all, n_min, n_max) {
+genThresholds <- function(y_all, n_min, n_max) {
 
   y <- sort(y_all, decreasing = TRUE)
   thresholds <- NULL
@@ -226,50 +290,117 @@ genThresholds <- function (y_all, n_min, n_max) {
   y2 <- y[(n_min + 1):(n_max + 1)]
 
   thresholds <- unique((y1 + y2)/2)
+
+  for (i in seq_along(thresholds)) {
+
+    tmp <- y[y > thresholds[i]]
+    if (length(unique(tmp)) < 2) {
+      thresholds[i] <- NA
+    } else {
+      break
+    }
+  }
+  thresholds <- thresholds[!is.na(thresholds)]
+
+  if (length(thresholds) < 1) {
+    tmp <- unique(y)
+    if (length(tmp) > 2) {
+      thresholds <- mean(tmp[2:3])
+    } else if (length(tmp) == 2) {
+      thresholds <- 0.99*tmp[2]
+    } else {
+      stop(paste0('potMax:::genThresholds: The data are constantly ', tmp))
+    }
+  }
+
+  thresholds
 }
 
+#' @title Find the Optimal Threshold for the Gumbel Model
 #'
-#' @title gumbelEstThreshold
+#' @description Estimate the threshold to use for the 2D extremal Poisson
+#'   process when the tail length parameter for that model is exactly zero.
 #'
-#' @description gumbelEstThreshold
+#' @details A sequence of candidate thresholds is generated, and the threshold
+#'   that minimizes the maximum vertical distance of the points of the W plot
+#'   (described in \code{gumbelWplot}) to the \eqn{45^\circ} line is selected.
+#'   See the vingette for more details.
 #'
-#' @details Select a threshold when using the Gumble POT modle
+#' @param x An S3 object of class \code{declustered_series} or a numeric
+#'   vector.
 #'
-#' @param y_all The unthresholded series of observations
-#'
-#' @param lt The lenght of time in seconds over which the observations are
-#'   recorded
+#' @param lt (numeric scalar) The length of the time series in units
+#'   of time (seconds, minutes, hours, etc.).
 #'
 #' @param n_min The minimum number of thresholded observations to include
 #'
 #' @param n_max The maximum number of thresholded observations to include
 #'
+#' @param progress_tf Display a progress bar if TRUE, else not.
+#'
+#' @return An S3 object of class \code{thresholded_series} with elements
+#'   \code{$seleted_threshold}, \code{$lt}, \code{$y},
+#'   \code{$checked_thresholds}, and \code{$w_stats}.  The element \code{$y} is
+#'   a numeric vector containing the actual observations (NOT differences from
+#'   the threshold) that exceed the selected threshold.  The element
+#'   \code{$w_stats} contains the maximum vertical distance from points to the
+#'   \eqn{45^\circ} line of the W plot for the corresponding
+#'   \code{$checked_threshold}.
+#'
+#' @examples
+#'
+#' \dontrun{
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' thresholded_obs <- gumbelEstThreshold(x = declustered_obs,
+#'                                      lt = 100,
+#'                                      n_min = 10,
+#'                                      n_max = 100)
+#' }
+#'
 #' @export
 #'
-gumbelEstThreshold <- function (x, lt, n_min, n_max) {
+gumbelEstThreshold <- function(x, lt, n_min, n_max, progress_tf = TRUE) {
   UseMethod('gumbelEstThreshold')
 }
 
+#' @describeIn gumbelEstThreshold
+#'
 #' @export
-gumbelEstThreshold.declustered_series <- function (x, lt,
-                                                   n_min,
-                                                   n_max) {
+#'
+gumbelEstThreshold.declustered_series <- function(x, lt,
+                                                  n_min,
+                                                  n_max,
+                                                  progress_tf = TRUE) {
 
   gumbelEstThreshold.default(x = x$declustered_series,
                              lt = lt,
                              n_min = n_min,
-                             n_max = n_max)
+                             n_max = n_max,
+                             progress_tf = progress_tf)
 }
 
+#' @describeIn gumbelEstThreshold
+#'
 #' @export
-gumbelEstThreshold.default <- function (x, lt, n_min, n_max) {
+#'
+gumbelEstThreshold.default <- function(x, lt, n_min, n_max,
+                                       progress_tf = TRUE) {
 
   thresholds <- genThresholds(x, n_min, n_max)
   w_stats <- rep(NA, length(thresholds))
 
-  pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
-                                   complete = '*')
-  pb$tick(0)
+  if (progress_tf) {
+    pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
+                                     format = '|:bar| :percent ~ :eta',
+                                     complete = '+', incomplete = ' ',
+                                     current = ' ',
+                                     width = floor(0.6*getOption('width')))
+
+    pb$tick(0)
+  }
 
   for (i in 1:length(thresholds)) {
 
@@ -285,10 +416,13 @@ gumbelEstThreshold.default <- function (x, lt, n_min, n_max) {
                                       tf_plot = FALSE,
                                       BW = FALSE,
                                       details = FALSE)
-    pb$tick()
+
+    if (progress_tf) {
+      pb$tick()
+    }
   }
 
-  thresh = thresholds[w_stats == min(w_stats)]
+  thresh <- thresholds[w_stats == min(w_stats)]
 
   value <- list(selected_threshold = thresh,
                 lt = lt,
@@ -299,51 +433,102 @@ gumbelEstThreshold.default <- function (x, lt, n_min, n_max) {
   value
 }
 
+
+#' @title Find the Optimal Threshold for the Full Model
 #'
-#' @title fullEstThreshold
+#' @description Estimate the threshold to use for the 2D extremal Poisson
+#'   process.
 #'
-#' @description fullEstThreshold
+#' @details A sequence of candidate thresholds is generated, and the threshold
+#'   that minimizes the maximum vertical distance of the points of the W plot
+#'   (described in \code{fullWplot}) to the \eqn{45^\circ} line is selected. See
+#'   the vingette for more details.
 #'
-#' @details Select a threshold when using the full POT model
+#' @param x An S3 object of class \code{declustered_series} or a numeric
+#'   vector.
 #'
-#' @param y_all The unthresholded series of observations
+#' @param lt (numeric scalar) The length of the time series in units
+#'   of time (seconds, minutes, hours, etc.).
 #'
-#' @param lt The lenght of time in seconds over which the observations are
-#'   recorded
+#' @param n_min (numeric scalar) The minimum number of thresholded observations
+#'   to include
 #'
-#' @param n_min The minimum number of thresholded observations to include
+#' @param n_max (numeric scalar) The maximum number of thresholded observations
+#'   to include
 #'
-#' @param n_max The maximum number of thresholded observations to include
+#' @param n_starts (numeric scalar) An iterative algorithm is used to calculate
+#'   the MLE, and the optimization algorithm is run \code{n_starts} times,
+#'   feeding in different random starts each time.  There is no default because
+#'   setting it too high results in extended run times, but it should be at
+#'   least one (obviously).
+#'
+#' @param progress_tf (logical scalar) Display a progress bar if TRUE, else not.
+#'
+#' @return An S3 object of class \code{thresholded_series} with elements
+#'   \code{$seleted_threshold}, \code{$lt}, \code{$y},
+#'   \code{$checked_thresholds}, and \code{$w_stats}.  The element \code{$y} is
+#'   a numeric vector containing the actual observations (NOT differences from
+#'   the threshold) that exceed the selected threshold.  The element
+#'   \code{$w_stats} contains the maximum vertical distance from points to the
+#'   \eqn{45^\circ} line of the W plot for the corresponding
+#'   \code{$checked_threshold}.
+#'
+#' @examples
+#'
+#' \dontrun{
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' thresholded_obs <- fullEstThreshold(x = declustered_obs,
+#'                                     lt = 100,
+#'                                     n_min = 10,
+#'                                     n_max = 100,
+#'                                     n_starts = 10)
+#' }
 #'
 #' @export
 #'
-fullEstThreshold <- function (x, lt, n_min, n_max, n_starts) {
+fullEstThreshold <- function(x, lt, n_min, n_max, n_starts, progress_tf = TRUE) {
   UseMethod('fullEstThreshold')
 }
 
+#' @describeIn fullEstThreshold
+#'
 #' @export
-fullEstThreshold.declustered_series <- function (x, lt,
-                                                 n_min,
-                                                 n_max,
-                                                 n_starts) {
+#'
+fullEstThreshold.declustered_series <- function(x, lt,
+                                                n_min,
+                                                n_max,
+                                                n_starts,
+                                                progress_tf = TRUE) {
 
   fullEstThreshold.default(x = x$declustered_series,
                            lt = lt,
                            n_min = n_min,
                            n_max = n_max,
-                           n_starts = n_starts)
+                           n_starts = n_starts,
+                           progress_tf = progress_tf)
 }
 
+#' @describeIn fullEstThreshold
+#'
 #' @export
-fullEstThreshold.default <- function (x, lt, n_min, n_max,
-                                      n_starts) {
+#'
+fullEstThreshold.default <- function(x, lt, n_min, n_max,
+                                     n_starts, progress_tf = TRUE) {
 
   thresholds <- genThresholds(x, n_min, n_max)
   w_stats <- rep(NA, length(thresholds))
 
-  pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
-                                   complete = '*')
-  pb$tick(0)
+  if (progress_tf) {
+    pb <- progress::progress_bar$new(total = length(thresholds), clear = FALSE,
+                                     format = '|:bar| :percent ~ :eta',
+                                     complete = '+', incomplete = ' ',
+                                     current = ' ',
+                                     width = floor(0.6*getOption('width')))
+    pb$tick(0)
+  }
 
   for (i in 1:length(thresholds)) {
 
@@ -360,7 +545,10 @@ fullEstThreshold.default <- function (x, lt, n_min, n_max,
                                     tf_plot = FALSE,
                                     BW = FALSE,
                                     details = FALSE)
-    pb$tick()
+
+    if (progress_tf) {
+      pb$tick()
+    }
   }
 
   thresh <- thresholds[w_stats == min(w_stats)]
@@ -373,48 +561,3 @@ fullEstThreshold.default <- function (x, lt, n_min, n_max,
   class(value) <- 'thresholded_series'
   value
 }
-
-# #' @export
-# thresholdSeries <- function (x, lt, n_target) {
-#   UseMethod('thresholdSeries')
-# }
-#
-# #' @export
-# thresholdSeries.declustered_series <- function (x, lt, n_target) {
-#   thresholdSeries.default(x = x$declustered_series,
-#                           lt = lt,
-#                           n_target = n_target)
-# }
-#
-# #' @export
-# thresholdSeries.default <- function (x, lt, n_target) {
-#
-#   n <- length(x)
-#   x <- sort(x)
-#   if (n <= n_target) {
-#     value <- list(selected_threshold = min(x),
-#                   lt = lt,
-#                   y = x,
-#                   checked_thresholds = NULL,
-#                   w_stats = NULL)
-#     class(value) <- 'thresholded_series'
-#   } else {
-#
-#     for (i in 1:(n - 1)) {
-#
-#       thresh <- mean(c(x[i], x[i + 1]))
-#       y <- x[x > thresh]
-#       if (length(y) == n_target) {
-#
-#         value <- list(selected_threshold = thresh,
-#                   lt = lt,
-#                   y = y,
-#                   checked_thresholds = NULL,
-#                   w_stats = NULL)
-#         class(value) <- 'thresholded_series'
-#         break
-#       }
-#     }
-#   }
-#   value
-# }

@@ -1,17 +1,63 @@
-#' @title gumbelMaxDist
+#' @title Distribution of the Maximum Using the Gumbel Model
 #'
-#' @description gumbelMaxDist
+#' @description Empirically build the distribution of the maximum value over
+#'   some user defined length of time assuming the underlying data generating
+#'   mechanism is the 2D extremal Poisson process with the Gumbel like intensity
+#'   function (i.e. the tail length is zero)
 #'
-#' @details Generates the empirical distribution of the maximum value from a
-#'   Gumbel (zero tail length) POT model over a specified length of time
+#' @details The results of fitting a Gumbel like 2D extremal Poisson process are
+#'   fed into this function.  Random processes are repeatedly generated from the
+#'   fitted model, and the maximum of each random process is recorded.  The
+#'   recoreded maximums represent an iid sample from the distribution of the
+#'   maximum value for a process of the desired length.  Note that the desired
+#'   length of the process can be different from the length of time over which
+#'   the data used to fit the model were observed.
 #'
-#' @param mu Location parameter
+#' @param x An S3 object of class \code{gumbel_pot_fit} or a numeric vector of
+#'   lenght 2.  If the latter the first element of the vector should be the
+#'   estimated location parameter \eqn{\mu}, and the second element should be the
+#'   estimated scale parameter \eqn{\sigma}.
 #'
-#' @param sigma Scale parameter
+#' @param lt_gen Length of each generated series.  The units (seconds, minutes,
+#'   hours, etc.) should be consistent with the value of \code{lt} provided to
+#'   \code{gumbelMLE}.
 #'
-#' @param thresh The threshold
+#' @param n_mc The number of samples to draw from the distribution of the
+#'   maximum
 #'
-#' @param lt_gen Lengt of each generated series in seconds
+#' @param progress_tf Display a progress bar if TRUE, else not.
+#'
+#' @return An S3 object of class \code{gumbel_max_dist} with elements
+#'
+#' \describe{
+#'   \item{\code{$par}}{The parameters used to generate the random processes}
+#'
+#'   \item{\code{$thres}}{The threshold used}
+#'
+#'   \item{\code{$lt_gen}}{The value of the \code{lt_gen} argument}
+#'
+#'   \item{\code{$max_dist}}{A numeric vector of length \code{n_mc} containing
+#'   the samples from the distribution of the maximum}
+#'
+#' }
+#' @examples
+#'
+#' \dontrun{
+#'
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' thresholded_obs <- gumbelEstThreshold(x = declustered_obs,
+#'                                       lt = 100,
+#'                                       n_min = 10,
+#'                                       n_max = 100)
+#'
+#' gumbel_pot_fit <- gumbelMLE(x = thresholded_obs,
+#'                             hessian_tf = TRUE)
+#'
+#' gumbel_max_dist <- gumbelMaxDist(x = gumbel_pot_fit, lt_gen = 200, n_mc = 1000)
+#' }
 #'
 #' @export
 #'
@@ -23,7 +69,10 @@ gumbelMaxDist <- function(x, lt_gen, n_mc, progress_tf = TRUE, ...) {
   UseMethod('gumbelMaxDist')
 }
 
+#' @describeIn gumbelMaxDist
+#'
 #' @export
+#'
 gumbelMaxDist.gumbel_pot_fit <- function(x, lt_gen, n_mc,
                                          progress_tf = TRUE) {
 
@@ -34,7 +83,12 @@ gumbelMaxDist.gumbel_pot_fit <- function(x, lt_gen, n_mc,
                         progress_tf = progress_tf)
 }
 
+#' @describeIn gumbelMaxDist
+#'
+#' @param thresh The threshold
+#'
 #' @export
+#'
 gumbelMaxDist.default <- function(x, thresh,
                                   lt_gen, n_mc,
                                   progress_tf = TRUE) {
@@ -69,30 +123,73 @@ gumbelMaxDist.default <- function(x, thresh,
   value
 }
 
-#' @title gumbelMaxDistUncert
+#' @title Uncertainty in the Distribution of the Maximum Using the Gumbel Model
 #'
-#' @description gumbelMaxDistUncert
+#' @description Evaluate uncertainty in the distribution of the maximum value
+#'   over some user defined length of time assuming the underlying data
+#'   generating mechanism is the 2D extremal Poisson process with the Gumbel
+#'   like intensity function (i.e. the tail length is zero)
 #'
-#' @details Generates bootstrap samples of the empirical distribution of the
-#'   maximum value from a Gumbel (zero tail length) POT model over a specified
-#'   #'   length of time
+#' @details The results of fitting a Gumbel like 2D extremal Poisson process are
+#'   fed into this function.  The Hessian matrix is used to repeatedly perturb
+#'   the MLE, and for each set of perturbed parameters the distribution of the
+#'   maximum is empirically constructed as described in \code{gumbelMaxDist}.
+#'   The bootstrap replicates of the distribution of the maximum may be used to
+#'   quantify uncertainty and construct intervals.
 #'
-#' @param mu Location parameter
+#' @param x An S3 object of class \code{gumbel_pot_fit} or a numeric vector of
+#'   lenght 2.  If the latter the first element of the vector should be the
+#'   estimated location parameter \eqn{\mu}, and the second element should be the
+#'   estimated scale parameter \eqn{\sigma}.
 #'
-#' @param sigma Scale parameter
+#' @param lt_gen Length of each generated series.  The units (seconds, minutes,
+#'   hours, etc.) should be consistent with the value of \code{lt} provided to
+#'   \code{gumbelMLE}.
 #'
-#' @param cov_mat The estimated covariance matrix for the estimation of mu and
-#'   sigma
+#' @param n_mc The number of samples to draw from the distribution of the
+#'   maximum
 #'
-#' @param thresh The threshold
+#' @param n_boot The number of bootstrap replicates of the distribution of the
+#'   maximum to create.
 #'
-#' @param lt_gen Lengt of each generated series in seconds that the maximum is
-#'   take over
+#' @param progress_tf Display a progress bar if TRUE, else not.
 #'
-#' @param n_mc The number of Monte Carlo samples from which the distribution of
-#'   the maximum is built
+#' @return An S3 object of class \code{gumbel_max_dist_uncert} with elements
 #'
-#' @param n_boot The number of bootstrap samples to base uncertainties on
+#' \describe{
+#'   \item{\code{$par}}{The parameters used to generate the random processes}
+#'
+#'   \item{\code{$cov_mat}}{The covariance matrix (negative inverse Hessian)
+#'   used to perturb \code{$par}}
+#'
+#'   \item{\code{$thres}}{The threshold used}
+#'
+#'   \item{\code{$lt_gen}}{The value of the \code{lt_gen} argument}
+#'
+#'   \item{\code{$boot_samps}}{A matrix \code{n_boot} rows and \code{n_mc}
+#'   columns containing the bootstrap replicates of the distribution of the
+#'   maximum}
+#'
+#' }
+#' @examples
+#'
+#' \dontrun{
+#'
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' thresholded_obs <- gumbelEstThreshold(x = declustered_obs,
+#'                                       lt = 100,
+#'                                       n_min = 10,
+#'                                       n_max = 100)
+#'
+#' gumbel_pot_fit <- gumbelMLE(x = thresholded_obs,
+#'                             hessian_tf = TRUE)
+#'
+#' gumbel_max_dist_uncert <- gumbelMaxDistUncert(x = gumbel_pot_fit, lt_gen = 200,
+#'                                               n_mc = 1000, n_boot = 200)
+#' }
 #'
 #' @export
 #'
@@ -108,7 +205,10 @@ gumbelMaxDistUncert <- function(x, lt_gen,
   UseMethod('gumbelMaxDistUncert')
 }
 
+#' @describeIn gumbelMaxDistUncert
+#'
 #' @export
+#'
 gumbelMaxDistUncert.gumbel_pot_fit <- function(x, lt_gen,
                                                n_mc,
                                                n_boot,
@@ -123,7 +223,15 @@ gumbelMaxDistUncert.gumbel_pot_fit <- function(x, lt_gen,
                               progress_tf = progress_tf)
 }
 
+#' @describeIn gumbelMaxDistUncert
+#'
+#' @param cov_mat The covariance matrix to use to perturn the MLE (most usually
+#'   the negative inverse of the Hessian matrix)
+#'
+#' @param thresh The threshold
+#'
 #' @export
+#'
 gumbelMaxDistUncert.default <- function(x, cov_mat,
                                         thresh, lt_gen,
                                         n_mc,
@@ -179,22 +287,69 @@ gumbelMaxDistUncert.default <- function(x, cov_mat,
   value
 }
 
-#' @title fullMaxDist
+#' @title Distribution of the Maximum Using the Full Model
 #'
-#' @description fullMaxDist
+#' @description Empirically build the distribution of the maximum value over
+#'   some user defined length of time assuming the underlying data generating
+#'   mechanism is the 2D extremal Poisson process with the full intensity
+#'   function
 #'
-#' @details Generates the empirical distribution of the maximum value from a
-#'   full (non-zero tail length) POT model over a specified length of time
+#' @details The results of fitting the 2D extremal Poisson process are
+#'   fed into this function.  Random processes are repeatedly generated from the
+#'   fitted model, and the maximum of each random process is recorded.  The
+#'   recoreded maximums represent an iid sample from the distribution of the
+#'   maximum value for a process of the desired length.  Note that the desired
+#'   length of the process can be different from the length of time over which
+#'   the data used to fit the model were observed.
 #'
-#' @param mu Location parameter
+#' @param x An S3 object of class \code{full_pot_fit} or a numeric vector of
+#'   lenght 3.  If the latter the first element of the vector should be the
+#'   estimated location parameter \eqn{\mu}, the second element should be the
+#'   estimated scale parameter \eqn{\sigma}, and the thrid element should be the
+#'   estimated tail length parameter \eqn{k}.
 #'
-#' @param sigma Scale parameter
+#' @param lt_gen Length of each generated series.  The units (seconds, minutes,
+#'   hours, etc.) should be consistent with the value of \code{lt} provided to
+#'   \code{gumbelMLE}.
 #'
-#' @param k Tail length parameter
+#' @param n_mc The number of samples to draw from the distribution of the
+#'   maximum
 #'
-#' @param thresh The threshold
+#' @param progress_tf Display a progress bar if TRUE, else not.
 #'
-#' @param lt_gen Lengt of each generated series in seconds
+#' @return An S3 object of class \code{full_max_dist} with elements
+#'
+#' \describe{
+#'   \item{\code{$par}}{The parameters used to generate the random processes}
+#'
+#'   \item{\code{$thres}}{The threshold used}
+#'
+#'   \item{\code{$lt_gen}}{The value of the \code{lt_gen} argument}
+#'
+#'   \item{\code{$max_dist}}{A numeric vector of length \code{n_mc} containing
+#'   the samples from the distribution of the maximum}
+#'
+#' }
+#' @examples
+#'
+#' \dontrun{
+#'
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' thresholded_obs <- fullEstThreshold(x = declustered_obs,
+#'                                     lt = 100,
+#'                                     n_min = 10,
+#'                                     n_max = 100,
+#'                                     n_starts = 10)
+#'
+#' full_pot_fit <- fullMLE(x = thresholded_obs,
+#'                         hessian_tf = TRUE,
+#'                         n_starts = 10)
+#'
+#' full_max_dist <- fullMaxDist(x = full_pot_fit, lt_gen = 200, n_mc = 1000)
+#' }
 #'
 #' @export
 #'
@@ -207,7 +362,10 @@ fullMaxDist <- function(x, lt_gen, n_mc,
   UseMethod('fullMaxDist')
 }
 
+#' @describeIn fullMaxDist
+#'
 #' @export
+#'
 fullMaxDist.full_pot_fit <- function(x, lt_gen, n_mc,
                                      progress_tf = TRUE) {
 
@@ -218,7 +376,12 @@ fullMaxDist.full_pot_fit <- function(x, lt_gen, n_mc,
                       progress_tf = progress_tf)
 }
 
+#' @describeIn fullMaxDist
+#'
+#' @param thresh The threshold
+#'
 #' @export
+#'
 fullMaxDist.default <- function(x, thresh,
                                 lt_gen, n_mc,
                                 progress_tf = TRUE) {
@@ -253,32 +416,76 @@ fullMaxDist.default <- function(x, thresh,
   value
 }
 
-#' @title fullMaxDistUncert
+#' @title Uncertainty in the Distribution of the Maximum Using the Full Model
 #'
-#' @description fullMaxDistUncert
+#' @description Evaluate uncertainty in the distribution of the maximum value
+#'   over some user defined length of time assuming the underlying data
+#'   generating mechanism is the 2D extremal Poisson process with the Full
+#'   intensity function
 #'
-#' @details Generates bootstrap samples of the empirical distribution of the
-#'   maximum value from the full (non-zero tail length) POT model over a
-#'   specified length of time
+#' @details The results of fitting the 2D extremal Poisson process are
+#'   fed into this function.  The Hessian matrix is used to repeatedly perturb
+#'   the MLE, and for each set of perturbed parameters the distribution of the
+#'   maximum is empirically constructed as described in \code{fullMaxDist}.
+#'   The bootstrap replicates of the distribution of the maximum may be used to
+#'   quantify uncertainty and construct intervals.
 #'
-#' @param mu Location parameter
+#' @param x An S3 object of class \code{full_pot_fit} or a numeric vector of
+#'   lenght 3.  If the latter the first element of the vector should be the
+#'   estimated location parameter \eqn{\mu}, the second element should be the
+#'   estimated scale parameter \eqn{\sigma}, and the third element should be the
+#'   estimated tail length parameter \eqn{k}.
 #'
-#' @param sigma Scale parameter
+#' @param lt_gen Length of each generated series.  The units (seconds, minutes,
+#'   hours, etc.) should be consistent with the value of \code{lt} provided to
+#'   \code{gumbelMLE}.
 #'
-#' @param k Tail length parameter
+#' @param n_mc The number of samples to draw from the distribution of the
+#'   maximum
 #'
-#' @param cov_mat The estimated covariance matrix for the estimation of mu and
-#'   sigma
+#' @param n_boot The number of bootstrap replicates of the distribution of the
+#'   maximum to create.
 #'
-#' @param thresh The threshold
+#' @param progress_tf Display a progress bar if TRUE, else not.
 #'
-#' @param lt_gen Lengt of each generated series in seconds that the maximum is
-#'   taken over
+#' @return An S3 object of class \code{full_max_dist_uncert} with elements
 #'
-#' @param n_mc The number of Monte Carlo samples from which the distribution of
-#'   the maximum is built
+#' \describe{
+#'   \item{\code{$par}}{The parameters used to generate the random processes}
 #'
-#' @param n_boot The number of bootstrap samples to base uncertainties on
+#'   \item{\code{$cov_mat}}{The covariance matrix (negative inverse Hessian)
+#'   used to perturb \code{$par}}
+#'
+#'   \item{\code{$thres}}{The threshold used}
+#'
+#'   \item{\code{$lt_gen}}{The value of the \code{lt_gen} argument}
+#'
+#'   \item{\code{$boot_samps}}{A matrix \code{n_boot} rows and \code{n_mc}
+#'   columns containing the bootstrap replicates of the distribution of the
+#'   maximum}
+#'
+#' }
+#' @examples
+#'
+#' \dontrun{
+#'
+#' complete_series <- -jp1tap1715wind270$value
+#'
+#' declustered_obs <- decluster(complete_series)
+#'
+#' thresholded_obs <- fullEstThreshold(x = declustered_obs,
+#'                                     lt = 100,
+#'                                     n_min = 10,
+#'                                     n_max = 100,
+#'                                     n_starts = 10)
+#'
+#' full_pot_fit <- gumbelMLE(x = thresholded_obs,
+#'                           hessian_tf = TRUE,
+#'                           n_starts = 10)
+#'
+#' full_max_dist_uncert <- fullMaxDistUncert(x = full_pot_fit, lt_gen = 200,
+#'                                           n_mc = 1000, n_boot = 200)
+#' }
 #'
 #' @export
 #'
@@ -294,7 +501,10 @@ fullMaxDistUncert <- function(x, lt_gen,
   UseMethod('fullMaxDistUncert')
 }
 
+#' @describeIn fullMaxDistUncert
+#'
 #' @export
+#'
 fullMaxDistUncert.full_pot_fit <- function(x, lt_gen,
                                            n_mc,
                                            n_boot,
@@ -309,7 +519,15 @@ fullMaxDistUncert.full_pot_fit <- function(x, lt_gen,
                             progress_tf = progress_tf)
 }
 
+#' @describeIn fullMaxDistUncert
+#'
+#' @param cov_mat The covariance matrix to use to perturn the MLE (most usually
+#'   the negative inverse of the Hessian matrix)
+#'
+#' @param thresh The threshold
+#'
 #' @export
+#'
 fullMaxDistUncert.default <- function(x,
                                       cov_mat, thresh, lt_gen,
                                       n_mc,

@@ -2,33 +2,99 @@
 % Please edit documentation in R/generate_max_dist.R
 \name{gumbelMaxDistUncert}
 \alias{gumbelMaxDistUncert}
-\title{gumbelMaxDistUncert}
+\alias{gumbelMaxDistUncert.gumbel_pot_fit}
+\alias{gumbelMaxDistUncert.default}
+\title{Uncertainty in the Distribution of the Maximum Using the Gumbel Model}
 \usage{
 gumbelMaxDistUncert(x, lt_gen, n_mc, n_boot, progress_tf = TRUE, ...)
+
+\method{gumbelMaxDistUncert}{gumbel_pot_fit}(x, lt_gen, n_mc, n_boot,
+  progress_tf = TRUE)
+
+\method{gumbelMaxDistUncert}{default}(x, cov_mat, thresh, lt_gen, n_mc,
+  n_boot, progress_tf = TRUE)
 }
 \arguments{
-\item{lt_gen}{Lengt of each generated series in seconds that the maximum is
-take over}
+\item{x}{An S3 object of class \code{gumbel_pot_fit} or a numeric vector of
+lenght 2.  If the latter the first element of the vector should be the
+estimated location parameter \eqn{\mu}, and the second element should be the
+estimated scale parameter \eqn{\sigma}.}
 
-\item{n_mc}{The number of Monte Carlo samples from which the distribution of
-the maximum is built}
+\item{lt_gen}{Length of each generated series.  The units (seconds, minutes,
+hours, etc.) should be consistent with the value of \code{lt} provided to
+\code{gumbelMLE}.}
 
-\item{n_boot}{The number of bootstrap samples to base uncertainties on}
+\item{n_mc}{The number of samples to draw from the distribution of the
+maximum}
 
-\item{mu}{Location parameter}
+\item{n_boot}{The number of bootstrap replicates of the distribution of the
+maximum to create.}
 
-\item{sigma}{Scale parameter}
+\item{progress_tf}{Display a progress bar if TRUE, else not.}
 
-\item{cov_mat}{The estimated covariance matrix for the estimation of mu and
-sigma}
+\item{cov_mat}{The covariance matrix to use to perturn the MLE (most usually
+the negative inverse of the Hessian matrix)}
 
 \item{thresh}{The threshold}
 }
+\value{
+An S3 object of class \code{gumbel_max_dist_uncert} with elements
+
+\describe{
+  \item{\code{$par}}{The parameters used to generate the random processes}
+
+  \item{\code{$cov_mat}}{The covariance matrix (negative inverse Hessian)
+  used to perturb \code{$par}}
+
+  \item{\code{$thres}}{The threshold used}
+
+  \item{\code{$lt_gen}}{The value of the \code{lt_gen} argument}
+
+  \item{\code{$boot_samps}}{A matrix \code{n_boot} rows and \code{n_mc}
+  columns containing the bootstrap replicates of the distribution of the
+  maximum}
+
+}
+}
 \description{
-gumbelMaxDistUncert
+Evaluate uncertainty in the distribution of the maximum value
+  over some user defined length of time assuming the underlying data
+  generating mechanism is the 2D extremal Poisson process with the Gumbel
+  like intensity function (i.e. the tail length is zero)
 }
 \details{
-Generates bootstrap samples of the empirical distribution of the
-  maximum value from a Gumbel (zero tail length) POT model over a specified
-  #'   length of time
+The results of fitting a Gumbel like 2D extremal Poisson process are
+  fed into this function.  The Hessian matrix is used to repeatedly perturb
+  the MLE, and for each set of perturbed parameters the distribution of the
+  maximum is empirically constructed as described in \code{gumbelMaxDist}.
+  The bootstrap replicates of the distribution of the maximum may be used to
+  quantify uncertainty and construct intervals.
+}
+\section{Methods (by class)}{
+\itemize{
+\item \code{gumbel_pot_fit}: 
+
+\item \code{default}: 
+}}
+
+\examples{
+
+\dontrun{
+
+complete_series <- -jp1tap1715wind270$value
+
+declustered_obs <- decluster(complete_series)
+
+thresholded_obs <- gumbelEstThreshold(x = declustered_obs,
+                                      lt = 100,
+                                      n_min = 10,
+                                      n_max = 100)
+
+gumbel_pot_fit <- gumbelMLE(x = thresholded_obs,
+                            hessian_tf = TRUE)
+
+gumbel_max_dist_uncert <- gumbelMaxDistUncert(x = gumbel_pot_fit, lt_gen = 200,
+                                              n_mc = 1000, n_boot = 200)
+}
+
 }

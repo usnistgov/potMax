@@ -124,23 +124,37 @@ sigmaMLE <- function (N, lt, thresh, sum_y) {
 
 #' @title Maximum Likelihood Estimation for the Gumble Model
 #'
-#' @description Solves the score equations for the Poisson process likelihood
-#'   using the Gumbel intensity function
+#' @description Solves the score equations for the 2D extremal Poisson process
+#'   likelihood using the Gumbel like intensity function
 #'
 #' @details  The likelihood is
 #'
-#'   \deqn{\left(\prod_{i = 1}^I \lambda(t_i,
-#'   y_i)\right)\exp\left[-\int_\mathcal{D} \lambda(t, y)dtdy\right]}
+#'   \deqn{\Big(\prod_{i = 1}^I \lambda(t_i,
+#'   y_i)\Big)\exp\Big[-\int_\mathcal{D} \lambda(t, y)dtdy\Big]}
 #'
 #'   where
 #'
-#'   \deqn{\lambda(t, y) = \frac{1}{\sigma}\exp\left[\frac{-(y -
-#'   \mu)}{\sigma}\right]}
+#'   \deqn{\lambda(t, y) = \frac{1}{\sigma}\exp\Big[\frac{-(y -
+#'   \mu)}{\sigma}\Big]}
 #'
 #' @param x An S3 object of class \code{thresholded_series} or a numeric vector.
 #'   If the latter, the values used in fitting.
 #'
 #' @param hessian_tf (logical scalar) Compute the Hessian matrix (TRUE) or not.
+#'
+#' @return An S3 object of class \code{gumbel_pot_fit} with elements
+#'
+#' \describe{
+#'
+#'   \item{\code{$par}}{(numeric vector of length 2) The estimated location and
+#'   scale parameter, respectively}
+#'
+#'   \item{\code{$lhessian}}{The Hessian matrix at the MLE if requested, else NULL}
+#'
+#'   \item{\code{$y}}{The observed values used to fit the model}
+#'
+#'   \item{\code{$thresh}}{The threshold}
+#' }
 #'
 #' @examples
 #'
@@ -216,7 +230,7 @@ gumbelMLE.default <- function(x, lt, thresh, hessian_tf) {
   } else {
 
     value <- list(par = c(mu, sigma),
-                  hessian = NULL,
+                  lhessian = NULL,
                   y = x, thresh = thresh)
     class(value) <- 'gumbel_pot_fit'
   }

@@ -2,35 +2,102 @@
 % Please edit documentation in R/generate_max_dist.R
 \name{fullMaxDistUncert}
 \alias{fullMaxDistUncert}
-\title{fullMaxDistUncert}
+\alias{fullMaxDistUncert.full_pot_fit}
+\alias{fullMaxDistUncert.default}
+\title{Uncertainty in the Distribution of the Maximum Using the Full Model}
 \usage{
 fullMaxDistUncert(x, lt_gen, n_mc, n_boot, progress_tf = TRUE, ...)
+
+\method{fullMaxDistUncert}{full_pot_fit}(x, lt_gen, n_mc, n_boot,
+  progress_tf = TRUE)
+
+\method{fullMaxDistUncert}{default}(x, cov_mat, thresh, lt_gen, n_mc,
+  n_boot, progress_tf = TRUE)
 }
 \arguments{
-\item{lt_gen}{Lengt of each generated series in seconds that the maximum is
-taken over}
+\item{x}{An S3 object of class \code{full_pot_fit} or a numeric vector of
+lenght 3.  If the latter the first element of the vector should be the
+estimated location parameter \eqn{\mu}, the second element should be the
+estimated scale parameter \eqn{\sigma}, and the third element should be the
+estimated tail length parameter \eqn{k}.}
 
-\item{n_mc}{The number of Monte Carlo samples from which the distribution of
-the maximum is built}
+\item{lt_gen}{Length of each generated series.  The units (seconds, minutes,
+hours, etc.) should be consistent with the value of \code{lt} provided to
+\code{gumbelMLE}.}
 
-\item{n_boot}{The number of bootstrap samples to base uncertainties on}
+\item{n_mc}{The number of samples to draw from the distribution of the
+maximum}
 
-\item{mu}{Location parameter}
+\item{n_boot}{The number of bootstrap replicates of the distribution of the
+maximum to create.}
 
-\item{sigma}{Scale parameter}
+\item{progress_tf}{Display a progress bar if TRUE, else not.}
 
-\item{k}{Tail length parameter}
-
-\item{cov_mat}{The estimated covariance matrix for the estimation of mu and
-sigma}
+\item{cov_mat}{The covariance matrix to use to perturn the MLE (most usually
+the negative inverse of the Hessian matrix)}
 
 \item{thresh}{The threshold}
 }
+\value{
+An S3 object of class \code{full_max_dist_uncert} with elements
+
+\describe{
+  \item{\code{$par}}{The parameters used to generate the random processes}
+
+  \item{\code{$cov_mat}}{The covariance matrix (negative inverse Hessian)
+  used to perturb \code{$par}}
+
+  \item{\code{$thres}}{The threshold used}
+
+  \item{\code{$lt_gen}}{The value of the \code{lt_gen} argument}
+
+  \item{\code{$boot_samps}}{A matrix \code{n_boot} rows and \code{n_mc}
+  columns containing the bootstrap replicates of the distribution of the
+  maximum}
+
+}
+}
 \description{
-fullMaxDistUncert
+Evaluate uncertainty in the distribution of the maximum value
+  over some user defined length of time assuming the underlying data
+  generating mechanism is the 2D extremal Poisson process with the Full
+  intensity function
 }
 \details{
-Generates bootstrap samples of the empirical distribution of the
-  maximum value from the full (non-zero tail length) POT model over a
-  specified length of time
+The results of fitting the 2D extremal Poisson process are
+  fed into this function.  The Hessian matrix is used to repeatedly perturb
+  the MLE, and for each set of perturbed parameters the distribution of the
+  maximum is empirically constructed as described in \code{fullMaxDist}.
+  The bootstrap replicates of the distribution of the maximum may be used to
+  quantify uncertainty and construct intervals.
+}
+\section{Methods (by class)}{
+\itemize{
+\item \code{full_pot_fit}: 
+
+\item \code{default}: 
+}}
+
+\examples{
+
+\dontrun{
+
+complete_series <- -jp1tap1715wind270$value
+
+declustered_obs <- decluster(complete_series)
+
+thresholded_obs <- fullEstThreshold(x = declustered_obs,
+                                    lt = 100,
+                                    n_min = 10,
+                                    n_max = 100,
+                                    n_starts = 10)
+
+full_pot_fit <- gumbelMLE(x = thresholded_obs,
+                          hessian_tf = TRUE,
+                          n_starts = 10)
+
+full_max_dist_uncert <- fullMaxDistUncert(x = full_pot_fit, lt_gen = 200,
+                                          n_mc = 1000, n_boot = 200)
+}
+
 }

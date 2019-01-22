@@ -2,23 +2,78 @@
 % Please edit documentation in R/threshold_search.R
 \name{fullEstThreshold}
 \alias{fullEstThreshold}
-\title{fullEstThreshold}
+\alias{fullEstThreshold.declustered_series}
+\alias{fullEstThreshold.default}
+\title{Find the Optimal Threshold for the Full Model}
 \usage{
-fullEstThreshold(x, lt, n_min, n_max, n_starts)
+fullEstThreshold(x, lt, n_min, n_max, n_starts, progress_tf = TRUE)
+
+\method{fullEstThreshold}{declustered_series}(x, lt, n_min, n_max,
+  n_starts, progress_tf = TRUE)
+
+\method{fullEstThreshold}{default}(x, lt, n_min, n_max, n_starts,
+  progress_tf = TRUE)
 }
 \arguments{
-\item{lt}{The lenght of time in seconds over which the observations are
-recorded}
+\item{x}{An S3 object of class \code{declustered_series} or a numeric
+vector.}
 
-\item{n_min}{The minimum number of thresholded observations to include}
+\item{lt}{(numeric scalar) The length of the time series in units
+of time (seconds, minutes, hours, etc.).}
 
-\item{n_max}{The maximum number of thresholded observations to include}
+\item{n_min}{(numeric scalar) The minimum number of thresholded observations
+to include}
 
-\item{y_all}{The unthresholded series of observations}
+\item{n_max}{(numeric scalar) The maximum number of thresholded observations
+to include}
+
+\item{n_starts}{(numeric scalar) An iterative algorithm is used to calculate
+the MLE, and the optimization algorithm is run \code{n_starts} times,
+feeding in different random starts each time.  There is no default because
+setting it too high results in extended run times, but it should be at
+least one (obviously).}
+
+\item{progress_tf}{(logical scalar) Display a progress bar if TRUE, else not.}
+}
+\value{
+An S3 object of class \code{thresholded_series} with elements
+  \code{$seleted_threshold}, \code{$lt}, \code{$y},
+  \code{$checked_thresholds}, and \code{$w_stats}.  The element \code{$y} is
+  a numeric vector containing the actual observations (NOT differences from
+  the threshold) that exceed the selected threshold.  The element
+  \code{$w_stats} contains the maximum vertical distance from points to the
+  \eqn{45^\circ} line of the W plot for the corresponding
+  \code{$checked_threshold}.
 }
 \description{
-fullEstThreshold
+Estimate the threshold to use for the 2D extremal Poisson
+  process.
 }
 \details{
-Select a threshold when using the full POT model
+A sequence of candidate thresholds is generated, and the threshold
+  that minimizes the maximum vertical distance of the points of the W plot
+  (described in \code{fullWplot}) to the \eqn{45^\circ} line is selected. See
+  the vingette for more details.
+}
+\section{Methods (by class)}{
+\itemize{
+\item \code{declustered_series}: 
+
+\item \code{default}: 
+}}
+
+\examples{
+
+\dontrun{
+complete_series <- -jp1tap1715wind270$value
+
+declustered_obs <- decluster(complete_series)
+
+thresholded_obs <- fullEstThreshold(x = declustered_obs,
+                                    lt = 100,
+                                    n_min = 10,
+                                    n_max = 100,
+                                    n_starts = 10)
+}
+
 }

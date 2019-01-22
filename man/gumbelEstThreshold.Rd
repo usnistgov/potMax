@@ -2,23 +2,69 @@
 % Please edit documentation in R/threshold_search.R
 \name{gumbelEstThreshold}
 \alias{gumbelEstThreshold}
-\title{gumbelEstThreshold}
+\alias{gumbelEstThreshold.declustered_series}
+\alias{gumbelEstThreshold.default}
+\title{Find the Optimal Threshold for the Gumbel Model}
 \usage{
-gumbelEstThreshold(x, lt, n_min, n_max)
+gumbelEstThreshold(x, lt, n_min, n_max, progress_tf = TRUE)
+
+\method{gumbelEstThreshold}{declustered_series}(x, lt, n_min, n_max,
+  progress_tf = TRUE)
+
+\method{gumbelEstThreshold}{default}(x, lt, n_min, n_max,
+  progress_tf = TRUE)
 }
 \arguments{
-\item{lt}{The lenght of time in seconds over which the observations are
-recorded}
+\item{x}{An S3 object of class \code{declustered_series} or a numeric
+vector.}
+
+\item{lt}{(numeric scalar) The length of the time series in units
+of time (seconds, minutes, hours, etc.).}
 
 \item{n_min}{The minimum number of thresholded observations to include}
 
 \item{n_max}{The maximum number of thresholded observations to include}
 
-\item{y_all}{The unthresholded series of observations}
+\item{progress_tf}{Display a progress bar if TRUE, else not.}
+}
+\value{
+An S3 object of class \code{thresholded_series} with elements
+  \code{$seleted_threshold}, \code{$lt}, \code{$y},
+  \code{$checked_thresholds}, and \code{$w_stats}.  The element \code{$y} is
+  a numeric vector containing the actual observations (NOT differences from
+  the threshold) that exceed the selected threshold.  The element
+  \code{$w_stats} contains the maximum vertical distance from points to the
+  \eqn{45^\circ} line of the W plot for the corresponding
+  \code{$checked_threshold}.
 }
 \description{
-gumbelEstThreshold
+Estimate the threshold to use for the 2D extremal Poisson
+  process when the tail length parameter for that model is exactly zero.
 }
 \details{
-Select a threshold when using the Gumble POT modle
+A sequence of candidate thresholds is generated, and the threshold
+  that minimizes the maximum vertical distance of the points of the W plot
+  (described in \code{gumbelWplot}) to the \eqn{45^\circ} line is selected.
+  See the vingette for more details.
+}
+\section{Methods (by class)}{
+\itemize{
+\item \code{declustered_series}: 
+
+\item \code{default}: 
+}}
+
+\examples{
+
+\dontrun{
+complete_series <- -jp1tap1715wind270$value
+
+declustered_obs <- decluster(complete_series)
+
+thresholded_obs <- gumbelEstThreshold(x = declustered_obs,
+                                     lt = 100,
+                                     n_min = 10,
+                                     n_max = 100)
+}
+
 }

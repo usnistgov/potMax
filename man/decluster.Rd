@@ -10,16 +10,17 @@ decluster(complete_series, obs_times = NULL)
 \item{complete_series}{(numeric vector) The time series.}
 
 \item{obs_times}{(numeric vector or NULL) If NULL, ignored; otherwise, the
-observed times of the cluster maximums are returned too.}
+observed times of the values in \code{complete_series}.  When non NULL,
+the times associated with cluster maximums are also returned.}
 }
 \value{
 An S3 object of class \code{declustered_series} with components
 
   \describe{
 
-  \item{\code{declustered_series}}{The cluster maximums.}
+  \item{\code{$declustered_series}}{The cluster maximums.}
 
-  \item{\code{declustered_times}}{If \code{obs_times} is non NULL, the
+  \item{\code{$declustered_times}}{If \code{obs_times} is non NULL, the
   observed times of the cluster maximums; otherwise NULL.}
 
   }

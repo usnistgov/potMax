@@ -1,8 +1,7 @@
 #include <Rcpp.h>
 using namespace Rcpp;
 
-// [[Rcpp::depends(RcppProgress)]]
-#include <progress.hpp>
+#include <RProgress.h>
 
 // [[Rcpp::export]]
 NumericVector gumbelMaxDistCpp(double mu, double sigma,
@@ -11,30 +10,37 @@ NumericVector gumbelMaxDistCpp(double mu, double sigma,
                                int n_mc, bool progress_tf) {
 
   NumericVector max_dist(n_mc);
-  int indx = 0, i;
+  int indx, i;
   double n;
+  RProgress::RProgress p("|:bar| :percent ~ :eta",
+                         n_mc,
+                         0.6*Rf_GetOptionWidth(),
+                         '+',
+                         ' ',
+                         false,
+                         0.2);
   double tmp;
-  Progress p(n_mc, progress_tf);
 
-  while (indx < n_mc) {
+  for (indx = 0; indx < n_mc; indx++) {
 
     n = R::rpois(Lambda);
+    while (n < 1.0) {
+      n = R::rpois(Lambda);
+    }
 
-    if (n > 0) {
+    max_dist[indx] = mu - sigma*(log(integration_constant) + log(1 - R::runif(0, 1)));
 
-      max_dist[indx] = mu - sigma*(log(integration_constant) + log(1 - R::runif(0, 1)));
+    for (i = 1; i < n; i++) {
 
-      for (i = 1; i < n; i++) {
+      tmp = mu - sigma*(log(integration_constant) + log(1 - R::runif(0, 1)));
+      if (tmp > max_dist[indx]) {
 
-        tmp = mu - sigma*(log(integration_constant) + log(1 - R::runif(0, 1)));
-        if (tmp > max_dist[indx]) {
-
-          max_dist[indx] = tmp;
-        }
+        max_dist[indx] = tmp;
       }
+    }
 
-      indx++;
-      p.increment();
+    if (progress_tf) {
+      p.tick();
     }
   }
 
@@ -53,34 +59,39 @@ NumericMatrix gumbelMaxDistUncertCpp(NumericVector mu,
   int indx, i, j;
   NumericMatrix max_dist_uncert(n_boot, n_mc);
   double n;
-  double tmp;
-  Progress p(n_boot, progress_tf);
+  double tmp, tmp_max;
+  RProgress::RProgress p("|:bar| :percent ~ :eta",
+                         n_boot,
+                         0.6*Rf_GetOptionWidth(),
+                         '+',
+                         ' ',
+                         false,
+                         0.2);
 
   for (j = 0; j < n_boot; j++) {
 
-    indx = 0;
-
-    while (indx < n_mc) {
+    for (indx = 0; indx < n_mc; indx++) {
 
       n = R::rpois(Lambda[j]);
-
-      if (n > 0) {
-
-        max_dist_uncert(j, indx) = mu[j] - sigma[j]*(log(integration_constant[j]) + log(1 - R::runif(0, 1)));
-
-        for (i = 1; i < n; i++) {
-
-          tmp = mu[j] - sigma[j]*(log(integration_constant[j]) + log(1 - R::runif(0, 1)));
-          if (tmp > max_dist_uncert(j, indx)) {
-
-            max_dist_uncert(j, indx) = tmp;
-          }
-        }
-
-        indx++;
+      while (n < 1.0) {
+        n = R::rpois(Lambda[j]);
       }
+
+      tmp_max = mu[j] - sigma[j]*(log(integration_constant[j]) + log(1 - R::runif(0, 1)));
+
+      for (i = 1; i < n; i++) {
+
+        tmp = mu[j] - sigma[j]*(log(integration_constant[j]) + log(1 - R::runif(0, 1)));
+        if (tmp > tmp_max) {
+
+          tmp_max = tmp;
+        }
+      }
+      max_dist_uncert(j, indx) = tmp_max;
     }
-    p.increment();
+    if(progress_tf) {
+      p.tick();
+    }
   }
 
   return max_dist_uncert;
@@ -94,30 +105,36 @@ NumericVector fullMaxDistCpp(double mu, double sigma, double k,
                              bool progress_tf) {
 
   NumericVector max_dist(n_mc);
-  int indx = 0, i;
+  int indx, i;
   double n;
   double tmp;
-  Progress p(n_mc, progress_tf);
+  RProgress::RProgress p("|:bar| :percent ~ :eta",
+                         n_mc,
+                         0.6*Rf_GetOptionWidth(),
+                         '+',
+                         ' ',
+                         false,
+                         0.2);
 
-  while (indx < n_mc) {
+  for (indx = 0; indx < n_mc; indx++) {
 
     n = R::rpois(Lambda);
+    while (n < 1.0){
+      n = R::rpois(Lambda);
+    }
 
-    if (n > 0) {
+    max_dist[indx] = (sigma/k)*(pow(integration_constant*(1 - R::runif(0, 1)), -k) - 1) + mu;
 
-      max_dist[indx] = (sigma/k)*(pow(integration_constant*(1 - R::runif(0, 1)), -k) - 1) + mu;
+    for (i = 1; i < n; i++) {
 
-      for (i = 1; i < n; i++) {
+      tmp = (sigma/k)*(pow(integration_constant*(1 - R::runif(0, 1)), -k) - 1) + mu;
+      if (tmp > max_dist[indx]) {
 
-        tmp = (sigma/k)*(pow(integration_constant*(1 - R::runif(0, 1)), -k) - 1) + mu;
-        if (tmp > max_dist[indx]) {
-
-          max_dist[indx] = tmp;
-        }
+        max_dist[indx] = tmp;
       }
-
-      indx++;
-      p.increment();
+    }
+    if (progress_tf) {
+      p.tick();
     }
   }
 
@@ -137,34 +154,39 @@ NumericMatrix fullMaxDistUncertCpp(NumericVector mu,
   int indx, i, j;
   NumericMatrix max_dist_uncert(n_boot, n_mc);
   double n;
-  double tmp;
-  Progress p(n_boot, progress_tf);
+  double tmp, tmp_max;
+  RProgress::RProgress p("|:bar| :percent ~ :eta",
+                         n_boot,
+                         0.6*Rf_GetOptionWidth(),
+                         '+',
+                         ' ',
+                         false,
+                         0.2);
 
   for (j = 0; j < n_boot; j++) {
 
-    indx = 0;
-
-    while (indx < n_mc) {
+    for (indx = 0; indx < n_mc; indx++) {
 
       n = R::rpois(Lambda[j]);
-
-      if (n > 0) {
-
-        max_dist_uncert(j, indx) = (sigma[j]/k[j])*(pow(integration_constant[j]*(1 - R::runif(0, 1)), -k[j]) - 1) + mu[j];
-
-        for (i = 1; i < n; i++) {
-
-          tmp = (sigma[j]/k[j])*(pow(integration_constant[j]*(1 - R::runif(0, 1)), -k[j]) - 1) + mu[j];
-          if (tmp > max_dist_uncert(j, indx)) {
-
-            max_dist_uncert(j, indx) = tmp;
-          }
-        }
-
-        indx++;
+      while (n < 1.0) {
+        n = R::rpois(Lambda[j]);
       }
+
+      tmp_max = (sigma[j]/k[j])*(pow(integration_constant[j]*(1 - R::runif(0, 1)), -k[j]) - 1) + mu[j];
+
+      for (i = 1; i < n; i++) {
+
+        tmp = (sigma[j]/k[j])*(pow(integration_constant[j]*(1 - R::runif(0, 1)), -k[j]) - 1) + mu[j];
+        if (tmp > tmp_max) {
+
+          tmp_max = tmp;
+        }
+      }
+      max_dist_uncert(j, indx) = tmp_max;
     }
-    p.increment();
+    if (progress_tf) {
+      p.tick();
+    }
   }
 
   return max_dist_uncert;

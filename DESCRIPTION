@@ -14,12 +14,13 @@ Imports:
     Rcpp (>= 0.11.0),
     MASS,
     numDeriv,
-    RcppProgress (>= 0.1),
     progress,
-    nloptr
+    nloptr,
+    pbapply,
+    ggplot2
 Suggests: knitr,
     testthat
-LinkingTo: Rcpp, RcppProgress
+LinkingTo: Rcpp, progress
 ByteCompile: yes
 NeedsCompilation: yes
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

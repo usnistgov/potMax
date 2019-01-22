@@ -1,0 +1,29 @@
+citHeader("To cite potMax in publications use:")
+
+citEntry(entry = "Article",
+  title        = "Estimating peaks of stationary random processes: A peaks-over-threshold approach",
+  author       = personList(as.person("Dat Duthinh"),
+                   as.person("Adam L. Pintar"),
+                   as.person("Emil Simiu")),
+  journal      = "ASCE-ASME Journal of Risk and Uncertainty in Engineering Systems, Part A: Civil Engineering",
+  year         = "2017",
+  volume       = "3",
+  number       = "4",
+  url          = "https://doi.org/10.1061/AJRUA6.0000933",
+
+  textVersion  = paste("Duthinh, Dat, Adam L. Pintar, and Emil Simiu.",
+       "Estimating peaks of stationary random processes: A peaks-over-threshold approach.",
+       "ASCE-ASME Journal of Risk and Uncertainty in Engineering Systems, Part A: Civil Engineering 3.4 (2017).",
+       "URL https://doi.org/10.1061/AJRUA6.0000933.")
+)
+
+citEntry(entry = "Article",
+  title = "Threshold Uncertainty in Poisson Process Extreme Value Models",
+  author = personList(as.person("Adam L. Pintar"),
+                       as.person("Dat Duthinh")),
+  year = "in preparation",
+  journal = "Journal of Quality Technology",
+  textVersion = paste("Pintar, Adam, L. and Dat Duthinh.",
+                      "Threshold Uncertainty in Poisson Process Extreme Value Models.",
+                      "Journal of Quality Technology (in preparation).")
+)

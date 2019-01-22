@@ -25,3 +25,11 @@ fullMaxDistUncertCpp <- function(mu, sigma, k, Lambda, integration_constant, n_m
     .Call('_potMax_fullMaxDistUncertCpp', PACKAGE = 'potMax', mu, sigma, k, Lambda, integration_constant, n_mc, n_boot, progress_tf)
 }
 
+gumbelMaxDistMultiCpp <- function(mu, sigma, Lambda, integration_constant, n_mc, progress_tf) {
+    .Call('_potMax_gumbelMaxDistMultiCpp', PACKAGE = 'potMax', mu, sigma, Lambda, integration_constant, n_mc, progress_tf)
+}
+
+fullMaxDistMultiCpp <- function(mu, sigma, k, Lambda, integration_constant, n_mc, progress_tf) {
+    .Call('_potMax_fullMaxDistMultiCpp', PACKAGE = 'potMax', mu, sigma, k, Lambda, integration_constant, n_mc, progress_tf)
+}
+
