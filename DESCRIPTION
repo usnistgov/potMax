@@ -2,7 +2,7 @@ Package: potMax
 Type: Package
 Title: Empirical Calculation of the Distribution of the Maximum from a Peaks
     Over Threshold Process
-Version: 0.1.0
+Version: 0.9.0
 Author: Adam L. Pintar, Dat Duthinh, and Emil Simiu
 Maintainer: Adam L. Pintar <adam.pintar@nist.gov>
 Description: Empirical Calculation of the Distribution of the Maximum from a
