@@ -14,7 +14,7 @@ commands:
 
 ```r
 install.packages(c('Rcpp', 'numDeriv', 'devtools', 'nloptr',
-                   'knitr', 'progress', 'RcppProgress'), 
+                   'knitr', 'progress', 'ggplot2', 'MASS'), 
                  repos = 'https://cloud.r-project.org/')
 devtools::install_github('usnistgov/potMax', build_vignettes = TRUE)
 ```

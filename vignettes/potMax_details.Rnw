@@ -10,7 +10,7 @@
 
 \title{Details of \texttt{potMax} Analysis}
 
-\author{Adam L. Pintar}
+\author{Adam L. Pintar \and Dat Duthinh \and Emil Simiu}
 
 \date{}
 
@@ -148,10 +148,9 @@ autocorrelation. After removing the autocorrelation in the series,
 or declustering, the use of the Poisson processes defined by
 the intensity functions in Equations \ref{eq:full_lambda} and
 \ref{eq:gumbel_lambda} as models for crossings of a high threshold
-is justified. They are used for such purposes in many papers,
-e.g., \cite{smith89, smith04, coles04, pintar_et_al15}. The original
-theoretical justification is provided by
-\cite{pickands71}.
+is justified. They are used for such purposes in many papers, e.g.,
+\cite{smith89, smith04, coles04, pintar_et_al15, duthinh_et_al17}. The
+original theoretical justification is provided by \cite{pickands71}.
 
 <<declust_thresh_seq, echo = FALSE, fig.cap='Raw time series (top), observations above 1.8 after declustering (middle), and observations above 2 after declustering (bottom).'>>=
 par(mfrow = c(3, 1), mar = c(0, 4.1, 4, 3))
@@ -196,7 +195,7 @@ The intensity functions \ref{eq:full_lambda} and
 \ref{eq:gumbel_lambda} are considered over the domain $\mathcal{D}
 = (0, \infty)\times(b, \infty)$, where $b$ is a chosen threshold.
 A hurdle to the use of these models is the appropriate choice of
-$B$. Since the threshold dictates the data that are included in (or
+$b$. Since the threshold dictates the data that are included in (or
 omitted from) fitting the model, its impact on the results can be
 large. Theory commands \cite{pickands71} that the model becomes more
 appropriate as the threshold increases. However, since observations
@@ -246,17 +245,17 @@ gumbelWPlot(x = full_pot_fit,
 
 The second alternative is to combine results for many thresholds by
 weighted averaging. The key step then is constructing the weights, for
-which the $W$-statistics may again be leveraged. Let $\delta_i$ be the
+which the $W$-statistics may again be leveraged. Let $\delta_j$ be the
 maximum absolute vertical distance in a plot of the $W$-statistics
 against the standard exponential quantiles, normalized to the unit
-interval for the threshold $b_i$. A natural transformation of the
-$\delta_i$ is
+interval for the threshold $b_j$. A natural transformation of the
+$\delta_j$ is
 \begin{align}
- w_i = \frac{\exp\{-\tau\delta_i\}}{\sum_i\exp\{-\tau\delta_i\}}
+ w_j = \frac{\exp\{-\tau\delta_j\}}{\sum_j\exp\{-\tau\delta_j\}}
 \end{align}
 With $\tau = 0$, each threshold recieves equal weight, and
 as $\tau$ approaches $\infty$, the weight corresponding to the
-smallest value of $\delta$ approaches unity while the rest approach
+smallest $\delta_j$ approaches unity while the rest approach
 zero. A reasonable setting seems to be $\tau = 5$
 \cite{pintar_duthinh_prep}.
 
@@ -292,13 +291,13 @@ as four steps, most with substeps of their own.
 \item Decluster the series.
 \item Select the threshold or thresholds
   \begin{enumerate}
-  \item Construct a set of potential thresholds. This may be done by by
+  \item Construct a set of potential thresholds. This may be done by
   specifying a minimum and maximum number of observations and identifying
   their respective thresholds, say $b_1$ and $b_B$. Then, the thresholds
-  are $b_1 > b_2 > \cdots > b_{B - 1} > b_B$ such that if $b_i$
-  corresponds to $n_i$ observations, $b_{i + 1}$ corresponds to $n_i +
+  are $b_1 > b_2 > \cdots > b_{B - 1} > b_B$ such that if $b_j$
+  corresponds to $n_j$ observations, $b_{j + 1}$ corresponds to $n_j +
   1$ observations (assuming no ties).
-  \item For each potential threshold fit the model via maximum
+  \item For each potential threshold, fit the model via maximum
   likelihood as described in Section \ref{sec:estimation}.
   \item Create a $W$-plot for each fit, as described in Section
   \ref{sec:optimal_threshold}.
@@ -313,6 +312,8 @@ as four steps, most with substeps of their own.
   \begin{enumerate}
   \item Generate a series of desired length from the fitted model
   \begin{itemize}
+    \item This may be accomplished, for example, by algorithm 9 of
+    \cite{pasupathy11}
     \item If results of many thresholds are being combined, select a
     threshold at random from the collection according to the weights,
     i.e., threholds with high weights should be selected more often.
@@ -369,7 +370,7 @@ step 2.
 The \texttt{potMax} package is demonstrated on the data in the top
 plot of Figure \ref{fig:thresh_seq}. The data set is distributed
 as part of the \texttt{potMax} package and is referenced by the
-name \texttt{jp1tap1715wind270}. The present sections describes
+name \texttt{jp1tap1715wind270}. The present sections describe
 the functions to call to carryout the steps described in Section
 \ref{sec:est_peak_dist}.
 
@@ -431,7 +432,7 @@ gumbelWPlot(x = pot_fit,
 @
 
 A plot of all proposed thresholds against the corresponding fit statistic
-is available too.
+is available too, Figure \ref{fig:thresh_plot}.
 
 <<thresh_plot, echo = TRUE, fig.cap = 'Plot of fit statistics versus thresholds.  The red point identifies the minimum.'>>=
 threshPlot(thresholded_obs)
@@ -524,14 +525,18 @@ The same \texttt{plot} commands work for the S3
 classes \texttt{gumbel\_max\_dist\_multi\_thresh} and
 \texttt{gumbel\_max\_dist\_uncert\_multi\_thresh}.
 
-<<uncert_added_to_hist, echo = TRUE, fig.cap = 'Same as Figure \\ref{fig:max_dist_hist}, but adding bootstrap replictes of the distribution of the peak value to convey uncertainty in estimation.  The red line shows an 80\\% confidence interval for the mean of the distribution of the peak.', out.height = '4in'>>=
-# Figure 10
+<<echo = FALSE, include = FALSE>>=
 plot(max_dist)
+@
+
+
+<<uncert_added_to_hist, echo = TRUE, fig.cap = 'Same as Figure \\ref{fig:max_dist_hist}, but adding bootstrap replictes of the distribution of the peak value to convey uncertainty in estimation.  The red line shows an 80\\% confidence interval for the mean of the distribution of the peak.', out.height = '4in'>>=
+# Figure 9
 plot(max_dist_uncert, add = TRUE)
 @
 
 <<uncert_alone, echo = TRUE, fig.cap = 'Bootstrap replicates of the distribution of the peak starting with the series shown in the top plot of Figure \\ref{fig:thresh_seq}.  The red line shows an 80\\% confidence interval for the mean of the distribution of the peak value.'>>=
-# Figure 11
+# Figure 10
 plot(max_dist_uncert, add = FALSE)
 @
 
@@ -601,6 +606,11 @@ Statistics}, \textbf{4}, 484--502 (2010).
 \bibitem[Nelder and Mead, 1965]{nelder_mead65} Nelder, J. A. and Mead, R., ``A
 Simplex Method for Function Minimization,'' \textit{The Computer
 Journal}, \textbf{7}, 308--313 (1965).
+
+\bibitem[Pasupathy, 2011]{pasupathy11} Pasupathy, R., ``Generating
+nonhomogeneous Poisson processes.'' In \textit{Wiley encyclopedia
+of operations research and management science} , Hoboken, NJ: Wiley
+(2011).
 
 \bibitem[Pickands, 1971]{pickands71} Pickands, J. III, ``The Two-dimensional
 Poisson Process and Extremal Processes,'' \textit{Journal of Applied

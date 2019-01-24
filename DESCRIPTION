@@ -16,7 +16,6 @@ Imports:
     numDeriv,
     progress,
     nloptr,
-    pbapply,
     ggplot2
 Suggests: knitr,
     testthat
