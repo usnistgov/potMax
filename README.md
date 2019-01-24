@@ -16,13 +16,16 @@ commands:
 install.packages(c('Rcpp', 'numDeriv', 'devtools', 'nloptr',
                    'knitr', 'progress', 'ggplot2', 'MASS'), 
                  repos = 'https://cloud.r-project.org/')
-devtools::install_github('usnistgov/potMax', build_vignettes = TRUE)
+devtools::install_github('usnistgov/potMax', build = TRUE,
+                          build_opts = c('--no-resave-data',
+                                         '--no-manual'))
 ```
 
-Building the vignette takes a while so be patient. It is worth the
-time because the vignette contains information about the underlying
-statistical methods as well as instructions for using the functions
-provided by the package.
+Building the vignette takes a while so be patient. It is worth the time because
+the vignette contains information about the underlying statistical methods as
+well as instructions for using the functions provided by the package.  If you do
+not want to install the vignette, add the string `'--no-build-vignettes'` to the
+`build_opts` argument.
 
 ## Use
 
